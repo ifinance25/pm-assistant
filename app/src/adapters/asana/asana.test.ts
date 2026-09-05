@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAsanaAdapter, maybeAutoSendAsana } from "./index.ts";
 import { createDb } from "../../db/index.ts";
-import { runOnce } from "../../worker/pipeline.ts";
+import { runOnce, type ProcessJobDeps } from "../../worker/pipeline.ts";
 
 const item = {
   id: "task-1",
@@ -69,13 +69,13 @@ describe("автоотправка Asana после ready", () => {
       platform: "zoom",
     });
     db.enqueueJob({ meetingId: meeting.id, type: "join" });
-    await runOnce(db, {
+    const deps: ProcessJobDeps = {
       join: async (_item, hooks) => {
         await hooks?.onJoined?.({ mode: "live" });
-        return { mode: "live", audioPath: "/tmp/pm-asana.wav" };
+        return { mode: "live" as const, audioPath: "/tmp/pm-asana.wav" };
       },
       transcribe: async () => ({
-        mode: "live",
+        mode: "live" as const,
         segments: [
           {
             speaker: "Спикер 1",
@@ -87,12 +87,13 @@ describe("автоотправка Asana после ready", () => {
       }),
       reviseTranscript: async (transcript) => transcript,
       summarize: async () => ({
-        mode: "live",
+        mode: "live" as const,
         summary: {
           headline: "Итог",
           decisions: "Решили",
           risks: "",
           nextStep: "Дальше",
+          decisionSegmentIds: [],
         },
         actionItems: [
           {
@@ -100,11 +101,15 @@ describe("автоотправка Asana после ready", () => {
             title: "Закрыть протокол",
             dueAt: null,
             timecodeMs: null,
+            segmentId: null,
           },
         ],
       }),
       resolveLlmKey: () => "sk-test",
-    });
+    };
+    await runOnce(db, deps);
+    await runOnce(db, deps);
+    await runOnce(db, deps);
     expect(db.getMeeting(meeting.id)?.status).toBe("ready");
     const items = db.listActionItems(meeting.id);
     expect(items.length).toBeGreaterThan(0);

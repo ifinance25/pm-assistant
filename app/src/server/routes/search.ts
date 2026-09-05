@@ -103,6 +103,7 @@ function isMeetingStatus(value: string): value is MeetingStatus {
   return (
     value === "queued" ||
     value === "joining" ||
+    value === "waiting_room" ||
     value === "recording" ||
     value === "transcribing" ||
     value === "summarizing" ||
@@ -147,6 +148,11 @@ searchRouter.get("/", (c) => {
   const projects = new Map(
     db.listProjects().map((project) => [project.id, project]),
   );
+  meetings.sort((a, b) => {
+    const aTime = a.startedAt ? Date.parse(a.startedAt) : 0;
+    const bTime = b.startedAt ? Date.parse(b.startedAt) : 0;
+    return bTime - aTime;
+  });
   return c.json({
     results: meetings.map((meeting) => {
       const project =

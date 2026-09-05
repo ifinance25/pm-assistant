@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { TRACKER_LABELS } from "../../../shared/types.ts";
 import type { MeetingDetail, Project, Settings } from "../../../shared/types.ts";
 import { MeetingView } from "./MeetingView.tsx";
@@ -7,6 +7,7 @@ import "./meeting.css";
 
 export function MeetingPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [detail, setDetail] = useState<MeetingDetail | null>(null);
   const [trackerLabel, setTrackerLabel] = useState("ClickUp");
   const [projectName, setProjectName] = useState<string | null>(null);
@@ -14,7 +15,25 @@ export function MeetingPage() {
   const [trackerNotice, setTrackerNotice] = useState<string | null>(null);
   const [askAnswer, setAskAnswer] = useState<string | null>(null);
   const [askBusy, setAskBusy] = useState(false);
+  const [generateBusy, setGenerateBusy] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectChangeBusy, setProjectChangeBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const applyProjectMeta = useCallback(
+    (projectId: string | null | undefined, list: Project[]) => {
+      if (!projectId) {
+        setProjectName(null);
+        setEpicKey(null);
+        return;
+      }
+      const project = list.find((item) => item.id === projectId);
+      setProjectName(project?.name ?? null);
+      setEpicKey(project?.trackerParentRef || null);
+    },
+    [],
+  );
 
   const load = useCallback(async (meetingId: string) => {
     const res = await fetch(`/api/meetings/${meetingId}`);
@@ -30,22 +49,18 @@ export function MeetingPage() {
     setLoadError(null);
     const body = (await res.json()) as MeetingDetail;
     setDetail(body);
-    const projectId = body.meeting.projectId;
-    if (projectId) {
-      const projectsRes = await fetch("/api/projects");
-      if (projectsRes.ok) {
-        const projectsBody = (await projectsRes.json()) as {
-          projects: Project[];
-        };
-        const project = projectsBody.projects.find((item) => item.id === projectId);
-        setProjectName(project?.name ?? null);
-        setEpicKey(project?.trackerParentRef || null);
-      }
+    const projectsRes = await fetch("/api/projects");
+    if (projectsRes.ok) {
+      const projectsBody = (await projectsRes.json()) as {
+        projects: Project[];
+      };
+      const list = projectsBody.projects ?? [];
+      setProjects(list);
+      applyProjectMeta(body.meeting.projectId, list);
     } else {
-      setProjectName(null);
-      setEpicKey(null);
+      applyProjectMeta(body.meeting.projectId, projects);
     }
-  }, []);
+  }, [applyProjectMeta, projects]);
 
   useEffect(() => {
     if (!id) {
@@ -79,12 +94,14 @@ export function MeetingPage() {
       });
   }, []);
 
-  const onCreateTasks = async () => {
-    if (!id) {
+  const onCreateTasks = async (ids: string[]) => {
+    if (!id || ids.length === 0) {
       return;
     }
     const res = await fetch(`/api/meetings/${id}/tracker-create-tasks`, {
       method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ids }),
     });
     if (!res.ok) {
       return;
@@ -99,7 +116,7 @@ export function MeetingPage() {
   };
 
   const onAsk = async (question: string) => {
-    if (!id) {
+    if (!id || !detail || detail.transcript.length === 0) {
       return;
     }
     setAskBusy(true);
@@ -111,7 +128,16 @@ export function MeetingPage() {
     });
     setAskBusy(false);
     if (!res.ok) {
-      setAskAnswer("Не удалось получить ответ. Попробуйте позже.");
+      let message = "Не удалось получить ответ. Попробуйте позже.";
+      try {
+        const errBody = (await res.json()) as { error?: string };
+        if (errBody.error?.trim()) {
+          message = errBody.error.trim();
+        }
+      } catch {
+        // тело ответа не JSON
+      }
+      setAskAnswer(message);
       return;
     }
     const body = (await res.json()) as { answer?: string };
@@ -129,6 +155,95 @@ export function MeetingPage() {
     if (res.ok) {
       await load(id);
     }
+  };
+
+  const onDelete = async () => {
+    if (!id) {
+      return;
+    }
+    setDeleteBusy(true);
+    const res = await fetch(`/api/meetings/${id}`, { method: "DELETE" });
+    setDeleteBusy(false);
+    if (res.ok) {
+      navigate("/");
+    }
+  };
+
+  const onGenerate = async () => {
+    if (!id) {
+      return;
+    }
+    setGenerateBusy(true);
+    const res = await fetch(`/api/meetings/${id}/summarize`, { method: "POST" });
+    if (res.ok) {
+      await load(id);
+    }
+    setGenerateBusy(false);
+  };
+
+  const onSaveTitle = async (title: string) => {
+    if (!id) {
+      return;
+    }
+    const res = await fetch(`/api/meetings/${id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+    if (!res.ok) {
+      return;
+    }
+    const body = (await res.json()) as Pick<MeetingDetail, "meeting">;
+    setDetail((prev) =>
+      prev ? { ...prev, meeting: body.meeting } : prev,
+    );
+  };
+
+  const onChangeProject = async (projectId: string) => {
+    if (!id) {
+      return;
+    }
+    setProjectChangeBusy(true);
+    const res = await fetch(`/api/meetings/${id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ projectId }),
+    });
+    setProjectChangeBusy(false);
+    if (!res.ok) {
+      return;
+    }
+    const body = (await res.json()) as Pick<MeetingDetail, "meeting">;
+    setDetail((prev) =>
+      prev ? { ...prev, meeting: body.meeting } : prev,
+    );
+    applyProjectMeta(body.meeting.projectId, projects);
+  };
+
+  const onSaveSegment = async (
+    segmentId: string,
+    text: string,
+    dropSegmentIds?: string[],
+  ) => {
+    if (!id) {
+      return;
+    }
+    const res = await fetch(`/api/meetings/${id}/transcript`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        segmentId,
+        text,
+        dropSegmentIds: dropSegmentIds ?? [],
+      }),
+    });
+    if (!res.ok) {
+      return;
+    }
+    const body = (await res.json()) as Pick<MeetingDetail, "transcript">;
+    setDetail((prev) =>
+      prev ? { ...prev, transcript: body.transcript } : prev,
+    );
   };
 
   if (loadError && !detail) {
@@ -151,14 +266,27 @@ export function MeetingPage() {
     <MeetingView
       detail={detail}
       projectName={projectName}
+      projectId={detail.meeting.projectId ?? null}
+      projects={projects.map((project) => ({
+        id: project.id,
+        name: project.name,
+      }))}
       epicKey={epicKey}
       trackerLabel={trackerLabel}
       trackerNotice={trackerNotice}
-      onCreateTasks={() => void onCreateTasks()}
+      onCreateTasks={(ids) => void onCreateTasks(ids)}
       onAsk={(question) => void onAsk(question)}
       askAnswer={askAnswer}
       askBusy={askBusy}
       onRetry={() => void onRetry()}
+      onDelete={() => void onDelete()}
+      onSaveTitle={(title) => onSaveTitle(title)}
+      onChangeProject={(projectId) => onChangeProject(projectId)}
+      onGenerate={() => void onGenerate()}
+      onSaveSegment={(segmentId, text) => onSaveSegment(segmentId, text)}
+      generateBusy={generateBusy}
+      deleteBusy={deleteBusy}
+      projectChangeBusy={projectChangeBusy}
     />
   );
 }

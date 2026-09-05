@@ -205,7 +205,7 @@ describe("SettingsView", () => {
   it("показывает версию приложения внизу экрана", () => {
     const html = render();
     expect(html).toContain("settings__version");
-    expect(html).toContain("PM Assistant · v0.2.6");
+    expect(html).toContain("PM Assistant · v0.2.7");
   });
 
   it("показывает кнопку очереди транскрибации и модалку с таблицей", () => {

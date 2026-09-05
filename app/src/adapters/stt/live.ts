@@ -4,7 +4,16 @@ import { tmpdir } from "node:os";
 import { basename, extname, join } from "node:path";
 import { SILENT_MEAN_DB, measureLoudness } from "./audio-health.ts";
 import { dropHallucinations } from "./hallucinations.ts";
-import type { SttEngine, Transcript, TranscribeOptions } from "./index.ts";
+import type { SttEngine, SttSegment, Transcript, TranscribeOptions } from "./index.ts";
+import {
+  parseWhisperLine,
+  whisperTimeoutMs,
+  writeProgressFile,
+} from "./whisper-progress.ts";
+import {
+  flattenTranscriptBlocks,
+  groupTranscriptSegments,
+} from "../../shared/group-transcript.ts";
 
 type WhisperSegment = {
   start?: number;
@@ -15,6 +24,10 @@ type WhisperSegment = {
 type WhisperJson = {
   segments?: WhisperSegment[];
 };
+
+function groupedStt(segments: SttSegment[]): SttSegment[] {
+  return flattenTranscriptBlocks(groupTranscriptSegments(segments));
+}
 
 export async function liveTranscribe(
   audioPath: string,
@@ -29,20 +42,43 @@ export async function liveTranscribe(
   }
   const tmp = await mkdtemp(join(tmpdir(), "pm-stt-"));
   try {
-    await runWhisper(engine.bin, audioPath, tmp, options.languageHint);
+    await runWhisper(
+      engine.bin,
+      audioPath,
+      tmp,
+      options.languageHint,
+      (segments, percent) => {
+        const cleaned = groupedStt(dropHallucinations(segments));
+        options.onPartial?.(cleaned);
+        try {
+          writeProgressFile(audioPath, {
+            percent,
+            transcribedMs: cleaned.reduce(
+              (max, segment) =>
+                Math.max(max, segment.endedAtMs ?? segment.startedAtMs),
+              0,
+            ),
+          });
+        } catch {
+          // экран просто без процента, расшифровка идёт дальше
+        }
+      },
+    );
     const jsonPath = join(
       tmp,
       `${basename(audioPath, extname(audioPath))}.json`,
     );
     const data = JSON.parse(await readFile(jsonPath, "utf8")) as WhisperJson;
-    const segments = dropHallucinations(
-      (data.segments ?? []).map((segment) => ({
-        speaker: "Спикер 1",
-        startedAtMs: Math.round((segment.start ?? 0) * 1000),
-        endedAtMs:
-          segment.end == null ? null : Math.round(segment.end * 1000),
-        text: String(segment.text ?? "").trim(),
-      })),
+    const segments = groupedStt(
+      dropHallucinations(
+        (data.segments ?? []).map((segment) => ({
+          speaker: "Спикер 1",
+          startedAtMs: Math.round((segment.start ?? 0) * 1000),
+          endedAtMs:
+            segment.end == null ? null : Math.round(segment.end * 1000),
+          text: String(segment.text ?? "").trim(),
+        })),
+      ),
     );
     return { mode: "live", segments };
   } finally {
@@ -54,7 +90,8 @@ function runWhisper(
   bin: string,
   audioPath: string,
   outputDir: string,
-  languageHint?: string,
+  languageHint: string | undefined,
+  onUpdate: (segments: SttSegment[], percent: number) => void,
 ): Promise<void> {
   const args = [
     audioPath,
@@ -73,23 +110,52 @@ function runWhisper(
       stdio: ["ignore", "pipe", "pipe"],
       env: {
         ...process.env,
-        LD_LIBRARY_PATH: [
-          "/usr/local/lib",
-          process.env.LD_LIBRARY_PATH ?? "",
-        ]
+        PYTHONUNBUFFERED: "1",
+        LD_LIBRARY_PATH: ["/usr/local/lib", process.env.LD_LIBRARY_PATH ?? ""]
           .filter(Boolean)
           .join(":"),
       },
     });
-    const timeoutMs = Number(process.env.PM_ASSISTANT_WHISPER_TIMEOUT_MS) || 10 * 60 * 1000;
+    const timeoutMs = whisperTimeoutMs();
     const timer = setTimeout(() => {
-      child.kill("SIGKILL");
+      child.kill("SIGTERM");
+      setTimeout(() => child.kill("SIGKILL"), 2000);
       reject(new Error("whisper превысил время ожидания"));
     }, timeoutMs);
+    const partial: SttSegment[] = [];
+    let percent = 0;
     let stderr = "";
-    child.stderr?.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString("utf8");
-    });
+    const onLine = (line: string) => {
+      const parsed = parseWhisperLine(line);
+      if (!parsed) {
+        return;
+      }
+      if (parsed.kind === "progress") {
+        percent = parsed.percent;
+        onUpdate(partial, percent);
+        return;
+      }
+      const existing = partial.findIndex(
+        (item) => item.startedAtMs === parsed.segment.startedAtMs,
+      );
+      if (existing >= 0) {
+        partial[existing] = parsed.segment;
+      } else {
+        partial.push(parsed.segment);
+      }
+      onUpdate(partial, percent);
+    };
+    const feed = (chunk: Buffer) => {
+      const text = chunk.toString("utf8");
+      stderr += text;
+      for (const line of text.split(/\r?\n/)) {
+        if (line.trim()) {
+          onLine(line);
+        }
+      }
+    };
+    child.stdout?.on("data", feed);
+    child.stderr?.on("data", feed);
     child.on("error", (err) => {
       clearTimeout(timer);
       reject(err);

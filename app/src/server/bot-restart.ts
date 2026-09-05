@@ -12,6 +12,7 @@ import { assertStatusTransition } from "../worker/status.ts";
 const STUCK_MEETING_STATUSES: MeetingStatus[] = [
   "queued",
   "joining",
+  "waiting_room",
   "recording",
   "transcribing",
   "summarizing",

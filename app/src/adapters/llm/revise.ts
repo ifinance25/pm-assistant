@@ -1,4 +1,6 @@
 import type { SttSegment, Transcript } from "../stt/index.ts";
+import { kimiChatConfig } from "./credentials.ts";
+import { openAiChatText } from "./openai-chat.ts";
 import {
   fetchLlm,
   parseLlmJson,
@@ -7,7 +9,7 @@ import {
 
 export const TRANSCRIPT_REVISE_MAX_PASSES = 3;
 
-const REVISE_SYSTEM_PROMPT = [
+export const REVISE_SYSTEM_PROMPT = [
   "Ты корректор расшифровки речи (STT). Ответь только JSON без markdown.",
   "Вход: segments с speaker, startedAtMs, endedAtMs, text.",
   "Исправь явные ослышки и несоответствия (бута→бота, лаланки→колонки, блогеры→блокеры).",
@@ -20,7 +22,7 @@ const REVISE_SYSTEM_PROMPT = [
   "Не используй длинное тире.",
 ].join(" ");
 
-type ReviseJson = {
+export type ReviseJson = {
   unchanged?: boolean;
   segments?: Array<{
     speaker?: string;
@@ -28,10 +30,6 @@ type ReviseJson = {
     endedAtMs?: number | null;
     text?: string;
   }>;
-};
-
-type ChatResponse = {
-  choices?: Array<{ message?: { content?: string } }>;
 };
 
 type ClaudeResponse = {
@@ -66,14 +64,18 @@ function normalizeSegment(
   if (!text) {
     return null;
   }
-  const startedAtMs =
+  const startedAtMs = Number(
     typeof raw.startedAtMs === "number"
       ? raw.startedAtMs
-      : (fallback?.startedAtMs ?? 0);
+      : (raw.startedAtMs ?? fallback?.startedAtMs ?? 0),
+  );
+  const endedAtRaw = raw.endedAtMs;
   const endedAtMs =
-    raw.endedAtMs === undefined
+    endedAtRaw === undefined || endedAtRaw === null
       ? (fallback?.endedAtMs ?? null)
-      : raw.endedAtMs;
+      : Number.isFinite(Number(endedAtRaw))
+        ? Number(endedAtRaw)
+        : (fallback?.endedAtMs ?? null);
   return {
     speaker: String(raw.speaker ?? fallback?.speaker ?? "Спикер").trim() || "Спикер",
     startedAtMs,
@@ -106,7 +108,7 @@ export function applyReviseJson(
   return { transcript: next, changed: true };
 }
 
-function reviseUserContent(transcript: Transcript): string {
+export function reviseUserContent(transcript: Transcript): string {
   return JSON.stringify({
     segments: transcript.segments.map((segment) => ({
       speaker: segment.speaker,
@@ -115,15 +117,6 @@ function reviseUserContent(transcript: Transcript): string {
       text: segment.text,
     })),
   });
-}
-
-async function readOpenAiText(res: Response): Promise<string> {
-  const body = (await res.json()) as ChatResponse;
-  const raw = body.choices?.[0]?.message?.content;
-  if (!raw) {
-    throw new Error("llm вернул пустой ответ");
-  }
-  return raw;
 }
 
 async function readClaudeText(res: Response): Promise<string> {
@@ -139,23 +132,26 @@ export async function liveRevise(
   transcript: Transcript,
   apiKey: string,
 ): Promise<RevisePassResult> {
-  const res = await fetchLlm("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: REVISE_SYSTEM_PROMPT },
-        { role: "user", content: reviseUserContent(transcript) },
-      ],
-    }),
-  });
-  throwIfNotOk(res);
-  return applyReviseJson(transcript, parseLlmJson<ReviseJson>(await readOpenAiText(res)));
+  const raw = await openAiChatText(
+    { apiKey, model: "gpt-4o-mini" },
+    REVISE_SYSTEM_PROMPT,
+    reviseUserContent(transcript),
+    true,
+  );
+  return applyReviseJson(transcript, parseLlmJson<ReviseJson>(raw));
+}
+
+export async function liveReviseKimi(
+  transcript: Transcript,
+  apiKey: string,
+): Promise<RevisePassResult> {
+  const raw = await openAiChatText(
+    kimiChatConfig(apiKey),
+    REVISE_SYSTEM_PROMPT,
+    reviseUserContent(transcript),
+    true,
+  );
+  return applyReviseJson(transcript, parseLlmJson<ReviseJson>(raw));
 }
 
 export async function liveReviseClaude(

@@ -3,10 +3,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Transcript } from "../stt/index.ts";
 import type { ActionItemDraft, MeetingSummary, SummarizeResult } from "./index.ts";
+import { resolveSegmentId, type SummarizeSegment } from "./summarize-content.ts";
 
 type DemoFixture = {
-  summary: MeetingSummary;
-  actionItems: ActionItemDraft[];
+  summary: Omit<MeetingSummary, "decisionSegmentIds">;
+  actionItems: Array<Omit<ActionItemDraft, "segmentId">>;
 };
 
 function loadDemo(): DemoFixture {
@@ -17,12 +18,25 @@ function loadDemo(): DemoFixture {
   return JSON.parse(readFileSync(path, "utf8")) as DemoFixture;
 }
 
-export async function stubSummarize(): Promise<SummarizeResult> {
+export async function stubSummarize(
+  transcript: Transcript,
+): Promise<SummarizeResult> {
   const demo = loadDemo();
+  const segments = transcript.segments as SummarizeSegment[];
+  const decisionSegmentIds = segments
+    .slice(1, 4)
+    .map((segment) => segment.id)
+    .filter((id): id is string => Boolean(id));
   return {
     mode: "stub",
-    summary: demo.summary,
-    actionItems: demo.actionItems,
+    summary: {
+      ...demo.summary,
+      decisionSegmentIds,
+    },
+    actionItems: demo.actionItems.map((item) => ({
+      ...item,
+      segmentId: resolveSegmentId(segments, item.timecodeMs, null),
+    })),
   };
 }
 

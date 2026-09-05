@@ -346,6 +346,7 @@ export type RunZoomBotDeps = {
   spawnLocal?: (meetingUrl: string, audioPath: string) => Promise<ChildProcess>
   spawnDocker?: (meetingUrl: string, audioPath: string) => Promise<ChildProcess>
   onJoined?: (info: { mode: "live" }) => void | Promise<void>
+  onWaitingRoom?: () => void | Promise<void>
 }
 
 export async function runZoomBot(
@@ -386,6 +387,7 @@ export async function runZoomBot(
       ? "joined"
       : "waiting_room"
     if (status === "waiting_room" && !/ZOOM_BOT_JOINED/.test(first)) {
+      await deps.onWaitingRoom?.()
       await log.waitFor(/ZOOM_BOT_JOINED/, WAITING_ROOM_TIMEOUT_MS)
       status = "joined"
     }

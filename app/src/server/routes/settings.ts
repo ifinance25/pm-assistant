@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getDb } from "../../db/index.ts";
 import type { RecordingMode, Settings } from "../../shared/types.ts";
-import { isTrackerType } from "../../shared/types.ts";
+import { isLlmProvider, isTrackerType } from "../../shared/types.ts";
 import { assertPublicWebhookUrl } from "../../shared/webhook-url.ts";
 import type { AppEnv } from "../app-env.ts";
 
@@ -43,6 +43,12 @@ settingsRouter.put("/settings", async (c) => {
       return c.json({ error: "неизвестный трекер" }, 400);
     }
     patch.trackerType = body.trackerType;
+  }
+  if ("llmProvider" in body) {
+    if (typeof body.llmProvider !== "string" || !isLlmProvider(body.llmProvider)) {
+      return c.json({ error: "неизвестный провайдер LLM" }, 400);
+    }
+    patch.llmProvider = body.llmProvider;
   }
   if ("asanaProjectLabel" in body) {
     if (typeof body.asanaProjectLabel !== "string") {

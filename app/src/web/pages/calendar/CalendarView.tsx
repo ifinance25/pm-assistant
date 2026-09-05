@@ -51,6 +51,7 @@ function formatRowWhen(iso: string | null): string {
 
 function meetingCta(meeting: Meeting): { label: string; to: string } {
   const openStatuses = new Set<MeetingStatus>([
+    "waiting_room",
     "recording",
     "transcribing",
     "summarizing",

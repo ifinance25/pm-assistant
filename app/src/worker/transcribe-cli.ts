@@ -30,6 +30,7 @@ await processJob(db, {
   attempts: 1,
   lastError: null,
   claimedAt: new Date().toISOString(),
+  createdAt: null,
 });
 
 const done = db.getMeeting(meetingId);

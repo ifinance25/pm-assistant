@@ -9,7 +9,12 @@ import { getDb } from "../../db/index.ts";
 import type { Meeting, MeetingStatus } from "../../shared/types.ts";
 import type { AppEnv } from "../app-env.ts";
 
-const IN_PROGRESS: MeetingStatus[] = ["queued", "joining", "recording"];
+const IN_PROGRESS: MeetingStatus[] = [
+  "queued",
+  "joining",
+  "waiting_room",
+  "recording",
+];
 
 export const meetingsRouter = new Hono<AppEnv>();
 

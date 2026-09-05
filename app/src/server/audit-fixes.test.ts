@@ -10,7 +10,7 @@ import { OAUTH_STATE_COOKIE, SESSION_COOKIE } from "./auth/session.ts";
 import { clearLoginRateLimit } from "./auth/rate-limit.ts";
 import { dispatchActionItems } from "../adapters/asana/index.ts";
 import { dispatchTrackerActionItems } from "../adapters/tracker/index.ts";
-import { runOnce } from "../worker/pipeline.ts";
+import { runOnce, type ProcessJobDeps } from "../worker/pipeline.ts";
 
 describe("аудит: auth", () => {
   let db: ReturnType<typeof createDb>;
@@ -389,40 +389,42 @@ describe("аудит: воркер timeout", () => {
     const db = createDb(":memory:");
     const first = db.createMeeting({ url: "https://zoom.us/j/hang", platform: "zoom" });
     db.enqueueJob({ meetingId: first.id, type: "join" });
-    await expect(
-      runOnce(db, {
-        join: async (_item, hooks) => {
-          await hooks?.onJoined?.({ mode: "live" });
-          return { mode: "live", audioPath: "/tmp/hang.wav" };
-        },
-        transcribe: async () => ({
-          mode: "live",
-          segments: [
-            { speaker: "Спикер 1", startedAtMs: 0, endedAtMs: 1, text: "Привет" },
-          ],
-        }),
-        reviseTranscript: () => new Promise(() => undefined),
-        resolveLlmKey: () => "sk-test",
+    const hangDeps: ProcessJobDeps = {
+      join: async (_item, hooks) => {
+        await hooks?.onJoined?.({ mode: "live" });
+        return { mode: "live" as const, audioPath: "/tmp/hang.wav" };
+      },
+      transcribe: async () => ({
+        mode: "live" as const,
+        segments: [
+          { speaker: "Спикер 1", startedAtMs: 0, endedAtMs: 1, text: "Привет" },
+        ],
       }),
-    ).rejects.toThrow(/время ожидания/);
+      reviseTranscript: () => new Promise<never>(() => undefined),
+      resolveLlmKey: () => "sk-test",
+    };
+    expect(await runOnce(db, hangDeps)).toBe(true);
+    expect(await runOnce(db, hangDeps)).toBe(true);
+    await expect(runOnce(db, hangDeps)).rejects.toThrow(/время ожидания/);
     expect(db.getMeeting(first.id)?.status).toBe("error");
     const second = db.createMeeting({ url: "https://zoom.us/j/next", platform: "zoom" });
     db.enqueueJob({ meetingId: second.id, type: "join" });
-    expect(
-      await runOnce(db, {
-        join: async (_item, hooks) => {
-          await hooks?.onJoined?.({ mode: "live" });
-          return { mode: "live", audioPath: "/tmp/next.wav" };
-        },
-        transcribe: async () => ({
-          mode: "live",
-          segments: [
-            { speaker: "Спикер 1", startedAtMs: 0, endedAtMs: 1, text: "Вторая" },
-          ],
-        }),
-        resolveLlmKey: () => "",
+    const nextDeps: ProcessJobDeps = {
+      join: async (_item, hooks) => {
+        await hooks?.onJoined?.({ mode: "live" });
+        return { mode: "live" as const, audioPath: "/tmp/next.wav" };
+      },
+      transcribe: async () => ({
+        mode: "live" as const,
+        segments: [
+          { speaker: "Спикер 1", startedAtMs: 0, endedAtMs: 1, text: "Вторая" },
+        ],
       }),
-    ).toBe(true);
+      resolveLlmKey: () => "",
+    };
+    expect(await runOnce(db, nextDeps)).toBe(true);
+    expect(await runOnce(db, nextDeps)).toBe(true);
+    expect(await runOnce(db, nextDeps)).toBe(true);
     expect(db.getMeeting(second.id)?.status).toBe("ready");
     db.close();
     if (prev === undefined) {

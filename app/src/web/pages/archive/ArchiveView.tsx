@@ -104,6 +104,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 const STATUS_LABEL: Record<string, string> = {
   queued: "Очередь",
   joining: "Вход",
+  waiting_room: "Зал ожидания",
   recording: "Запись",
   transcribing: "Расшифровка",
   summarizing: "Резюме",
@@ -112,8 +113,14 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_CHIPS = [
-  { id: "ready", label: "Готово" },
+  { id: "queued", label: "Очередь" },
+  { id: "joining", label: "Вход" },
+  { id: "waiting_room", label: "Зал ожидания" },
   { id: "recording", label: "Запись" },
+  { id: "transcribing", label: "Расшифровка" },
+  { id: "summarizing", label: "Резюме" },
+  { id: "ready", label: "Готово" },
+  { id: "error", label: "Ошибка" },
 ] as const;
 
 function chipClass(active: boolean): string {

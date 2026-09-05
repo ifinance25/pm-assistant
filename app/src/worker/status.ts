@@ -2,12 +2,13 @@ import type { MeetingStatus } from "../shared/types.ts";
 
 const ALLOWED: Record<MeetingStatus, MeetingStatus[]> = {
   queued: ["joining", "transcribing", "error"],
-  joining: ["recording", "transcribing", "error"],
+  joining: ["waiting_room", "recording", "transcribing", "error"],
+  waiting_room: ["recording", "transcribing", "error"],
   recording: ["transcribing", "error"],
   transcribing: ["summarizing", "error"],
   summarizing: ["ready", "transcribing", "error"],
-  ready: ["transcribing", "error"],
-  error: ["queued", "transcribing"],
+  ready: ["transcribing", "summarizing", "error"],
+  error: ["queued", "transcribing", "summarizing"],
 };
 
 export function assertStatusTransition(

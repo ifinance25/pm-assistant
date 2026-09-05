@@ -18,7 +18,6 @@ import {
   createJoinAdapter,
   type JoinAdapter,
   type JoinHooks,
-  type JoinResult,
 } from "../adapters/platform/index.ts";
 import {
   createSttAdapter,
@@ -26,21 +25,24 @@ import {
   type SttEngine,
   type Transcript,
 } from "../adapters/stt/index.ts";
-import {
-  isLivePendingTranscript,
-  liveAudioPendingTranscript,
-} from "../adapters/stt/pending.ts";
+import { isLivePendingTranscript } from "../adapters/stt/pending.ts";
 import { normalizeMeetingAudio } from "../adapters/stt/trim-silence.ts";
 import { isAbortError } from "../shared/http-timeout.ts";
 import type { Db } from "../db/index.ts";
-import type { Job, Meeting, MeetingStatus } from "../shared/types.ts";
-import { meetingHasAudio, recoverStuckMeetings } from "./recover.ts";
+import { getDb } from "../db/index.ts";
+import type { Job, Meeting, MeetingStatus, LlmProvider } from "../shared/types.ts";
+import {
+  hasActiveJob,
+  meetingHasAudio,
+  recoverStuckMeetings,
+} from "./recover.ts";
 import { assertStatusTransition } from "./status.ts";
 
 export type ProcessJobDeps = {
   join?: JoinAdapter["join"];
   detectSttEngine?: () => SttEngine | null;
   resolveLlmKey?: () => string;
+  llmProvider?: LlmProvider;
   transcribe?: (
     audioPath: string,
     detect: () => SttEngine | null,
@@ -59,35 +61,25 @@ function setStatus(
   return db.updateMeetingStatus(meeting.id, status, extra);
 }
 
-function resolveLlm(resolveKey?: () => string): LlmAdapter {
-  return resolveKey !== undefined
-    ? createLlmAdapter({ apiKey: resolveKey() })
-    : createLlmAdapter();
-}
-
-async function transcribeLive(
-  join: JoinResult,
-  detect: () => SttEngine | null,
-): Promise<Transcript> {
-  const engine = detect();
-  if (!join.audioPath || !engine) {
-    return liveAudioPendingTranscript(join.audioPath);
+function resolveLlm(deps?: ProcessJobDeps): LlmAdapter {
+  if (deps?.resolveLlmKey !== undefined) {
+    return createLlmAdapter({
+      provider: deps.llmProvider ?? "openai",
+      apiKey: deps.resolveLlmKey(),
+    });
   }
-  return createSttAdapter({ detectEngine: () => engine }).transcribe(
-    join.audioPath,
-    { languageHint: "ru" },
-  );
+  return createLlmAdapter();
 }
 
 async function summarizeLive(
   transcript: Transcript,
   audioPath: string | null,
-  resolveKey?: () => string,
+  deps?: ProcessJobDeps,
 ): Promise<SummarizeResult> {
   if (isLivePendingTranscript(transcript)) {
     return liveAudioPendingSummary(audioPath);
   }
-  const llm = resolveLlm(resolveKey);
+  const llm = resolveLlm(deps);
   if (llm.mode === "live") {
     return llm.summarize(transcript);
   }
@@ -97,14 +89,14 @@ async function summarizeLive(
 async function summarizeOrFallback(
   transcript: Transcript,
   audioPath: string | null,
-  resolveKey?: () => string,
+  deps?: ProcessJobDeps,
   summarizeFn?: (transcript: Transcript) => Promise<SummarizeResult>,
 ): Promise<SummarizeResult> {
   try {
     if (summarizeFn) {
       return await summarizeFn(transcript);
     }
-    return await summarizeLive(transcript, audioPath, resolveKey);
+    return await summarizeLive(transcript, audioPath, deps);
   } catch (err) {
     if (isLivePendingTranscript(transcript) || isAbortError(err)) {
       throw err;
@@ -120,6 +112,9 @@ function llmTimeoutMs(): number {
   const raw = Number(process.env.PM_ASSISTANT_LLM_TIMEOUT_MS);
   if (Number.isFinite(raw) && raw > 0) {
     return raw;
+  }
+  if (getDb().getSettings().llmProvider === "cursor") {
+    return 600_000;
   }
   return 120_000;
 }
@@ -147,9 +142,9 @@ async function withTimeout<T>(work: Promise<T>, label: string): Promise<T> {
 
 async function reviseViaAdapter(
   transcript: Transcript,
-  resolveKey?: () => string,
+  deps?: ProcessJobDeps,
 ): Promise<Transcript> {
-  const llm = resolveLlm(resolveKey);
+  const llm = resolveLlm(deps);
   if (llm.mode !== "live") {
     return transcript;
   }
@@ -174,7 +169,7 @@ async function reviseThenSummarize(
       working = await withTimeout(
         deps.reviseTranscript
           ? deps.reviseTranscript(transcript)
-          : reviseViaAdapter(transcript, deps.resolveLlmKey),
+          : reviseViaAdapter(transcript, deps),
         "языковая модель",
       );
     } catch (err) {
@@ -193,7 +188,20 @@ async function reviseThenSummarize(
   }
 
   db.saveTranscript(current.id, working.segments);
-  current = setStatus(db, current, "summarizing");
+  const taggedSegments = db.listTranscript(current.id);
+  const taggedTranscript: Transcript = {
+    mode: working.mode,
+    segments: taggedSegments.map((segment) => ({
+      id: segment.id,
+      speaker: segment.speaker,
+      startedAtMs: segment.startedAtMs,
+      endedAtMs: segment.endedAtMs,
+      text: segment.text,
+    })),
+  };
+  if (current.status !== "summarizing") {
+    current = setStatus(db, current, "summarizing");
+  }
 
   let summarized: SummarizeResult;
   if (isLivePendingTranscript(working)) {
@@ -205,14 +213,14 @@ async function reviseThenSummarize(
     });
   } else if (opts.stubLlm) {
     summarized = deps.summarize
-      ? await deps.summarize(working)
-      : await createLlmAdapter({ apiKey: "" }).summarize(working);
+      ? await deps.summarize(taggedTranscript)
+      : await createLlmAdapter({ apiKey: "" }).summarize(taggedTranscript);
   } else {
     summarized = await withTimeout(
       summarizeOrFallback(
-        working,
+        taggedTranscript,
         audioPath,
-        deps.resolveLlmKey,
+        deps,
         deps.summarize,
       ),
       "языковая модель",
@@ -227,7 +235,7 @@ async function reviseThenSummarize(
       title: item.title,
       dueAt: item.dueAt,
       timecodeMs: item.timecodeMs,
-      segmentId: null,
+      segmentId: item.segmentId,
     })),
   );
   return setStatus(db, current, "ready", {
@@ -300,13 +308,59 @@ async function processTranscribeJob(
     ? await deps.transcribe(preparedPath, detect)
     : await createSttAdapter({
         detectEngine: () => engine,
-      }).transcribe(preparedPath, { languageHint: "ru" });
+      }).transcribe(preparedPath, {
+        languageHint: "ru",
+        onPartial: (segments) => {
+          db.saveTranscript(current.id, segments);
+        },
+      });
   if (isLivePendingTranscript(transcript)) {
     throw new Error("whisper не вернул текст сегментов");
   }
-  await reviseThenSummarize(db, current, transcript, audioPath, deps, {
-    stubLlm: false,
-  });
+  db.saveTranscript(current.id, transcript.segments);
+  if (current.status !== "summarizing") {
+    current = setStatus(db, current, "summarizing", { error: null });
+  }
+  if (!hasActiveJob(db, current.id, "summarize")) {
+    db.enqueueJob({ meetingId: current.id, type: "summarize" });
+  }
+  db.finishJob(job.id);
+}
+
+async function processSummarizeJob(
+  db: Db,
+  job: Job,
+  meeting: Meeting,
+  deps: ProcessJobDeps,
+): Promise<void> {
+  const segments = db.listTranscript(meeting.id);
+  if (segments.length === 0) {
+    throw new Error("нет расшифровки для саммари");
+  }
+  const transcript: Transcript = {
+    mode: meeting.source === "live" ? "live" : "stub",
+    segments: segments.map((row) => ({
+      id: row.id,
+      speaker: row.speaker,
+      startedAtMs: row.startedAtMs,
+      endedAtMs: row.endedAtMs,
+      text: row.text,
+    })),
+  };
+  let current = meeting;
+  if (current.status !== "summarizing") {
+    current = setStatus(db, current, "summarizing", { error: null });
+  }
+  const ready = await reviseThenSummarize(
+    db,
+    current,
+    transcript,
+    current.audioPath,
+    deps,
+    { stubLlm: false },
+  );
+  await deliverReadyWebhook(db, ready);
+  await maybeAutoSendTracker(db, current.id);
   db.finishJob(job.id);
 }
 
@@ -319,7 +373,26 @@ export async function processJob(
   if (!meeting) {
     throw new Error("встреча не найдена");
   }
-  if (job.type === "transcribe" || meetingHasAudio(meeting)) {
+  if (job.type === "summarize") {
+    try {
+      await processSummarizeJob(db, job, meeting, deps);
+    } catch (err) {
+      const latest = db.getMeeting(job.meetingId);
+      const message = err instanceof Error ? err.message : String(err);
+      db.failJob(job.id, message);
+      if (latest && latest.status !== "error") {
+        try {
+          assertStatusTransition(latest.status, "error");
+          db.updateMeetingStatus(job.meetingId, "error", { error: message });
+        } catch {
+          db.updateMeetingStatus(job.meetingId, "error", { error: message });
+        }
+      }
+      throw err;
+    }
+    return;
+  }
+  if (job.type === "transcribe") {
     try {
       await processTranscribeJob(db, job, meeting, deps);
     } catch (err) {
@@ -336,6 +409,13 @@ export async function processJob(
       }
       throw err;
     }
+    return;
+  }
+  if (meetingHasAudio(meeting)) {
+    if (!hasActiveJob(db, meeting.id, "transcribe")) {
+      db.enqueueJob({ meetingId: meeting.id, type: "transcribe" });
+    }
+    db.finishJob(job.id);
     return;
   }
   try {
@@ -364,6 +444,13 @@ export async function processJob(
         });
         current = setStatus(db, withMeta, "recording");
       },
+      onWaitingRoom: async () => {
+        const latest = db.getMeeting(current.id) ?? current;
+        if (latest.status !== "joining") {
+          return;
+        }
+        current = setStatus(db, latest, "waiting_room");
+      },
     });
     current = db.getMeeting(current.id) ?? current;
     if (current.status === "joining") {
@@ -381,38 +468,15 @@ export async function processJob(
         audioPath: join.audioPath,
       });
     }
-    const audioPath = join.audioPath
-      ? await prepareMeetingAudio(db, current, join.audioPath)
-      : null;
-    let transcript: Transcript;
-    if (deps.transcribe && audioPath) {
-      transcript = await deps.transcribe(
-        audioPath,
-        deps.detectSttEngine ?? detectSttEngine,
-      );
-    } else if (join.mode === "stub") {
-      throw new Error(
-        "платформа не реализована: демо-расшифровку в базу не записываем",
-      );
-    } else {
-      transcript = await transcribeLive(
-        { ...join, audioPath },
-        deps.detectSttEngine ?? detectSttEngine,
-      );
+    if (!join.audioPath) {
+      throw new Error("звук не записался: бот не поймал аудио звонка");
     }
     if (current.status === "recording") {
       current = setStatus(db, current, "transcribing");
     }
-    const ready = await reviseThenSummarize(
-      db,
-      current,
-      transcript,
-      audioPath,
-      deps,
-      { stubLlm: join.mode === "stub" },
-    );
-    await deliverReadyWebhook(db, ready);
-    await maybeAutoSendTracker(db, current.id);
+    if (!hasActiveJob(db, current.id, "transcribe")) {
+      db.enqueueJob({ meetingId: current.id, type: "transcribe" });
+    }
     db.finishJob(job.id);
   } catch (err) {
     const latest = db.getMeeting(job.meetingId);

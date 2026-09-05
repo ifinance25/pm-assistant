@@ -22,12 +22,14 @@ describe("llm", () => {
         title: "Подготовить hotfix для API gateway",
         dueAt: "2026-09-05",
         timecodeMs: 8500,
+        segmentId: null,
       },
       {
         assignee: "Мария Козлова",
         title: "Написать changelog и проверить feature flag на staging",
         dueAt: "2026-09-08",
         timecodeMs: 18000,
+        segmentId: null,
       },
     ]);
   });
@@ -50,19 +52,51 @@ describe("llm", () => {
       mode: "stub",
     });
 
-    expect(createLlmAdapter({ apiKey: "sk-test" }).mode).toBe("live");
+    expect(createLlmAdapter({ provider: "openai", apiKey: "sk-test" }).mode).toBe(
+      "live",
+    );
   });
 
   it("непустой CLAUDE_CODE_OAUTH_TOKEN без явного apiKey даёт live", () => {
     const prev = process.env.CLAUDE_CODE_OAUTH_TOKEN;
     process.env.CLAUDE_CODE_OAUTH_TOKEN = "oauth-test-token";
     try {
-      expect(createLlmAdapter().mode).toBe("live");
+      expect(createLlmAdapter({ provider: "claude" }).mode).toBe("live");
     } finally {
       if (prev === undefined) {
         delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
       } else {
         process.env.CLAUDE_CODE_OAUTH_TOKEN = prev;
+      }
+    }
+  });
+
+  it("непустой KIMI_API_KEY даёт live только для провайдера kimi", () => {
+    const prev = process.env.KIMI_API_KEY;
+    process.env.KIMI_API_KEY = "kimi-test-key";
+    try {
+      expect(createLlmAdapter({ provider: "kimi" }).mode).toBe("live");
+      expect(createLlmAdapter({ provider: "openai" }).mode).toBe("stub");
+    } finally {
+      if (prev === undefined) {
+        delete process.env.KIMI_API_KEY;
+      } else {
+        process.env.KIMI_API_KEY = prev;
+      }
+    }
+  });
+
+  it("непустой CURSOR_API_KEY даёт live только для провайдера cursor", () => {
+    const prev = process.env.CURSOR_API_KEY;
+    process.env.CURSOR_API_KEY = "crsr-test-key";
+    try {
+      expect(createLlmAdapter({ provider: "cursor" }).mode).toBe("live");
+      expect(createLlmAdapter({ provider: "kimi" }).mode).toBe("stub");
+    } finally {
+      if (prev === undefined) {
+        delete process.env.CURSOR_API_KEY;
+      } else {
+        process.env.CURSOR_API_KEY = prev;
       }
     }
   });
@@ -269,6 +303,46 @@ describe("llm", () => {
       expect(fetchMock).toHaveBeenCalledTimes(2);
     } finally {
       vi.unstubAllGlobals();
+    }
+  });
+
+  it("cursor cli возвращает JSON саммари", async () => {
+    const cursorCli = await import("./cursor-cli.ts");
+    const runMock = vi
+      .spyOn(cursorCli, "runCursorCliPrompt")
+      .mockResolvedValue({
+        ok: true,
+        stdout: JSON.stringify({
+          summary: {
+            headline: "Итог",
+            decisions: "Решили",
+            risks: "",
+            nextStep: "Дальше",
+          },
+          actionItems: [],
+        }),
+        stderr: "",
+      });
+    const { liveSummarizeCursor } = await import("./cursor.ts");
+    try {
+      const result = await liveSummarizeCursor(
+        {
+          mode: "live",
+          segments: [
+            {
+              speaker: "Анна",
+              startedAtMs: 0,
+              endedAtMs: 1000,
+              text: "standup",
+            },
+          ],
+        },
+        "crsr-test",
+      );
+      expect(result.summary.headline).toBe("Итог");
+      expect(runMock).toHaveBeenCalledTimes(1);
+    } finally {
+      runMock.mockRestore();
     }
   });
 });

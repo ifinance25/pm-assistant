@@ -10,11 +10,12 @@ Group=ubuntu
 SupplementaryGroups=docker
 WorkingDirectory=/opt/pm-assistant/app
 EnvironmentFile=/etc/pm-assistant.env
-Environment=PATH=/opt/node-24/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=/opt/node-24/bin:/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin
 Environment=LD_LIBRARY_PATH=/usr/local/lib
 Environment=WHISPER_BIN=/usr/local/bin/whisper
 Environment=WHISPER_CLI=/usr/local/bin/whisper-cli
 Environment=WHISPER_MODEL=/var/lib/pm-assistant/models/ggml-small.bin
+Environment=PM_ASSISTANT_WHISPER_TIMEOUT_MS=82800000
 Environment=PM_ASSISTANT_DB_PATH=/var/lib/pm-assistant/app.sqlite
 ExecStart=/opt/node-24/bin/node src/worker/index.ts
 Restart=always

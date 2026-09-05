@@ -219,6 +219,9 @@ export function migrate(sqlite: Database.Database): void {
   if (!jobCols.some((col) => col.name === "claimed_at")) {
     sqlite.exec("ALTER TABLE jobs ADD COLUMN claimed_at TEXT");
   }
+  if (!jobCols.some((col) => col.name === "created_at")) {
+    sqlite.exec("ALTER TABLE jobs ADD COLUMN created_at TEXT");
+  }
 
   if (!columnExists(sqlite, "meetings", "project_id")) {
     sqlite.exec(
@@ -243,6 +246,12 @@ export function migrate(sqlite: Database.Database): void {
 
   migrateActionItemsTracker(sqlite);
   migrateExistingUsersToAdmin(sqlite);
+
+  if (!columnExists(sqlite, "summaries", "decision_segment_ids")) {
+    sqlite.exec(
+      "ALTER TABLE summaries ADD COLUMN decision_segment_ids TEXT NOT NULL DEFAULT '[]'",
+    );
+  }
 
   const defaultProjectId = seedDefaultProject(sqlite);
   backfillMeetingProjects(sqlite, defaultProjectId);

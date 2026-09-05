@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -98,13 +99,37 @@ def main() -> int:
             return conv.returncode
 
         stem = Path(tmp) / "out"
-        cmd = [cli, "-m", model, "-f", str(wav), "-oj", "-of", str(stem), "-nt"]
+        cmd = [cli, "-m", model, "-f", str(wav), "-oj", "-of", str(stem), "-pp"]
         if args.language:
             cmd.extend(["-l", args.language])
-        run = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if run.returncode != 0:
-            print(run.stderr[-2000:] or run.stdout[-2000:], file=sys.stderr)
-            return run.returncode
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+
+        def stop(_signum=None, _frame=None) -> None:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+
+        signal.signal(signal.SIGTERM, stop)
+        signal.signal(signal.SIGINT, stop)
+        assert proc.stdout is not None
+        try:
+            for line in proc.stdout:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+            run_code = proc.wait()
+        finally:
+            stop()
+        if run_code != 0:
+            return run_code
 
         raw_path = Path(str(stem) + ".json")
         data = json.loads(raw_path.read_text(encoding="utf-8"))

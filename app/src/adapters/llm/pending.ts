@@ -18,6 +18,7 @@ export function liveAudioPendingSummary(
         risks: "Итоги встречи появятся после расшифровки сохранённого звука.",
         nextStep:
           "Проверьте WHISPER_BIN и обработайте встречу снова, когда распознавание будет доступно.",
+        decisionSegmentIds: [],
       },
       actionItems: [],
     };
@@ -30,6 +31,7 @@ export function liveAudioPendingSummary(
       risks: "Без звука нет расшифровки и списка задач.",
       nextStep:
         "Повторите звонок и дождитесь, пока бот останется до конца встречи.",
+      decisionSegmentIds: [],
     },
     actionItems: [],
   };
@@ -77,6 +79,7 @@ export function summaryFromTranscriptOnly(
       decisions: text ? decisions : "В расшифровке нет текста.",
       risks,
       nextStep,
+      decisionSegmentIds: [],
     },
     actionItems: [],
   };

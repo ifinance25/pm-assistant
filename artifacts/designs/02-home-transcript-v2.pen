@@ -880,7 +880,7 @@
               "id": "zMcvu",
               "name": "Live Strip",
               "width": "fill_container",
-              "fill": "$pink",
+              "fill": "#F8E8E4",
               "cornerRadius": 16,
               "layout": "vertical",
               "padding": [
@@ -907,41 +907,23 @@
                       "gap": 6,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "LOgho",
-                          "name": "Live Title Row",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "DOX2f",
-                              "name": "Rec Dot",
-                              "width": 9,
-                              "height": 9,
-                              "fill": "$danger",
-                              "cornerRadius": 999
-                            },
-                            {
-                              "type": "text",
-                              "id": "Kcpvw",
-                              "name": "Live Title",
-                              "fill": "$ink",
-                              "content": "Демо прототипа клиенту",
-                              "fontFamily": "$font",
-                              "fontSize": 15,
-                              "fontWeight": "600"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "EVmEq",
+                          "name": "Live Title",
+                          "fill": "#2C2420",
+                          "content": "Синк по roadmap Q4",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
                         },
                         {
                           "type": "text",
                           "id": "n4HDwy",
                           "name": "Live Meta",
-                          "fill": "$muted",
-                          "content": "12 мин · Zoom · Клиентский прототип",
+                          "fill": "#6B6560",
+                          "content": "12 мин · Google Meet · Roadmap Q4",
                           "fontFamily": "$font",
-                          "fontSize": 12.5,
+                          "fontSize": 13,
                           "fontWeight": "normal"
                         }
                       ]
@@ -950,256 +932,141 @@
                       "type": "frame",
                       "id": "eKabu",
                       "name": "Stepper Col",
+                      "width": "fill_container",
                       "layout": "vertical",
-                      "gap": 6,
+                      "gap": 8,
                       "children": [
                         {
                           "type": "frame",
-                          "id": "iI99L",
+                          "id": "hpRja",
                           "name": "Stepper",
+                          "width": "fill_container",
+                          "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "q9MWYO",
+                              "id": "CRDQZ",
                               "name": "Step Очередь",
-                              "gap": 7,
-                              "padding": [
-                                0,
-                                6
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "WLC6f",
-                                  "name": "Dot",
-                                  "width": 18,
-                                  "height": 18,
-                                  "fill": "$accent",
-                                  "cornerRadius": 999,
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "icon",
-                                      "id": "YMBVI",
-                                      "name": "Check",
-                                      "width": 11,
-                                      "height": 11,
-                                      "icon": "check",
-                                      "library": "lucide",
-                                      "fill": "#FFFFFF"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "HVbgV",
-                                  "name": "Step Label",
-                                  "fill": "$muted",
-                                  "content": "Очередь",
-                                  "fontFamily": "$font",
-                                  "fontSize": 12.5,
-                                  "fontWeight": "500"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "nXHR5",
-                              "name": "Connector 1",
-                              "width": 22,
-                              "height": 1.5,
-                              "fill": "$accent",
-                              "cornerRadius": 999
-                            },
-                            {
-                              "type": "frame",
-                              "id": "W9M6j",
-                              "name": "Step Вход",
-                              "gap": 7,
-                              "padding": [
-                                0,
-                                6
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "EvJxw",
-                                  "name": "Dot",
-                                  "width": 18,
-                                  "height": 18,
-                                  "fill": "$accent",
-                                  "cornerRadius": 999,
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "icon",
-                                      "id": "qBIqq",
-                                      "name": "Check",
-                                      "width": 11,
-                                      "height": 11,
-                                      "icon": "check",
-                                      "library": "lucide",
-                                      "fill": "#FFFFFF"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "kYOIv",
-                                  "name": "Step Label",
-                                  "fill": "$muted",
-                                  "content": "Вход",
-                                  "fontFamily": "$font",
-                                  "fontSize": 12.5,
-                                  "fontWeight": "500"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "n8c7J",
-                              "name": "Connector 2",
-                              "width": 22,
-                              "height": 1.5,
-                              "fill": "$accent",
-                              "cornerRadius": 999
-                            },
-                            {
-                              "type": "frame",
-                              "id": "MJutJ",
-                              "name": "Step Запись",
-                              "fill": "$accent",
+                              "width": "fill_container",
                               "cornerRadius": 999,
-                              "gap": 7,
                               "padding": [
-                                4,
-                                10
+                                8,
+                                6
                               ],
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "yrzy0",
-                                  "name": "Dot",
-                                  "width": 18,
-                                  "height": 18,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 999,
-                                  "stroke": "$accent",
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "M0kDGj",
-                                      "name": "Inner",
-                                      "width": 8,
-                                      "height": 8,
-                                      "fill": "$accent",
-                                      "cornerRadius": 999
-                                    }
-                                  ]
-                                },
+                                  "type": "text",
+                                  "id": "n6qVga",
+                                  "name": "Step Label",
+                                  "fill": "#2F7D4A",
+                                  "content": "Очередь",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "p6BMS",
+                              "name": "Step Вход",
+                              "width": "fill_container",
+                              "cornerRadius": 999,
+                              "padding": [
+                                8,
+                                6
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
                                 {
                                   "type": "text",
-                                  "id": "I7XI8C",
+                                  "id": "aDeIt",
+                                  "name": "Step Label",
+                                  "fill": "#2F7D4A",
+                                  "content": "Вход",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "XfLGQ",
+                              "name": "Step Запись",
+                              "width": "fill_container",
+                              "fill": "#C86B4A",
+                              "cornerRadius": 999,
+                              "padding": [
+                                8,
+                                6
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "QalHS",
                                   "name": "Step Label",
                                   "fill": "#FFFFFF",
                                   "content": "Запись",
-                                  "fontFamily": "$font",
-                                  "fontSize": 12.5,
-                                  "fontWeight": "600"
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             },
                             {
                               "type": "frame",
-                              "id": "r1bP9",
-                              "name": "Connector 3",
-                              "width": 22,
-                              "height": 1.5,
-                              "fill": "$line",
-                              "cornerRadius": 999
-                            },
-                            {
-                              "type": "frame",
-                              "id": "AEUlV",
+                              "id": "k3CWz",
                               "name": "Step Расшифровка",
-                              "gap": 7,
+                              "width": "fill_container",
+                              "cornerRadius": 999,
                               "padding": [
-                                0,
+                                8,
                                 6
                               ],
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "H2nnYY",
-                                  "name": "Dot",
-                                  "width": 18,
-                                  "height": 18,
-                                  "fill": "#00000000",
-                                  "cornerRadius": 999,
-                                  "stroke": "$line",
-                                  "strokeWidth": 1.5
-                                },
-                                {
                                   "type": "text",
-                                  "id": "PtGo0",
+                                  "id": "f3sD9",
                                   "name": "Step Label",
-                                  "fill": "$muted",
+                                  "fill": "#6B6560",
                                   "content": "Расшифровка",
-                                  "fontFamily": "$font",
-                                  "fontSize": 12.5,
-                                  "fontWeight": "500"
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             },
                             {
                               "type": "frame",
-                              "id": "x4tpB",
-                              "name": "Connector 4",
-                              "width": 22,
-                              "height": 1.5,
-                              "fill": "$line",
-                              "cornerRadius": 999
-                            },
-                            {
-                              "type": "frame",
-                              "id": "p6w8v2",
+                              "id": "TGEVA",
                               "name": "Step Резюме",
-                              "gap": 7,
+                              "width": "fill_container",
+                              "cornerRadius": 999,
                               "padding": [
-                                0,
+                                8,
                                 6
                               ],
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "jpq5E",
-                                  "name": "Dot",
-                                  "width": 18,
-                                  "height": 18,
-                                  "fill": "#00000000",
-                                  "cornerRadius": 999,
-                                  "stroke": "$line",
-                                  "strokeWidth": 1.5
-                                },
-                                {
                                   "type": "text",
-                                  "id": "PzxN9",
+                                  "id": "kShom",
                                   "name": "Step Label",
-                                  "fill": "$muted",
+                                  "fill": "#6B6560",
                                   "content": "Резюме",
-                                  "fontFamily": "$font",
-                                  "fontSize": 12.5,
-                                  "fontWeight": "500"
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             }
@@ -1209,11 +1076,11 @@
                           "type": "text",
                           "id": "QVWne",
                           "name": "Step Caption",
-                          "fill": "$accent",
+                          "fill": "#C86B4A",
                           "content": "Запись: идёт звук",
                           "fontFamily": "$font",
-                          "fontSize": 12,
-                          "fontWeight": "500"
+                          "fontSize": 13,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -1222,36 +1089,26 @@
                       "id": "ZzbQD",
                       "name": "Open Button",
                       "height": 38,
-                      "fill": "$card",
+                      "fill": "#FFFFFF",
                       "cornerRadius": 10,
-                      "stroke": "$line",
+                      "stroke": "#E8E0D6",
                       "strokeWidth": 1,
-                      "gap": 7,
                       "padding": [
                         0,
                         18
                       ],
+                      "justifyContent": "center",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
                           "id": "DD76a",
                           "name": "Open Label",
-                          "fill": "$ink",
+                          "fill": "#2C2420",
                           "content": "Открыть",
                           "fontFamily": "$font",
                           "fontSize": 13,
                           "fontWeight": "600"
-                        },
-                        {
-                          "type": "icon",
-                          "id": "QwNdk",
-                          "name": "Open Icon",
-                          "width": 14,
-                          "height": 14,
-                          "icon": "arrow-right",
-                          "library": "lucide",
-                          "fill": "$ink"
                         }
                       ]
                     }
@@ -1519,40 +1376,6 @@
                   "layout": "vertical",
                   "gap": 12,
                   "children": [
-                    {
-                      "type": "frame",
-                      "id": "Eyt8o",
-                      "name": "Upcoming Head",
-                      "width": "fill_container",
-                      "padding": [
-                        0,
-                        4
-                      ],
-                      "justifyContent": "space_between",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "v7U02",
-                          "name": "Upcoming Title",
-                          "fill": "$ink",
-                          "content": "Следующие по ссылке",
-                          "fontFamily": "$font",
-                          "fontSize": 15,
-                          "fontWeight": "600"
-                        },
-                        {
-                          "type": "text",
-                          "id": "P5q0RE",
-                          "name": "Upcoming Hint",
-                          "fill": "$muted",
-                          "content": "ссылки уже сохранены",
-                          "fontFamily": "$font",
-                          "fontSize": 12,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
                     {
                       "type": "frame",
                       "id": "SQGkm",
@@ -2533,139 +2356,94 @@
               "fill": "$card",
               "cornerRadius": 16,
               "stroke": "$line",
-              "strokeWidth": 1,
-              "gap": 18,
+              "layout": "vertical",
               "padding": [
-                14,
-                18
+                16,
+                20
               ],
-              "alignItems": "center",
               "children": [
                 {
                   "type": "frame",
-                  "id": "W7ZKD",
-                  "name": "Play Button",
-                  "width": 42,
-                  "height": 42,
-                  "fill": "$accent",
-                  "cornerRadius": 999,
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "bcc4L",
-                      "name": "Play Icon",
-                      "width": 17,
-                      "height": 17,
-                      "icon": "play",
-                      "library": "lucide",
-                      "fill": "#FFFFFF"
-                    }
-                  ]
-                },
-                {
-                  "type": "text",
-                  "id": "t00sF",
-                  "name": "Time",
-                  "fill": "$ink",
-                  "content": "18:24 / 42:10",
-                  "fontFamily": "$mono",
-                  "fontSize": 13,
-                  "fontWeight": "500"
-                },
-                {
-                  "type": "frame",
-                  "id": "P9Y9H",
-                  "name": "Progress Wrap",
+                  "id": "RMwcO",
+                  "name": "Native Audio Controls",
                   "width": "fill_container",
-                  "height": 16,
+                  "height": 32,
+                  "gap": 10,
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "frame",
-                      "id": "zriio",
-                      "name": "Progress Track",
-                      "width": "fill_container",
-                      "height": 6,
-                      "fill": "$line",
+                      "id": "W8pQ3",
+                      "name": "Play",
+                      "width": 28,
+                      "height": 28,
+                      "fill": "#E8E0D6",
                       "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wD9Fl",
+                          "name": "Play Icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "play",
+                          "library": "lucide",
+                          "fill": "#2C2420"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "n7XIA",
+                      "name": "Time",
+                      "fill": "$muted",
+                      "content": "0:00 / 42:10",
+                      "fontFamily": "$mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fuT9t",
+                      "name": "Progress",
+                      "width": "fill_container",
+                      "height": 16,
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "frame",
-                          "id": "sKOPV",
-                          "name": "Progress Played",
-                          "width": 430,
-                          "height": 6,
-                          "fill": "$accent",
-                          "cornerRadius": 999,
-                          "justifyContent": "end",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "IDr0k",
-                              "name": "Playhead",
-                              "width": 14,
-                              "height": 14,
-                              "fill": "$card",
-                              "cornerRadius": 999,
-                              "stroke": "$accent",
-                              "strokeWidth": 3.5
-                            }
-                          ]
+                          "id": "pD5Tu",
+                          "name": "Progress Track",
+                          "width": "fill_container",
+                          "height": 4,
+                          "fill": "#E8E0D6",
+                          "cornerRadius": 999
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "mtUeT",
-                  "name": "Speed",
-                  "height": 30,
-                  "fill": "$bg",
-                  "cornerRadius": 999,
-                  "stroke": "$line",
-                  "strokeWidth": 1,
-                  "padding": [
-                    0,
-                    12
-                  ],
-                  "alignItems": "center",
-                  "children": [
+                    },
                     {
-                      "type": "text",
-                      "id": "o3oyh",
-                      "name": "Speed Label",
-                      "fill": "$ink",
-                      "content": "1×",
-                      "fontFamily": "$font",
-                      "fontSize": 12.5,
-                      "fontWeight": "600"
+                      "type": "icon",
+                      "id": "oc5aS",
+                      "name": "Volume",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "volume-2",
+                      "library": "lucide",
+                      "fill": "#8A7F74"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "JAzIR",
+                      "name": "More",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "ellipsis",
+                      "library": "lucide",
+                      "fill": "#8A7F74"
                     }
                   ]
-                },
-                {
-                  "type": "icon",
-                  "id": "zgKgV",
-                  "name": "Volume",
-                  "width": 17,
-                  "height": 17,
-                  "icon": "volume-2",
-                  "library": "lucide",
-                  "fill": "$muted"
-                },
-                {
-                  "type": "icon",
-                  "id": "y5NGiF",
-                  "name": "Download",
-                  "width": 17,
-                  "height": 17,
-                  "icon": "download",
-                  "library": "lucide",
-                  "fill": "$muted"
                 }
               ]
             },
@@ -2761,7 +2539,7 @@
                               "id": "gRSeY",
                               "name": "Matches",
                               "fill": "$muted",
-                              "content": "3 совпадения",
+                              "content": "1 / 3",
                               "fontFamily": "$font",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -9057,6 +8835,3329 @@
           "fontFamily": "$font",
           "fontSize": 13,
           "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Lq7u8",
+      "x": -80,
+      "y": 2757,
+      "name": "Вариант A",
+      "width": 1280,
+      "layout": "vertical",
+      "gap": 12,
+      "children": [
+        {
+          "type": "text",
+          "id": "w8RbN",
+          "name": "Label A",
+          "fill": "$accent",
+          "content": "Вариант A: воздушный hero",
+          "fontFamily": "$font",
+          "fontSize": 18,
+          "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "AR7i4",
+          "name": "Main A",
+          "clip": true,
+          "width": 1184,
+          "fill": "$bg",
+          "layout": "vertical",
+          "gap": 28,
+          "padding": 40,
+          "children": [
+            {
+              "type": "frame",
+              "id": "M3VmBO",
+              "name": "Header A",
+              "width": "fill_container",
+              "gap": 16,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "dEKAS",
+                  "name": "Header Text A",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pnhlf",
+                      "name": "Title",
+                      "fill": "$ink",
+                      "content": "Главная",
+                      "fontFamily": "$font",
+                      "fontSize": 26,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "S2Kpue",
+                      "name": "Subtitle",
+                      "fill": "$muted",
+                      "content": "Расшифровка звонков и задачи после встречи",
+                      "fontFamily": "$font",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "id": "yTo0l",
+                  "type": "ref",
+                  "ref": "xi4gm",
+                  "name": "Search A",
+                  "width": 520
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rSQDF",
+              "name": "Send Bot Hero A",
+              "width": "fill_container",
+              "fill": "$peach",
+              "cornerRadius": 20,
+              "stroke": "$line",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Ri4bm",
+                  "name": "Card Title",
+                  "fill": "$ink",
+                  "content": "Отправить бота на звонок",
+                  "fontFamily": "$font",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "X90oL",
+                  "name": "Card Helper",
+                  "fill": "$muted",
+                  "textGrowth": "fixed-width",
+                  "width": 900,
+                  "content": "Вставьте ссылку на Zoom, Google Meet или Яндекс Телемост. Запись попадёт в выбранный проект.",
+                  "fontFamily": "$font",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "O4qjIK",
+                  "name": "Input Row A",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "J5WGy",
+                      "name": "Link Input A",
+                      "width": "fill_container",
+                      "height": 48,
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$accent",
+                      "strokeWidth": 1,
+                      "gap": 10,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "iF4Ia",
+                          "name": "Link Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "link",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "text",
+                          "id": "GebBB",
+                          "name": "Link Value",
+                          "fill": "$ink",
+                          "content": "https://meet.google.com/abc-defg-hij",
+                          "fontFamily": "$mono",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X5Kicx",
+                      "name": "Project Picker A",
+                      "height": 48,
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "OLOZI",
+                          "name": "Folder Icon",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "folder",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Etv31",
+                          "name": "Project Name",
+                          "fill": "$ink",
+                          "content": "Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "xIAwG",
+                          "name": "Chevron",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "chevron-down",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$muted"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "STxWO",
+                      "name": "Primary Button A",
+                      "height": 48,
+                      "fill": "$accent",
+                      "cornerRadius": 12,
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        24
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Z9Ad4k",
+                          "name": "Button Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "send",
+                          "library": "Material Symbols Rounded",
+                          "fill": "#FFFFFF"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Skke9",
+                          "name": "Button Label",
+                          "fill": "#FFFFFF",
+                          "content": "Отправить бота",
+                          "fontFamily": "$font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vyqZO",
+                  "name": "Meta A",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "E7G27a",
+                      "name": "Chip Zoom",
+                      "height": 32,
+                      "fill": "$card",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "l7BZk2",
+                          "name": "Chip Label",
+                          "fill": "$muted",
+                          "content": "Zoom",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L6Awa",
+                      "name": "Chip Google Meet",
+                      "height": 32,
+                      "fill": "$pink",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "M9C40N",
+                          "name": "Chip Label",
+                          "fill": "$accent",
+                          "content": "Google Meet",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EUaP6",
+                      "name": "Chip Яндекс Телемост",
+                      "height": 32,
+                      "fill": "$card",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "AqvIo",
+                          "name": "Chip Label",
+                          "fill": "$muted",
+                          "content": "Яндекс Телемост",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FnBkc",
+                      "name": "Detected A",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "QEY23",
+                          "name": "Check",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "check",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$success"
+                        },
+                        {
+                          "type": "text",
+                          "id": "G5rCAE",
+                          "name": "Detected Label",
+                          "fill": "$success",
+                          "content": "Распознан Google Meet",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cmER9",
+              "name": "Live Card A",
+              "width": "fill_container",
+              "height": 268,
+              "fill": "$pink",
+              "cornerRadius": 16,
+              "stroke": "$accent",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 22,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "NivRB",
+                  "name": "Live Top A",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "LbdPo",
+                      "name": "Live Copy A",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "c5E3hv",
+                          "name": "Live Title",
+                          "fill": "$ink",
+                          "content": "Синк по roadmap Q4",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "K1mfmF",
+                          "name": "Live Meta",
+                          "fill": "$muted",
+                          "content": "Подключение · Google Meet · Roadmap Q4",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jUHcT",
+                      "name": "Open Button A",
+                      "height": 40,
+                      "fill": "$card",
+                      "cornerRadius": 10,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v1huc",
+                          "name": "Open Label",
+                          "fill": "$ink",
+                          "content": "Открыть",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "m9Fog",
+                  "name": "Connection Roadmap A",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "E7WN2",
+                      "name": "Countdown Row A",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 8,
+                      "stroke": "$line",
+                      "gap": 8,
+                      "padding": [
+                        8,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "reBSX",
+                          "name": "Countdown Icon A",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "timer",
+                          "library": "lucide",
+                          "fill": "$muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "dzuGo",
+                          "name": "Countdown Prefix A",
+                          "fill": "$muted",
+                          "content": "Осталось",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TEX8w",
+                          "name": "Countdown Value A",
+                          "fill": "$accent",
+                          "content": "2:28",
+                          "fontFamily": "$mono",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "EfljF",
+                          "name": "Countdown Suffix A",
+                          "fill": "$muted",
+                          "content": "до лимита ожидания входа",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iqHpP",
+                          "name": "Countdown Badge A",
+                          "fill": "$peach",
+                          "cornerRadius": 6,
+                          "stroke": "$accent",
+                          "padding": [
+                            3,
+                            7
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iI8gw",
+                              "name": "Countdown Limit A",
+                              "fill": "$accent",
+                              "content": "лимит 2:30",
+                              "fontFamily": "$mono",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "K858R",
+                      "name": "Roadmap Track A",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 10,
+                      "stroke": "$line",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "geFW9",
+                          "name": "Roadmap Nodes Row A",
+                          "width": "fill_container",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "T1AHVI",
+                              "name": "Roadmap Step Очередь",
+                              "width": 76,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "JehXg",
+                                  "name": "Roadmap Node Очередь",
+                                  "width": 18,
+                                  "height": 18,
+                                  "fill": "$success",
+                                  "cornerRadius": 9,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "fkiLF",
+                                      "name": "Roadmap Check Очередь",
+                                      "width": 11,
+                                      "height": 11,
+                                      "icon": "check",
+                                      "library": "lucide",
+                                      "fill": "#FFFFFF"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "M6Uyqb",
+                                  "name": "Roadmap Label Очередь",
+                                  "fill": "$ink",
+                                  "content": "Очередь",
+                                  "textAlign": "center",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zEggq",
+                              "name": "Roadmap Connector Очередь",
+                              "width": "fill_container",
+                              "height": 2,
+                              "fill": "$accent",
+                              "cornerRadius": 1
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Eq61i",
+                              "name": "Roadmap Step Вход",
+                              "width": 76,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "oPuMY",
+                                  "name": "Roadmap Node Вход",
+                                  "width": 22,
+                                  "height": 22,
+                                  "fill": "$accent",
+                                  "cornerRadius": 11,
+                                  "stroke": "$accent",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "R70ZKg",
+                                      "name": "Roadmap Pulse Вход",
+                                      "fill": "#FFFFFF",
+                                      "width": 8,
+                                      "height": 8
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "JaTlM",
+                                  "name": "Roadmap Label Вход",
+                                  "fill": "$accent",
+                                  "content": "Вход",
+                                  "textAlign": "center",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TxYMq",
+                              "name": "Roadmap Connector Вход",
+                              "width": "fill_container",
+                              "height": 2,
+                              "fill": "$line",
+                              "cornerRadius": 1
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Dn4q1",
+                              "name": "Roadmap Step Запись",
+                              "width": 76,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "BdeWi",
+                                  "name": "Roadmap Node Запись",
+                                  "width": 18,
+                                  "height": 18,
+                                  "fill": "$card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$line",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "c69EfG",
+                                      "name": "Roadmap Dot Запись",
+                                      "fill": "$line",
+                                      "width": 6,
+                                      "height": 6
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "raNFj",
+                                  "name": "Roadmap Label Запись",
+                                  "fill": "$muted",
+                                  "content": "Запись",
+                                  "textAlign": "center",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "VAJEt",
+                              "name": "Roadmap Connector Запись",
+                              "width": "fill_container",
+                              "height": 2,
+                              "fill": "$line",
+                              "cornerRadius": 1
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bEZ58",
+                              "name": "Roadmap Step Расшифровка",
+                              "width": 76,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "knH52",
+                                  "name": "Roadmap Node Расшифровка",
+                                  "width": 18,
+                                  "height": 18,
+                                  "fill": "$card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$line",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "P4Vbn",
+                                      "name": "Roadmap Dot Расшифровка",
+                                      "fill": "$line",
+                                      "width": 6,
+                                      "height": 6
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "IPiOl",
+                                  "name": "Roadmap Label Расшифровка",
+                                  "fill": "$muted",
+                                  "content": "Расшифровка",
+                                  "textAlign": "center",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "h39UVl",
+                              "name": "Roadmap Connector Расшифровка",
+                              "width": "fill_container",
+                              "height": 2,
+                              "fill": "$line",
+                              "cornerRadius": 1
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UHeFU",
+                              "name": "Roadmap Step Резюме",
+                              "width": 76,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "W7C2y",
+                                  "name": "Roadmap Node Резюме",
+                                  "width": 18,
+                                  "height": 18,
+                                  "fill": "$card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$line",
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "GtnYw",
+                                      "name": "Roadmap Dot Резюме",
+                                      "fill": "$line",
+                                      "width": 6,
+                                      "height": 6
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "z14Nm",
+                                  "name": "Roadmap Label Резюме",
+                                  "fill": "$muted",
+                                  "content": "Резюме",
+                                  "textAlign": "center",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "IBKrb",
+                          "name": "Roadmap Caption A",
+                          "fill": "$accent",
+                          "content": "Бот подключается",
+                          "textAlign": "center",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Ik8j3",
+              "name": "Projects A",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "P3BKi",
+                  "name": "Projects Head A",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rBj9g",
+                      "name": "Projects Title",
+                      "fill": "$ink",
+                      "content": "Проекты",
+                      "fontFamily": "$font",
+                      "fontSize": 17,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "UMuDa",
+                      "name": "Projects Total",
+                      "fill": "$muted",
+                      "content": "24 расшифровки в 4 проектах",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "v7R7Z",
+                  "name": "Projects Grid A",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YFVD5",
+                      "name": "Tile Клиентский прототип",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 14,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oeHh0",
+                          "name": "Name",
+                          "fill": "$ink",
+                          "content": "Клиентский прототип",
+                          "fontFamily": "$font",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FKKQr",
+                          "name": "Meta",
+                          "fill": "$muted",
+                          "content": "Jira CLIENT · Epic CLI-40",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Ak4bM",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "7 расшифровок",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PEbje",
+                      "name": "Tile Onboarding",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 14,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yDamF",
+                          "name": "Name",
+                          "fill": "$ink",
+                          "content": "Onboarding",
+                          "fontFamily": "$font",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mivwB",
+                          "name": "Meta",
+                          "fill": "$muted",
+                          "content": "Jira ONB · Epic ONB-8",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ISGEU",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "4 расшифровки",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AeMBr",
+                      "name": "Tile Roadmap Q4",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 14,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yyjhJ",
+                          "name": "Name",
+                          "fill": "$ink",
+                          "content": "Roadmap Q4",
+                          "fontFamily": "$font",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "D4WIZ",
+                          "name": "Meta",
+                          "fill": "$muted",
+                          "content": "Jira ROAD · Epic ROAD-100",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "e4ZDF",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "1 расшифровка",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "i58f6",
+                      "name": "Tile Свои",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 14,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "V7PP8",
+                          "name": "Name",
+                          "fill": "$ink",
+                          "content": "Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "yRXqy",
+                          "name": "Meta",
+                          "fill": "$muted",
+                          "content": "без Jira",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FGFws",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "12 расшифровок",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RgzaC",
+              "name": "Columns A",
+              "width": "fill_container",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "S7vmaG",
+                  "name": "Upcoming A",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "AfeST",
+                      "name": "Upcoming Head",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "h0iahy",
+                          "name": "Upcoming Title",
+                          "fill": "$ink",
+                          "content": "Следующие по ссылке",
+                          "fontFamily": "$font",
+                          "fontSize": 17,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rPnHG",
+                          "name": "Upcoming Hint",
+                          "fill": "$muted",
+                          "content": "ссылки уже сохранены",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QTlMS",
+                      "name": "Upcoming List A",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 16,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "gB6NS",
+                          "name": "Row 1:1 с дизайнером",
+                          "width": "fill_container",
+                          "gap": 14,
+                          "padding": [
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "b5LBBt",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "15:30",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hXxJf",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Sd243",
+                                  "name": "Row Title",
+                                  "fill": "$ink",
+                                  "content": "1:1 с дизайнером",
+                                  "fontFamily": "$font",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "yyOJZ",
+                                  "name": "Row Platform",
+                                  "fill": "$muted",
+                                  "content": "Zoom · Свои",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZVskZ",
+                              "name": "Row Pill",
+                              "height": 24,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RkPO4",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Через 20 мин",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "G4rIgy",
+                              "name": "Row Button",
+                              "height": 36,
+                              "fill": "$card",
+                              "cornerRadius": 10,
+                              "stroke": "$line",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                14
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "IoTKR",
+                                  "name": "Row Button Label",
+                                  "fill": "$ink",
+                                  "content": "Отправить бота",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BIBc1",
+                          "name": "Divider 1",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$line"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "g51m0",
+                          "name": "Row Разбор фидбека beta",
+                          "width": "fill_container",
+                          "gap": 14,
+                          "padding": [
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CLTZT",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "16:20",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "PXY6f",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "B12H5a",
+                                  "name": "Row Title",
+                                  "fill": "$ink",
+                                  "content": "Разбор фидбека beta",
+                                  "fontFamily": "$font",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "p6Wm8",
+                                  "name": "Row Platform",
+                                  "fill": "$muted",
+                                  "content": "Google Meet · Onboarding",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dTAt8",
+                              "name": "Row Pill",
+                              "height": 24,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "k7ECzH",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Ссылка готова",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "x3Ff3",
+                              "name": "Row Button",
+                              "height": 36,
+                              "fill": "$card",
+                              "cornerRadius": 10,
+                              "stroke": "$line",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                14
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "c6Knu8",
+                                  "name": "Row Button Label",
+                                  "fill": "$ink",
+                                  "content": "Отправить бота",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "w3NPH",
+                          "name": "Divider 2",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$line"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "R8z8V",
+                          "name": "Row Ретро команды Свои",
+                          "width": "fill_container",
+                          "gap": 14,
+                          "padding": [
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sAaRZ",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "17:30",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yyjdE",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "L4aJC",
+                                  "name": "Row Title",
+                                  "fill": "$ink",
+                                  "content": "Ретро команды Свои",
+                                  "fontFamily": "$font",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Vkdja",
+                                  "name": "Row Platform",
+                                  "fill": "$muted",
+                                  "content": "Яндекс Телемост · Свои",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "r8RWS",
+                              "name": "Row Pill",
+                              "height": 24,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "R5sdc",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Ссылка готова",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "a2KoMh",
+                              "name": "Row Button",
+                              "height": 36,
+                              "fill": "$card",
+                              "cornerRadius": 10,
+                              "stroke": "$line",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                14
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "nmidX",
+                                  "name": "Row Button Label",
+                                  "fill": "$ink",
+                                  "content": "Отправить бота",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "To1g9",
+                  "name": "Recent A",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "DaaVp",
+                      "name": "Recent Head",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "C5hJ0F",
+                          "name": "Recent Title",
+                          "fill": "$ink",
+                          "content": "Последние расшифровки",
+                          "fontFamily": "$font",
+                          "fontSize": 17,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "KIxez",
+                          "name": "Recent Link",
+                          "fill": "$accent",
+                          "content": "Все",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kGLcz",
+                      "name": "Card Синк по roadmap Q4",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 16,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 18,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Wh5NO",
+                          "name": "Card Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wXc8a",
+                              "name": "Card Title",
+                              "fill": "$ink",
+                              "content": "Синк по roadmap Q4",
+                              "fontFamily": "$font",
+                              "fontSize": 15,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "twUd6",
+                              "name": "Status Chip",
+                              "height": 26,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "WoYO0",
+                                  "name": "Status Dot",
+                                  "fill": "$success",
+                                  "width": 6,
+                                  "height": 6
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "fJ6gQ",
+                                  "name": "Status Label",
+                                  "fill": "$ink",
+                                  "content": "Готово",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "HOjMV",
+                          "name": "Card Meta",
+                          "fill": "$muted",
+                          "content": "Zoom · 42 мин · 14 авг · Roadmap Q4",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "SChiK",
+                          "name": "Card Snippet",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": 480,
+                          "content": "Интеграции переносим в настройки, релиз 3 сентября не двигаем.",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fr8Ma",
+                      "name": "Card Вопросы по onboarding",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 16,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 18,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "U0vvi",
+                          "name": "Card Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cEF9w",
+                              "name": "Card Title",
+                              "fill": "$ink",
+                              "content": "Вопросы по onboarding",
+                              "fontFamily": "$font",
+                              "fontSize": 15,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "W0dmW",
+                              "name": "Status Chip",
+                              "height": 26,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "J9oSV",
+                                  "name": "Status Dot",
+                                  "fill": "$success",
+                                  "width": 6,
+                                  "height": 6
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "c2eeCL",
+                                  "name": "Status Label",
+                                  "fill": "$ink",
+                                  "content": "Готово",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "bQVHv",
+                          "name": "Card Meta",
+                          "fill": "$muted",
+                          "content": "Google Meet · 27 мин · 12 авг · Onboarding",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qyy5k",
+                          "name": "Card Snippet",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": 480,
+                          "content": "Первый экран сокращаем до одного поля, текст переписывает Ника.",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SYaCj",
+                      "name": "Card Ретро команды Свои",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 16,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 18,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "SZAtv",
+                          "name": "Card Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "TWEYW",
+                              "name": "Card Title",
+                              "fill": "$ink",
+                              "content": "Ретро команды Свои",
+                              "fontFamily": "$font",
+                              "fontSize": 15,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dsLHO",
+                              "name": "Status Chip",
+                              "height": 26,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "yfjuv",
+                                  "name": "Status Dot",
+                                  "fill": "$success",
+                                  "width": 6,
+                                  "height": 6
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "vCegI",
+                                  "name": "Status Label",
+                                  "fill": "$ink",
+                                  "content": "Резюме",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "DoYAR",
+                          "name": "Card Meta",
+                          "fill": "$muted",
+                          "content": "Яндекс Телемост · 51 мин · 8 авг · Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "IVUq8",
+                          "name": "Card Snippet",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": 480,
+                          "content": "Собираем баги в один список, разбор багов ставим на четверг.",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "OZCDY",
+      "x": 1260,
+      "y": 2757,
+      "name": "Вариант B",
+      "width": 1280,
+      "layout": "vertical",
+      "gap": 12,
+      "children": [
+        {
+          "type": "text",
+          "id": "vIXjK",
+          "name": "Label B",
+          "fill": "$accent",
+          "content": "Вариант B: компактная панель",
+          "fontFamily": "$font",
+          "fontSize": 18,
+          "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "v0nOX",
+          "name": "Main B",
+          "clip": true,
+          "width": 1184,
+          "fill": "$bg",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": 40,
+          "children": [
+            {
+              "type": "frame",
+              "id": "QWbP4",
+              "name": "Header B",
+              "width": "fill_container",
+              "gap": 16,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U9v9m7",
+                  "name": "Title",
+                  "fill": "$ink",
+                  "content": "Главная",
+                  "fontFamily": "$font",
+                  "fontSize": 22,
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "of10V",
+                  "type": "ref",
+                  "ref": "xi4gm",
+                  "name": "Search B",
+                  "width": 520
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "s4Ra4i",
+              "name": "Send Bot Toolbar B",
+              "width": "fill_container",
+              "fill": "$card",
+              "cornerRadius": 14,
+              "stroke": "$line",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": [
+                16,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cJRBU",
+                  "name": "Toolbar Title",
+                  "fill": "$ink",
+                  "content": "Отправить бота",
+                  "fontFamily": "$font",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "y48RI",
+                  "name": "Toolbar Row",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "gJpSk",
+                      "name": "Link Input B",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "$bg",
+                      "cornerRadius": 10,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "l1dID",
+                          "name": "Link Icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "link",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "UxAwF",
+                          "name": "Link Value",
+                          "fill": "$muted",
+                          "content": "Вставьте ссылку на звонок",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L3hEg",
+                      "name": "Project Picker B",
+                      "height": 40,
+                      "fill": "$peach",
+                      "cornerRadius": 10,
+                      "gap": 6,
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Uur1y",
+                          "name": "Project Name",
+                          "fill": "$ink",
+                          "content": "Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "GCg8t",
+                          "name": "Chevron",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "keyboard_arrow_down",
+                          "library": "Material Symbols Rounded",
+                          "fill": "$muted"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "y5XfL",
+                      "name": "Primary Button B",
+                      "height": 40,
+                      "fill": "$accent",
+                      "cornerRadius": 10,
+                      "padding": [
+                        0,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eZnb9",
+                          "name": "Button Label",
+                          "fill": "#FFFFFF",
+                          "content": "Отправить",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "havGh",
+                  "name": "Chips Row B",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UtgLS",
+                      "name": "Chip Zoom",
+                      "height": 26,
+                      "fill": "$bg",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Z244P",
+                          "name": "Chip Label",
+                          "fill": "$muted",
+                          "content": "Zoom",
+                          "fontFamily": "$font",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RAL7O",
+                      "name": "Chip Google Meet",
+                      "height": 26,
+                      "fill": "$pink",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WvSNp",
+                          "name": "Chip Label",
+                          "fill": "$accent",
+                          "content": "Google Meet",
+                          "fontFamily": "$font",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sN98F",
+                      "name": "Chip Телемост",
+                      "height": 26,
+                      "fill": "$bg",
+                      "cornerRadius": 999,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BKXl9",
+                          "name": "Chip Label",
+                          "fill": "$muted",
+                          "content": "Телемост",
+                          "fontFamily": "$font",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "n2NXY",
+                      "name": "Detected",
+                      "fill": "$success",
+                      "content": "Google Meet распознан",
+                      "fontFamily": "$font",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GV58S",
+              "name": "Live Panel B",
+              "width": "fill_container",
+              "fill": "$card",
+              "cornerRadius": 14,
+              "stroke": "$line",
+              "strokeWidth": 1,
+              "gap": 20,
+              "padding": 18,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "h5mzz",
+                  "name": "Live Left B",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "EvbuE",
+                      "name": "Live Badge",
+                      "width": 72,
+                      "height": 22,
+                      "fill": "$pink",
+                      "cornerRadius": 999,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fECZV",
+                          "name": "Badge Label",
+                          "fill": "$accent",
+                          "content": "В эфире",
+                          "fontFamily": "$font",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "oWY8o",
+                      "name": "Live Title",
+                      "fill": "$ink",
+                      "content": "Синк по roadmap Q4",
+                      "fontFamily": "$font",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "N5f67b",
+                      "name": "Live Meta",
+                      "fill": "$muted",
+                      "content": "12 мин · Google Meet · Roadmap Q4",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CNVPh",
+                      "name": "Step Caption",
+                      "fill": "$accent",
+                      "content": "Запись: идёт звук",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "V1nLn",
+                      "name": "Open Button B",
+                      "width": 120,
+                      "height": 36,
+                      "fill": "$accent",
+                      "cornerRadius": 10,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yU640",
+                          "name": "Open Label",
+                          "fill": "#FFFFFF",
+                          "content": "Открыть",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "m9RNpq",
+                  "name": "Stepper Col B",
+                  "width": 220,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "bpFp2",
+                      "name": "Step Очередь",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "PGRF7",
+                          "name": "Step Dot",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "$success",
+                          "cornerRadius": 999,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "Y8OSuJ",
+                              "name": "Check",
+                              "width": 10,
+                              "height": 10,
+                              "icon": "check",
+                              "library": "Material Symbols Rounded",
+                              "fill": "#FFFFFF"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "qx3zL",
+                          "name": "Step Label",
+                          "fill": "$ink",
+                          "content": "Очередь",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sHiOs",
+                      "name": "Step Вход",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "XeMf7",
+                          "name": "Step Dot",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "$success",
+                          "cornerRadius": 999,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "aaWHX",
+                              "name": "Check",
+                              "width": 10,
+                              "height": 10,
+                              "icon": "check",
+                              "library": "Material Symbols Rounded",
+                              "fill": "#FFFFFF"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "f3wugq",
+                          "name": "Step Label",
+                          "fill": "$ink",
+                          "content": "Вход",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "m7byg",
+                      "name": "Step Запись",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "P40ki",
+                          "name": "Step Dot",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "$accent",
+                          "cornerRadius": 999,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "iUaoe",
+                              "name": "Inner",
+                              "fill": "#FFFFFF",
+                              "width": 6,
+                              "height": 6
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "bYyWR",
+                          "name": "Step Label",
+                          "fill": "$accent",
+                          "content": "Запись",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ynaE5",
+                      "name": "Step Расшифровка",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "r2ZFO",
+                          "name": "Step Dot",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "$line",
+                          "cornerRadius": 999,
+                          "justifyContent": "center",
+                          "alignItems": "center"
+                        },
+                        {
+                          "type": "text",
+                          "id": "CjZQk",
+                          "name": "Step Label",
+                          "fill": "$muted",
+                          "content": "Расшифровка",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "a8bstA",
+                      "name": "Step Резюме",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "JMrEG",
+                          "name": "Step Dot",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "$line",
+                          "cornerRadius": 999,
+                          "justifyContent": "center",
+                          "alignItems": "center"
+                        },
+                        {
+                          "type": "text",
+                          "id": "EU5DZ",
+                          "name": "Step Label",
+                          "fill": "$muted",
+                          "content": "Резюме",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eOE1l",
+              "name": "Projects B",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "nz82f",
+                  "name": "Projects Head B",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zjcQV",
+                      "name": "Projects Title",
+                      "fill": "$ink",
+                      "content": "Проекты",
+                      "fontFamily": "$font",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XV2U9",
+                      "name": "Projects Total",
+                      "fill": "$muted",
+                      "content": "24 в 4 проектах",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sGYcE",
+                  "name": "Projects List B",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": 12,
+                  "stroke": "$line",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VxgoU",
+                      "name": "Project Клиентский прототип",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "padding": [
+                        14,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "pYNOF",
+                          "name": "Accent Bar",
+                          "width": 3,
+                          "height": 36,
+                          "fill": "$accent",
+                          "cornerRadius": 2
+                        },
+                        {
+                          "type": "frame",
+                          "id": "i31yJ",
+                          "name": "Name Block",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gl5aD",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "Клиентский прототип",
+                              "fontFamily": "$font",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Z8Ajv",
+                              "name": "Meta",
+                              "fill": "$muted",
+                              "content": "Jira CLIENT · Epic CLI-40",
+                              "fontFamily": "$font",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "z0uglO",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "7 расшифр.",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QMu4d",
+                      "name": "Divider 1",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "$line"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "weFZr",
+                      "name": "Project Onboarding",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "padding": [
+                        14,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "QLzMb",
+                          "name": "Accent Bar",
+                          "width": 3,
+                          "height": 36,
+                          "fill": "$accent",
+                          "cornerRadius": 2
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mthEl",
+                          "name": "Name Block",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Y2hFGW",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "Onboarding",
+                              "fontFamily": "$font",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "G5brY",
+                              "name": "Meta",
+                              "fill": "$muted",
+                              "content": "Jira ONB · Epic ONB-8",
+                              "fontFamily": "$font",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "R3qCs",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "4 расшифр.",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "imaWm",
+                      "name": "Divider 2",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "$line"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "O4FXE",
+                      "name": "Project Roadmap Q4",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "padding": [
+                        14,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ThSpM",
+                          "name": "Accent Bar",
+                          "width": 3,
+                          "height": 36,
+                          "fill": "$accent",
+                          "cornerRadius": 2
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Y7HMA6",
+                          "name": "Name Block",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YM9y0",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "Roadmap Q4",
+                              "fontFamily": "$font",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "NHeSt",
+                              "name": "Meta",
+                              "fill": "$muted",
+                              "content": "Jira ROAD · Epic ROAD-100",
+                              "fontFamily": "$font",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "q8iUsp",
+                          "name": "Count",
+                          "fill": "$accent",
+                          "content": "1 расшифр.",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "A11hnx",
+              "name": "Columns B",
+              "width": "fill_container",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "RcG6R",
+                  "name": "Upcoming B",
+                  "width": 520,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ERdtV",
+                      "name": "Upcoming Title",
+                      "fill": "$ink",
+                      "content": "Следующие по ссылке",
+                      "fontFamily": "$font",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xf9AA",
+                      "name": "Schedule 1:1 с дизайнером",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dzYvD",
+                          "name": "Card Top",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fRAtc",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "15:30",
+                              "fontFamily": "$mono",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "APkpQ",
+                              "name": "Pill",
+                              "height": 22,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Bw21U",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Через 20 мин",
+                                  "fontFamily": "$font",
+                                  "fontSize": 10,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "QGVtx",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "1:1 с дизайнером",
+                          "fontFamily": "$font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "cds4h",
+                          "name": "Platform",
+                          "fill": "$muted",
+                          "content": "Zoom · Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sZWE3",
+                          "name": "Send Button",
+                          "width": "fill_container",
+                          "height": 32,
+                          "fill": "$bg",
+                          "cornerRadius": 8,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zoLZW",
+                              "name": "Send Label",
+                              "fill": "$ink",
+                              "content": "Отправить бота",
+                              "fontFamily": "$font",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Sg5a1",
+                      "name": "Schedule Разбор фидбека beta",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "KPbVr",
+                          "name": "Card Top",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "OoEul",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "16:20",
+                              "fontFamily": "$mono",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yDAM5",
+                              "name": "Pill",
+                              "height": 22,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "V2Rr80",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Ссылка готова",
+                                  "fontFamily": "$font",
+                                  "fontSize": 10,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Vi1cb",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Разбор фидбека beta",
+                          "fontFamily": "$font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wvZHH",
+                          "name": "Platform",
+                          "fill": "$muted",
+                          "content": "Google Meet · Onboarding",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Cu7Ln",
+                          "name": "Send Button",
+                          "width": "fill_container",
+                          "height": 32,
+                          "fill": "$bg",
+                          "cornerRadius": 8,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iW5vM",
+                              "name": "Send Label",
+                              "fill": "$ink",
+                              "content": "Отправить бота",
+                              "fontFamily": "$font",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YhhOW",
+                      "name": "Schedule Ретро команды Свои",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Wiebh",
+                          "name": "Card Top",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "pAo5I",
+                              "name": "Time",
+                              "fill": "$accent",
+                              "content": "17:30",
+                              "fontFamily": "$mono",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "O0rsS",
+                              "name": "Pill",
+                              "height": 22,
+                              "fill": "$peach",
+                              "cornerRadius": 999,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GA19S",
+                                  "name": "Pill Label",
+                                  "fill": "$accent",
+                                  "content": "Ссылка готова",
+                                  "fontFamily": "$font",
+                                  "fontSize": 10,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "xCHRk",
+                          "name": "Title",
+                          "fill": "$ink",
+                          "content": "Ретро команды Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "fEiFe",
+                          "name": "Platform",
+                          "fill": "$muted",
+                          "content": "Яндекс Телемост · Свои",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "K01UJ",
+                          "name": "Send Button",
+                          "width": "fill_container",
+                          "height": 32,
+                          "fill": "$bg",
+                          "cornerRadius": 8,
+                          "stroke": "$line",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "P4D4ns",
+                              "name": "Send Label",
+                              "fill": "$ink",
+                              "content": "Отправить бота",
+                              "fontFamily": "$font",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "W9ESuK",
+                  "name": "Recent B",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "aqNsJ",
+                      "name": "Recent Head B",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Llykq",
+                          "name": "Recent Title",
+                          "fill": "$ink",
+                          "content": "Последние расшифровки",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qkzqH",
+                          "name": "Recent Link",
+                          "fill": "$accent",
+                          "content": "Все",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ATrLz",
+                      "name": "Recent List B",
+                      "width": "fill_container",
+                      "fill": "$card",
+                      "cornerRadius": 12,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "E0cmFM",
+                          "name": "Recent Row Синк по roadmap Q4",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Lpa1V",
+                              "name": "Accent",
+                              "width": 4,
+                              "height": 52,
+                              "fill": "$success",
+                              "cornerRadius": 2
+                            },
+                            {
+                              "type": "frame",
+                              "id": "fD4h4",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "WiONR",
+                                  "name": "Row Top",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ztyCv",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Синк по roadmap Q4",
+                                      "fontFamily": "$font",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "lwjlb",
+                                      "name": "Status",
+                                      "fill": "$success",
+                                      "content": "Готово",
+                                      "fontFamily": "$font",
+                                      "fontSize": 11,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "XV91o",
+                                  "name": "Meta",
+                                  "fill": "$muted",
+                                  "content": "Zoom · 42 мин · 14 авг",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Oos0f",
+                                  "name": "Snippet",
+                                  "fill": "$muted",
+                                  "content": "Интеграции переносим в настройки.",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "w5JUeo",
+                          "name": "Divider 1",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$line"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "LCDvG",
+                          "name": "Recent Row Вопросы по onboarding",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "KOP9x",
+                              "name": "Accent",
+                              "width": 4,
+                              "height": 52,
+                              "fill": "$success",
+                              "cornerRadius": 2
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cTL8t",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "P8XdV",
+                                  "name": "Row Top",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "v3m64n",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Вопросы по onboarding",
+                                      "fontFamily": "$font",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "V5fUz",
+                                      "name": "Status",
+                                      "fill": "$success",
+                                      "content": "Готово",
+                                      "fontFamily": "$font",
+                                      "fontSize": 11,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "uZJWY",
+                                  "name": "Meta",
+                                  "fill": "$muted",
+                                  "content": "Google Meet · 27 мин · 12 авг",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "y8Vjxg",
+                                  "name": "Snippet",
+                                  "fill": "$muted",
+                                  "content": "Первый экран сокращаем до одного поля.",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "YsAOE",
+                          "name": "Divider 2",
+                          "width": "fill_container",
+                          "height": 1,
+                          "fill": "$line"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "omfFv",
+                          "name": "Recent Row Ретро команды Свои",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "padding": [
+                            14,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "BjGBl",
+                              "name": "Accent",
+                              "width": 4,
+                              "height": 52,
+                              "fill": "$accent",
+                              "cornerRadius": 2
+                            },
+                            {
+                              "type": "frame",
+                              "id": "CLXDe",
+                              "name": "Row Body",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "h9ar5",
+                                  "name": "Row Top",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Bo4t2",
+                                      "name": "Title",
+                                      "fill": "$ink",
+                                      "content": "Ретро команды Свои",
+                                      "fontFamily": "$font",
+                                      "fontSize": 14,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "HEB0T",
+                                      "name": "Status",
+                                      "fill": "$accent",
+                                      "content": "Резюме",
+                                      "fontFamily": "$font",
+                                      "fontSize": 11,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "VsMQC",
+                                  "name": "Meta",
+                                  "fill": "$muted",
+                                  "content": "Яндекс Телемост · 51 мин · 8 авг",
+                                  "fontFamily": "$font",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "IFwdq",
+                                  "name": "Snippet",
+                                  "fill": "$muted",
+                                  "content": "Собираем баги в один список.",
+                                  "fontFamily": "$font",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

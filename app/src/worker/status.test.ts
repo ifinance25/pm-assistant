@@ -37,7 +37,9 @@ describe("переходы статусов встречи", () => {
 
   it("принимает повторную расшифровку ready→transcribing, error→transcribing и joining→transcribing", () => {
     expect(() => assertStatusTransition("ready", "transcribing")).not.toThrow();
+    expect(() => assertStatusTransition("ready", "summarizing")).not.toThrow();
     expect(() => assertStatusTransition("error", "transcribing")).not.toThrow();
+    expect(() => assertStatusTransition("error", "summarizing")).not.toThrow();
     expect(() => assertStatusTransition("joining", "transcribing")).not.toThrow();
     expect(() => assertStatusTransition("queued", "transcribing")).not.toThrow();
     expect(() => assertStatusTransition("summarizing", "transcribing")).not.toThrow();

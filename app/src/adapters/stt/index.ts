@@ -18,6 +18,7 @@ export type Transcript = {
 
 export type TranscribeOptions = {
   languageHint?: string;
+  onPartial?: (segments: SttSegment[]) => void;
 };
 
 export type SttEngine = {

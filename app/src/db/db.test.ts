@@ -99,6 +99,30 @@ describe("db v2 migration", () => {
     expect(db.getMeeting(pending.id)?.title).toBeNull();
   });
 
+  it("updateMeetingTitle меняет название встречи", () => {
+    db = createDb(":memory:");
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/9" });
+    const updated = db.updateMeetingTitle(meeting.id, "Новое имя");
+    expect(updated?.title).toBe("Новое имя");
+    expect(db.getMeeting(meeting.id)?.title).toBe("Новое имя");
+  });
+
+  it("updateMeetingProject меняет проект встречи", () => {
+    db = createDb(":memory:");
+    const project = db.createProject({
+      name: "Новый проект",
+      trackerProjectRef: "",
+      trackerParentRef: "",
+    });
+    const meeting = db.createMeeting({
+      url: "https://zoom.us/j/10",
+      projectId: db.listProjects()[0]?.id,
+    });
+    const updated = db.updateMeetingProject(meeting.id, project.id);
+    expect(updated?.projectId).toBe(project.id);
+    expect(db.getMeeting(meeting.id)?.projectId).toBe(project.id);
+  });
+
   it("не берёт следующее задание, пока running жив, и снимает stale running", () => {
     db = createDb(":memory:");
     const first = db.createMeeting({ url: "https://zoom.us/j/1" });
@@ -114,5 +138,94 @@ describe("db v2 migration", () => {
     expect(next).toBeTruthy();
     expect(next?.id).not.toBe(claimed?.id);
     expect(next?.meetingId).not.toBe(claimed?.meetingId);
+  });
+
+  it("берёт расшифровку, пока другой созвон ещё в join", () => {
+    db = createDb(":memory:");
+    const live = db.createMeeting({ url: "https://zoom.us/j/live" });
+    const recorded = db.createMeeting({ url: "https://zoom.us/j/done" });
+    db.enqueueJob({ meetingId: live.id, type: "join" });
+    db.enqueueJob({ meetingId: recorded.id, type: "transcribe" });
+    const join = db.claimNextJob();
+    expect(join?.type).toBe("join");
+    expect(join?.meetingId).toBe(live.id);
+    const transcribe = db.claimNextJob();
+    expect(transcribe?.type).toBe("transcribe");
+    expect(transcribe?.meetingId).toBe(recorded.id);
+    expect(db.claimNextJob()).toBeNull();
+  });
+
+  it("берёт саммари, пока идут join и расшифровка", () => {
+    db = createDb(":memory:");
+    const live = db.createMeeting({ url: "https://zoom.us/j/live" });
+    const recorded = db.createMeeting({ url: "https://zoom.us/j/stt" });
+    const done = db.createMeeting({ url: "https://zoom.us/j/llm" });
+    db.enqueueJob({ meetingId: live.id, type: "join" });
+    db.enqueueJob({ meetingId: recorded.id, type: "transcribe" });
+    db.enqueueJob({ meetingId: done.id, type: "summarize" });
+    expect(db.claimNextJob()?.type).toBe("join");
+    expect(db.claimNextJob()?.type).toBe("transcribe");
+    expect(db.claimNextJob()?.type).toBe("summarize");
+    expect(db.claimNextJob()).toBeNull();
+  });
+
+  it("записывает created_at при постановке задания в очередь", () => {
+    db = createDb(":memory:");
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/created" });
+    const before = Date.now();
+    const job = db.enqueueJob({ meetingId: meeting.id, type: "join" });
+    const after = Date.now();
+    expect(job.createdAt).toBeTruthy();
+    const createdMs = Date.parse(job.createdAt!);
+    expect(createdMs).toBeGreaterThanOrEqual(before);
+    expect(createdMs).toBeLessThanOrEqual(after);
+    expect(db.listJobs()[0].createdAt).toBe(job.createdAt);
+  });
+
+  it("удаляет встречу вместе с сегментами и правит текст фрагмента", () => {
+    db = createDb(":memory:");
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/del" });
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Илья",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "черновик",
+      },
+    ]);
+    db.saveSummary(meeting.id, {
+      headline: "заголовок",
+      decisions: "",
+      risks: "",
+      nextStep: "",
+    });
+    const [seg] = db.listTranscript(meeting.id);
+    const updated = db.updateTranscriptSegment(meeting.id, seg.id, "исправлено");
+    expect(updated?.text).toBe("исправлено");
+    expect(db.listTranscript(meeting.id)[0].text).toBe("исправлено");
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Илья",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "первая",
+      },
+      {
+        speaker: "Илья",
+        startedAtMs: 1000,
+        endedAtMs: 2000,
+        text: "вторая",
+      },
+    ]);
+    const [keep, drop] = db.listTranscript(meeting.id);
+    db.updateTranscriptSegment(meeting.id, keep.id, "склеено");
+    db.removeTranscriptSegments(meeting.id, [drop.id]);
+    expect(db.listTranscript(meeting.id).map((row) => row.text)).toEqual([
+      "склеено",
+    ]);
+    expect(db.deleteMeeting(meeting.id)?.id).toBe(meeting.id);
+    expect(db.getMeeting(meeting.id)).toBeNull();
+    expect(db.listTranscript(meeting.id)).toEqual([]);
+    expect(db.getSummary(meeting.id)).toBeNull();
   });
 });

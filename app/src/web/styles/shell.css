@@ -275,6 +275,36 @@
   padding: 28px 48px 40px;
 }
 
+.shell--lock {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.shell--lock .sidebar {
+  height: 100%;
+  min-height: 0;
+}
+
+.shell--lock .workspace {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace__main--lock {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
+}
+
+.workspace__main--lock > * {
+  flex: 1;
+  min-height: 0;
+}
+
 .placeholder__title {
   font-family: var(--font-head);
   font-size: 32px;

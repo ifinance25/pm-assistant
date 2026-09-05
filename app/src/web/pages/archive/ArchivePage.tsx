@@ -80,11 +80,12 @@ async function loadDetail(id: string): Promise<MeetingDetail | null> {
 export function ArchivePage() {
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
+  const initialProjectId = params.get("projectId") ?? "";
   const [filters, setFilters] = useState<ArchiveFilters>({
     platform: "",
     period: "",
     status: "",
-    projectId: "",
+    projectId: initialProjectId,
   });
   const [projects, setProjects] = useState<ArchiveProjectChip[]>([]);
   const [results, setResults] = useState<ArchiveHit[]>([]);
@@ -128,7 +129,7 @@ export function ArchivePage() {
     if (q) {
       search.set("q", q);
     }
-    if (filters.status === "ready" || filters.status === "recording") {
+    if (filters.status) {
       search.set("status", filters.status);
     }
     if (filters.projectId) {
@@ -142,7 +143,11 @@ export function ArchivePage() {
         }
         const body = (await res.json()) as { results?: SearchHit[] };
         const hits = Array.isArray(body.results) ? body.results : [];
-        return hitsFromSearch(hits);
+        return hitsFromSearch(hits).sort((a, b) => {
+          const aTime = a.startedAt ? Date.parse(a.startedAt) : 0;
+          const bTime = b.startedAt ? Date.parse(b.startedAt) : 0;
+          return bTime - aTime;
+        });
       })
       .then(async (hits) => {
         if (ac.signal.aborted) {

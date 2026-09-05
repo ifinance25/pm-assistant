@@ -61,6 +61,8 @@ describe("ArchiveView", () => {
     expect(html).toContain("Roadmap Q4");
     expect(html).toContain("Готово");
     expect(html).toContain("Запись");
+    expect(html).toContain("Очередь");
+    expect(html).toContain("Расшифровка");
     expect(html).toContain("archive__chip--active");
     expect(html).not.toContain("Источник");
     expect(html).not.toContain("Яндекс.Телемост");

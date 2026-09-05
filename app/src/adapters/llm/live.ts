@@ -1,25 +1,33 @@
 import type { Transcript } from "../stt/index.ts";
 import type {
   ActionItemDraft,
+  DecisionItemDraft,
   MeetingSummary,
   SummarizeResult,
 } from "./index.ts";
+import { kimiChatConfig } from "./credentials.ts";
+import { openAiChatText } from "./openai-chat.ts";
 import { fetchWithTimeout } from "../../shared/http-timeout.ts";
+import {
+  resolveSegmentId,
+  SUMMARIZE_SEGMENT_PROMPT,
+  summarizeUserContent,
+  type SummarizeSegment,
+} from "./summarize-content.ts";
 
-const SYSTEM_PROMPT = [
+export const SUMMARIZE_SYSTEM_PROMPT = [
   "Ты секретарь встречи. Ответь только JSON без markdown.",
-  "Поля: summary.headline, summary.decisions, summary.risks, summary.nextStep (русский текст),",
-  "actionItems: массив {assignee, title, dueAt (YYYY-MM-DD или null), timecodeMs (число или null)}.",
+  "Поля: summary.headline, summary.risks, summary.nextStep (русский текст),",
+  SUMMARIZE_SEGMENT_PROMPT,
   "Не используй длинное тире.",
 ].join(" ");
 
 type LlmJson = {
-  summary?: MeetingSummary;
-  actionItems?: ActionItemDraft[];
-};
-
-type ChatResponse = {
-  choices?: Array<{ message?: { content?: string } }>;
+  summary?: MeetingSummary & { decisions?: string };
+  decisionItems?: DecisionItemDraft[];
+  actionItems?: Array<
+    ActionItemDraft & { segmentId?: string | number | null }
+  >;
 };
 
 type ClaudeResponse = {
@@ -94,9 +102,90 @@ export async function fetchLlm(url: string, init: RequestInit): Promise<Response
 }
 
 function userContent(transcript: Transcript): string {
-  return transcript.segments
-    .map((segment) => `${segment.speaker}: ${segment.text}`)
-    .join("\n");
+  return summarizeUserContent(transcript.segments as SummarizeSegment[]);
+}
+
+function parseDecisionItems(parsed: LlmJson): DecisionItemDraft[] {
+  if (Array.isArray(parsed.decisionItems)) {
+    return parsed.decisionItems
+      .map((item) => ({
+        text: String(item.text ?? "").trim(),
+        segmentId:
+          item.segmentId == null || item.segmentId === ""
+            ? null
+            : String(item.segmentId),
+      }))
+      .filter((item) => item.text.length > 0);
+  }
+  const raw = parsed.summary?.decisions;
+  if (!raw) {
+    return [];
+  }
+  return String(raw)
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-•]\s*/, "").trim())
+    .filter(Boolean)
+    .map((text) => ({ text, segmentId: null }));
+}
+
+export function toSummarizeResult(
+  parsed: LlmJson,
+  segments: SummarizeSegment[] = [],
+): SummarizeResult {
+  const decisionItems = parseDecisionItems(parsed);
+  const decisionSegmentIds = [
+    ...new Set(
+      decisionItems
+        .map((item) =>
+          resolveSegmentId(segments, null, item.segmentId),
+        )
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const decisionsText =
+    decisionItems.length > 0
+      ? decisionItems.map((item) => item.text).join("\n")
+      : String(parsed.summary?.decisions ?? "");
+
+  return {
+    mode: "live",
+    summary: {
+      headline: String(parsed.summary?.headline ?? ""),
+      decisions: decisionsText,
+      risks: String(parsed.summary?.risks ?? ""),
+      nextStep: String(parsed.summary?.nextStep ?? ""),
+      decisionSegmentIds,
+    },
+    actionItems: (parsed.actionItems ?? []).map((item) => {
+      const timecodeMs = (() => {
+        const raw = item.timecodeMs as string | number | null | undefined;
+        if (raw == null || raw === "") {
+          return null;
+        }
+        const value = Number(raw);
+        return Number.isFinite(value) ? value : null;
+      })();
+      const explicitSegmentId =
+        item.segmentId == null || item.segmentId === ""
+          ? null
+          : String(item.segmentId);
+      return {
+        assignee:
+          item.assignee == null || item.assignee === ""
+            ? null
+            : String(item.assignee),
+        title: String(item.title ?? ""),
+        dueAt:
+          item.dueAt == null || item.dueAt === "" ? null : String(item.dueAt),
+        timecodeMs,
+        segmentId: resolveSegmentId(
+          segments,
+          timecodeMs,
+          explicitSegmentId,
+        ),
+      };
+    }),
+  };
 }
 
 export function parseLlmJson<T = LlmJson>(raw: string): T {
@@ -107,24 +196,6 @@ export function parseLlmJson<T = LlmJson>(raw: string): T {
     .replace(/```$/, "")
     .trim();
   return JSON.parse(trimmed) as T;
-}
-
-function toResult(parsed: LlmJson): SummarizeResult {
-  return {
-    mode: "live",
-    summary: {
-      headline: parsed.summary?.headline ?? "",
-      decisions: parsed.summary?.decisions ?? "",
-      risks: parsed.summary?.risks ?? "",
-      nextStep: parsed.summary?.nextStep ?? "",
-    },
-    actionItems: (parsed.actionItems ?? []).map((item) => ({
-      assignee: item.assignee ?? null,
-      title: item.title ?? "",
-      dueAt: item.dueAt ?? null,
-      timecodeMs: item.timecodeMs ?? null,
-    })),
-  };
 }
 
 export function throwIfNotOk(res: Response): void {
@@ -148,7 +219,7 @@ export async function liveSummarizeClaude(
     body: JSON.stringify({
       model: "claude-sonnet-4-5",
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: SUMMARIZE_SYSTEM_PROMPT,
       messages: [{ role: "user", content: userContent(transcript) }],
     }),
   });
@@ -158,36 +229,41 @@ export async function liveSummarizeClaude(
   if (!raw) {
     throw new Error("llm вернул пустой ответ");
   }
-  return toResult(parseLlmJson(raw));
+  return toSummarizeResult(
+    parseLlmJson(raw),
+    transcript.segments as SummarizeSegment[],
+  );
 }
 
 export async function liveSummarize(
   transcript: Transcript,
   apiKey: string,
 ): Promise<SummarizeResult> {
-  const res = await fetchLlm("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: userContent(transcript),
-        },
-      ],
-    }),
-  });
-  throwIfNotOk(res);
-  const body = (await res.json()) as ChatResponse;
-  const raw = body.choices?.[0]?.message?.content;
-  if (!raw) {
-    throw new Error("llm вернул пустой ответ");
-  }
-  return toResult(parseLlmJson(raw));
+  const raw = await openAiChatText(
+    { apiKey, model: "gpt-4o-mini" },
+    SUMMARIZE_SYSTEM_PROMPT,
+    userContent(transcript),
+    true,
+  );
+  return toSummarizeResult(
+    parseLlmJson(raw),
+    transcript.segments as SummarizeSegment[],
+  );
+}
+
+export async function liveSummarizeKimi(
+  transcript: Transcript,
+  apiKey: string,
+): Promise<SummarizeResult> {
+  const config = kimiChatConfig(apiKey);
+  const raw = await openAiChatText(
+    config,
+    SUMMARIZE_SYSTEM_PROMPT,
+    userContent(transcript),
+    true,
+  );
+  return toSummarizeResult(
+    parseLlmJson(raw),
+    transcript.segments as SummarizeSegment[],
+  );
 }

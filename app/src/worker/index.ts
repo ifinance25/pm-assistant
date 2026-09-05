@@ -12,29 +12,23 @@ function beat(): void {
 
 const recovered = recoverOrphanedWork(db);
 console.error(
-  `воркер: снято running ${recovered.jobsFailed}, join с wav ${recovered.joinJobsFailed}, в расшифровку ${recovered.transcribeQueued}, без звука ${recovered.meetingsErrored}`,
+  `воркер: снято running ${recovered.jobsFailed}, join с wav ${recovered.joinJobsFailed}, в расшифровку ${recovered.transcribeQueued}, без звука ${recovered.meetingsErrored}, дубликаты ${recovered.extraJobsFailed}`,
 );
 
 beat();
 setInterval(beat, HEARTBEAT_MS);
 
-let busy = false;
-
 async function loop(): Promise<void> {
-  if (busy) {
-    return;
-  }
-  busy = true;
   try {
     await runOnce(db);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`воркер: ошибка задания: ${message}`);
-  } finally {
-    busy = false;
   }
 }
 
+void loop();
+void loop();
 void loop();
 setInterval(() => {
   void loop();

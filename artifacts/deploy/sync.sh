@@ -21,6 +21,9 @@ fi
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CHANGELOG="$VAULT/Projects/PM Assistant/CHANGELOG.md"
 
+echo "[sync] предполёт: воркер свободен?"
+bash "$HERE/preflight.sh"
+
 if [ "${SKIP_RELEASE_NOTES:-}" != "1" ]; then
   echo "[sync] история релизов"
   node "$HERE/record-release.mjs"

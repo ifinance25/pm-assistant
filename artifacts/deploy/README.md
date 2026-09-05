@@ -37,7 +37,9 @@ Nginx на сервере: UI `127.0.0.1:5173`, `/api` проксируется 
 bash "Projects/PM Assistant/artifacts/deploy/sync.sh"
 ```
 
-Перед копированием `sync.sh` дописывает секцию в `Projects/PM Assistant/CHANGELOG.md` для версии из `app/package.json`. На сервере копия: `/opt/pm-assistant/CHANGELOG.md`. Пропуск записи: `SKIP_RELEASE_NOTES=1`. Повтор той же версии без новых коммитов и файлов секцию не дублирует.
+Перед копированием `sync.sh` гоняет [предполёт](preflight.sh): если на проде идёт запись или Whisper, копирование останавливается. Обход: `FORCE_DEPLOY=1`. Дальше дописывает секцию в `CHANGELOG.md` для версии из `app/package.json`. На сервере копия: `/opt/pm-assistant/CHANGELOG.md`. Пропуск записи: `SKIP_RELEASE_NOTES=1`. Повтор той же версии без новых коммитов и файлов секцию не дублирует.
+
+Мелкие доработки копить в пачку, тестировать пачку, выкатывать скопом: [пакетный релиз](batch-release.md).
 
 На сервере:
 

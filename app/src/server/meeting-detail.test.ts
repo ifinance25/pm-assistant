@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -64,6 +64,57 @@ describe("POST /api/meetings/:id/retry и /transcribe", () => {
       headers: authHeaders(auth),
     });
     expect(res.status).toBe(409);
+  });
+
+  it("transcribe не дублирует задание, если расшифровка уже в очереди", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/1" });
+    db.updateMeetingStatus(meeting.id, "joining");
+    db.updateMeetingStatus(meeting.id, "recording", {
+      audioPath: "/tmp/a.wav",
+      source: "live",
+    });
+    db.updateMeetingStatus(meeting.id, "transcribing");
+    const first = await app.request(`/api/meetings/${meeting.id}/transcribe`, {
+      method: "POST",
+      headers: authHeaders(auth),
+    });
+    const second = await app.request(`/api/meetings/${meeting.id}/transcribe`, {
+      method: "POST",
+      headers: authHeaders(auth),
+    });
+    expect(first.status).toBe(202);
+    expect(second.status).toBe(202);
+    expect(
+      db.listJobs().filter((job) => job.type === "transcribe").length,
+    ).toBe(1);
+  });
+
+  it("GET transcribing отдаёт прогноз окончания", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/1" });
+    db.updateMeetingStatus(meeting.id, "transcribing", {
+      audioPath: "/tmp/a.wav",
+      source: "live",
+    });
+    db.enqueueJob({ meetingId: meeting.id, type: "transcribe" });
+    db.claimNextJob();
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Спикер 1",
+        startedAtMs: 0,
+        endedAtMs: 30_000,
+        text: "Первый фрагмент",
+      },
+    ]);
+    const res = await app.request(`/api/meetings/${meeting.id}`, {
+      headers: authHeaders(auth),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      transcribeProgress?: { percent: number; startedAt: string | null };
+    };
+    expect(body.transcribeProgress?.startedAt).toBeTruthy();
   });
 
   it("transcribe с audio_path ставит задание", async () => {
@@ -262,7 +313,7 @@ describe("POST /api/meetings/:id/ask", () => {
     db?.close();
   });
 
-  it("отдаёт stub-ответ по вопросу", async () => {
+  it("отдаёт ответ по epic из контекста (stub LLM)", async () => {
     ({ db, auth } = setupAuthedDb());
     const project = db.createProject({
       name: "Roadmap Q4",
@@ -272,6 +323,14 @@ describe("POST /api/meetings/:id/ask", () => {
       url: "https://zoom.us/j/1",
       projectId: project.id,
     });
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Анна",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "Обсудили roadmap.",
+      },
+    ]);
 
     const res = await app.request(`/api/meetings/${meeting.id}/ask`, {
       method: "POST",
@@ -284,6 +343,20 @@ describe("POST /api/meetings/:id/ask", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { answer: string };
     expect(body.answer).toContain("ROAD-100");
+  });
+
+  it("возвращает 409 без расшифровки", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/1" });
+    const res = await app.request(`/api/meetings/${meeting.id}/ask`, {
+      method: "POST",
+      headers: {
+        ...authHeaders(auth),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ question: "Какие решения?" }),
+    });
+    expect(res.status).toBe(409);
   });
 
   it("возвращает 400 без question", async () => {
@@ -300,3 +373,167 @@ describe("POST /api/meetings/:id/ask", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("удаление встречи, правка расшифровки и повтор саммари", () => {
+  let db: ReturnType<typeof setupAuthedDb>["db"];
+  let auth: ReturnType<typeof setupAuthedDb>["auth"];
+
+  afterEach(() => {
+    db?.close();
+  });
+
+  function readyMeeting(audioPath?: string) {
+    const meeting = db.createMeeting({ url: "https://zoom.us/j/edit" });
+    db.updateMeetingStatus(meeting.id, "joining");
+    db.updateMeetingStatus(meeting.id, "recording", {
+      audioPath: audioPath ?? null,
+      source: "live",
+    });
+    db.updateMeetingStatus(meeting.id, "transcribing");
+    db.updateMeetingStatus(meeting.id, "summarizing");
+    return db.updateMeetingStatus(meeting.id, "ready");
+  }
+
+  it("DELETE снимает встречу и файл звука", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const dir = mkdtempSync(join(tmpdir(), "pm-del-"));
+    const audioPath = join(dir, "sample.wav");
+    writeFileSync(audioPath, "hello-audio");
+    const meeting = readyMeeting(audioPath);
+    const res = await app.request(`/api/meetings/${meeting.id}`, {
+      method: "DELETE",
+      headers: authHeaders(auth),
+    });
+    expect(res.status).toBe(200);
+    expect(db.getMeeting(meeting.id)).toBeNull();
+    expect(existsSync(audioPath)).toBe(false);
+  });
+
+  it("PATCH меняет название встречи", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting();
+    const res = await app.request(`/api/meetings/${meeting.id}`, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders(auth),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ title: "Ручное название" }),
+    });
+    expect(res.status).toBe(200);
+    expect(db.getMeeting(meeting.id)?.title).toBe("Ручное название");
+  });
+
+  it("PATCH меняет проект встречи", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting();
+    const project = db.createProject({
+      name: "Другой проект",
+      trackerProjectRef: "",
+      trackerParentRef: "EPIC-2",
+    });
+    const res = await app.request(`/api/meetings/${meeting.id}`, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders(auth),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ projectId: project.id }),
+    });
+    expect(res.status).toBe(200);
+    expect(db.getMeeting(meeting.id)?.projectId).toBe(project.id);
+  });
+
+  it("PATCH правит текст сегмента", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting();
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Илья",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "черновик",
+      },
+    ]);
+    const [seg] = db.listTranscript(meeting.id);
+    const res = await app.request(`/api/meetings/${meeting.id}/transcript`, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders(auth),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ segmentId: seg.id, text: "исправлено" }),
+    });
+    expect(res.status).toBe(200);
+    expect(db.listTranscript(meeting.id)[0].text).toBe("исправлено");
+  });
+
+  it("PATCH склеивает группу и удаляет лишние фрагменты", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting();
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Илья",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "первая",
+      },
+      {
+        speaker: "Илья",
+        startedAtMs: 1000,
+        endedAtMs: 2000,
+        text: "вторая",
+      },
+    ]);
+    const [keep, drop] = db.listTranscript(meeting.id);
+    const res = await app.request(`/api/meetings/${meeting.id}/transcript`, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders(auth),
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        segmentId: keep.id,
+        text: "первая вторая",
+        dropSegmentIds: [drop.id],
+      }),
+    });
+    expect(res.status).toBe(200);
+    expect(db.listTranscript(meeting.id).map((row) => row.text)).toEqual([
+      "первая вторая",
+    ]);
+  });
+
+  it("POST summarize ставит задание без повторного join", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting("/tmp/a.wav");
+    db.saveTranscript(meeting.id, [
+      {
+        speaker: "Илья",
+        startedAtMs: 0,
+        endedAtMs: 1000,
+        text: "Берём прототип",
+      },
+    ]);
+    const res = await app.request(`/api/meetings/${meeting.id}/summarize`, {
+      method: "POST",
+      headers: authHeaders(auth),
+    });
+    expect(res.status).toBe(202);
+    expect(db.getMeeting(meeting.id)?.status).toBe("summarizing");
+    expect(
+      db.listJobs().some((job) => job.type === "summarize" && job.status === "pending"),
+    ).toBe(true);
+  });
+
+  it("summarize без расшифровки отвечает 409", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const meeting = readyMeeting();
+    const res = await app.request(`/api/meetings/${meeting.id}/summarize`, {
+      method: "POST",
+      headers: authHeaders(auth),
+    });
+    expect(res.status).toBe(409);
+  });
+});
+

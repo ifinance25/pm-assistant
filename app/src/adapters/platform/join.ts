@@ -8,6 +8,7 @@ export type JoinResult = {
 
 export type JoinHooks = {
   onJoined?: (info: { mode: "live" | "stub" }) => void | Promise<void>;
+  onWaitingRoom?: () => void | Promise<void>;
 };
 
 export type JoinAdapter = {
@@ -26,7 +27,10 @@ export const ZoomAdapter: JoinAdapter = {
     if (!hasZoomSdkCredentials()) {
       throw new Error(ZOOM_NOT_CONFIGURED);
     }
-    return joinZoomMeeting(meeting, { onJoined: hooks?.onJoined });
+    return joinZoomMeeting(meeting, {
+      onJoined: hooks?.onJoined,
+      onWaitingRoom: hooks?.onWaitingRoom,
+    });
   },
 };
 
