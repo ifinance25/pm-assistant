@@ -3,7 +3,15 @@ import { getCookie, setCookie } from "hono/cookie";
 import type { Context } from "hono";
 import { getDb } from "../../db/index.ts";
 import { fetchWithTimeout } from "../../shared/http-timeout.ts";
-import type { SessionInfo, TrackerType, UserRole } from "../../shared/types.ts";
+import { resolveLlmCredential } from "../../adapters/llm/credentials.ts";
+import {
+  LLM_PROVIDERS,
+  type LlmConnections,
+  type SessionInfo,
+  type TrackerType,
+  type UserRole,
+  type LlmProvider,
+} from "../../shared/types.ts";
 import { hashPassword, verifyPassword } from "../auth/crypto.ts";
 import { isEmailAllowed, normalizeEmail } from "../auth/allowlist.ts";
 import {
@@ -36,6 +44,27 @@ function trackerConnected(type: TrackerType): boolean {
   return getDb().isIntegrationConnected(`tracker:${type}`);
 }
 
+function googleCalendarAccount(): string | null {
+  const db = getDb();
+  if (!db.isIntegrationConnected("google_calendar")) {
+    return null;
+  }
+  const email = db.getIntegrationToken("google_calendar")?.meta.email;
+  return typeof email === "string" ? email : null;
+}
+
+function llmConnections(): LlmConnections {
+  const out = {} as LlmConnections;
+  for (const provider of LLM_PROVIDERS) {
+    out[provider] = Boolean(resolveLlmCredential(provider).trim());
+  }
+  return out;
+}
+
+function llmConnected(provider: LlmProvider, connections: LlmConnections): boolean {
+  return connections[provider] ?? false;
+}
+
 function buildSessionInfo(userId: string): SessionInfo | null {
   const db = getDb();
   const user = db.getUserById(userId);
@@ -43,12 +72,17 @@ function buildSessionInfo(userId: string): SessionInfo | null {
     return null;
   }
   const settings = db.getSettings();
+  const connections = llmConnections();
   return {
     user,
     integrations: {
       tracker: settings.trackerType,
       trackerConnected: trackerConnected(settings.trackerType),
       googleCalendar: db.isIntegrationConnected("google_calendar"),
+      googleCalendarAccount: googleCalendarAccount(),
+      llmProvider: settings.llmProvider,
+      llmConnections: connections,
+      llmConnected: llmConnected(settings.llmProvider, connections),
     },
   };
 }

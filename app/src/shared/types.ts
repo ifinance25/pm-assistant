@@ -3,6 +3,7 @@ export type Platform = "zoom" | "meet" | "telemost" | "unknown";
 export type MeetingStatus =
   | "queued"
   | "joining"
+  | "waiting_room"
   | "recording"
   | "transcribing"
   | "summarizing"
@@ -28,6 +29,37 @@ export const TRACKER_LABELS: Record<TrackerType, string> = {
   clickup: "ClickUp",
   notion: "Notion",
 };
+
+export type LlmProvider = "claude" | "openai" | "cursor" | "kimi";
+
+export const LLM_PROVIDERS: LlmProvider[] = [
+  "claude",
+  "openai",
+  "cursor",
+  "kimi",
+];
+
+export const LLM_PROVIDER_LABELS: Record<LlmProvider, string> = {
+  claude: "Claude",
+  openai: "OpenAI",
+  cursor: "Cursor",
+  kimi: "Kimi",
+};
+
+export type LlmConnections = Record<LlmProvider, boolean>;
+
+export function emptyLlmConnections(): LlmConnections {
+  return {
+    claude: false,
+    openai: false,
+    cursor: false,
+    kimi: false,
+  };
+}
+
+export function isLlmProvider(value: string): value is LlmProvider {
+  return LLM_PROVIDERS.includes(value as LlmProvider);
+}
 
 export function isTrackerType(value: string): value is TrackerType {
   return (TRACKER_TYPES as string[]).includes(value);
@@ -63,7 +95,30 @@ export type SessionInfo = {
     tracker: TrackerType;
     trackerConnected: boolean;
     googleCalendar: boolean;
+    googleCalendarAccount: string | null;
+    llmProvider: LlmProvider;
+    llmConnections: LlmConnections;
+    llmConnected: boolean;
   };
+};
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string | null;
+  url: string;
+  platform: Platform;
+  supported: boolean;
+  meetingId: string | null;
+  meetingStatus: MeetingStatus | null;
+};
+
+export type CalendarFeed = {
+  connected: boolean;
+  account: string | null;
+  expired: boolean;
+  events: CalendarEvent[];
 };
 
 export type Meeting = {
@@ -109,6 +164,7 @@ export type Summary = {
   decisions: string;
   risks: string;
   nextStep: string;
+  decisionSegmentIds: string[];
 };
 
 export type ActionItem = {
@@ -129,6 +185,7 @@ export type ActionItem = {
 export type Settings = {
   recordingModeDefault: RecordingMode;
   trackerType: TrackerType;
+  llmProvider: LlmProvider;
   asanaProjectLabel: string;
   asanaAutoSend: boolean;
   webhookUrl: string;
@@ -154,6 +211,20 @@ export type Job = {
   attempts: number;
   lastError: string | null;
   claimedAt: string | null;
+  createdAt: string | null;
+};
+
+export type TranscriptionQueueItem = {
+  job: Job;
+  meeting: {
+    id: string;
+    title: string | null;
+    url: string;
+    status: MeetingStatus;
+  };
+  queuedAt: string;
+  processingMs: number | null;
+  transcribeProgress: TranscribeProgress | null;
 };
 
 export type RealtimeCaption = "живой" | "заглушка realtime";
@@ -161,6 +232,15 @@ export type RealtimeCaption = "живой" | "заглушка realtime";
 export type RealtimeInfo = {
   mode: MeetingSource;
   caption: RealtimeCaption;
+};
+
+export type TranscribeProgress = {
+  percent: number;
+  etaAt: string | null;
+  remainingMs: number | null;
+  transcribedMs: number;
+  audioDurationMs: number | null;
+  startedAt: string | null;
 };
 
 export function realtimeCaption(mode: MeetingSource): RealtimeCaption {
@@ -183,6 +263,7 @@ export type MeetingDetail = {
   summary: Summary | null;
   actionItems: ActionItem[];
   realtime?: RealtimeInfo;
+  transcribeProgress?: TranscribeProgress | null;
 };
 
 export type SearchMeetingsFilters = {

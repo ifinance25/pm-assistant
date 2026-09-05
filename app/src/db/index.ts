@@ -191,8 +191,11 @@ export function createDb(path = defaultDbPath()) {
       ended_at = @ended_at
     WHERE id = @id
   `);
-  const updateMeetingTitle = sqlite.prepare(`
+  const updateMeetingTitleStmt = sqlite.prepare(`
     UPDATE meetings SET title = @title WHERE id = @id
+  `);
+  const updateMeetingProjectStmt = sqlite.prepare(`
+    UPDATE meetings SET project_id = @project_id WHERE id = @id
   `);
   const selectSettings = sqlite.prepare("SELECT key, value FROM settings");
   const upsertSetting = sqlite.prepare(`
@@ -212,14 +215,41 @@ export function createDb(path = defaultDbPath()) {
   const selectSegments = sqlite.prepare(
     "SELECT * FROM transcript_segments WHERE meeting_id = ? ORDER BY started_at_ms",
   );
+  const selectSegment = sqlite.prepare(
+    "SELECT * FROM transcript_segments WHERE id = ? AND meeting_id = ?",
+  );
+  const updateSegmentText = sqlite.prepare(
+    "UPDATE transcript_segments SET text = ? WHERE id = ? AND meeting_id = ?",
+  );
+  const deleteSegmentById = sqlite.prepare(
+    "DELETE FROM transcript_segments WHERE meeting_id = ? AND id = ?",
+  );
+  const deleteSummaryByMeeting = sqlite.prepare(
+    "DELETE FROM summaries WHERE meeting_id = ?",
+  );
+  const deleteActionItemsByMeeting = sqlite.prepare(
+    "DELETE FROM action_items WHERE meeting_id = ?",
+  );
+  const deleteJobsByMeeting = sqlite.prepare(
+    "DELETE FROM jobs WHERE meeting_id = ?",
+  );
+  const deleteWebhooksByMeeting = sqlite.prepare(
+    "DELETE FROM webhook_deliveries WHERE meeting_id = ?",
+  );
+  const deleteMeetingRow = sqlite.prepare("DELETE FROM meetings WHERE id = ?");
   const upsertSummary = sqlite.prepare(`
-    INSERT INTO summaries (meeting_id, headline, decisions, risks, next_step)
-    VALUES (@meeting_id, @headline, @decisions, @risks, @next_step)
+    INSERT INTO summaries (
+      meeting_id, headline, decisions, risks, next_step, decision_segment_ids
+    )
+    VALUES (
+      @meeting_id, @headline, @decisions, @risks, @next_step, @decision_segment_ids
+    )
     ON CONFLICT(meeting_id) DO UPDATE SET
       headline = excluded.headline,
       decisions = excluded.decisions,
       risks = excluded.risks,
-      next_step = excluded.next_step
+      next_step = excluded.next_step,
+      decision_segment_ids = excluded.decision_segment_ids
   `);
   const selectSummary = sqlite.prepare(
     "SELECT * FROM summaries WHERE meeting_id = ?",
@@ -327,6 +357,9 @@ export function createDb(path = defaultDbPath()) {
   const selectIntegration = sqlite.prepare(
     "SELECT access_token, meta_json FROM integration_tokens WHERE provider = ? LIMIT 1",
   );
+  const selectIntegrationFull = sqlite.prepare(
+    "SELECT access_token, refresh_token, expires_at, meta_json FROM integration_tokens WHERE provider = ? LIMIT 1",
+  );
   const selectActiveJob = sqlite.prepare(`
     SELECT 1 AS ok FROM jobs
     WHERE meeting_id = ? AND status IN ('pending', 'running')
@@ -356,15 +389,30 @@ export function createDb(path = defaultDbPath()) {
     "DELETE FROM integration_tokens WHERE provider = ?",
   );
   const insertJob = sqlite.prepare(`
-    INSERT INTO jobs (id, meeting_id, type, status, attempts, last_error, claimed_at)
-    VALUES (@id, @meeting_id, @type, @status, @attempts, @last_error, @claimed_at)
+    INSERT INTO jobs (
+      id, meeting_id, type, status, attempts, last_error, claimed_at, created_at
+    ) VALUES (
+      @id, @meeting_id, @type, @status, @attempts, @last_error, @claimed_at, @created_at
+    )
   `);
   const selectAllJobs = sqlite.prepare("SELECT * FROM jobs ORDER BY id");
-  const selectNextJob = sqlite.prepare(
-    "SELECT * FROM jobs WHERE status = 'pending' ORDER BY id LIMIT 1",
+  const selectNextJoinJob = sqlite.prepare(
+    "SELECT * FROM jobs WHERE status = 'pending' AND type = 'join' ORDER BY id LIMIT 1",
   );
-  const selectRunningJob = sqlite.prepare(
-    "SELECT id FROM jobs WHERE status = 'running' LIMIT 1",
+  const selectNextTranscribeJob = sqlite.prepare(
+    "SELECT * FROM jobs WHERE status = 'pending' AND type = 'transcribe' ORDER BY id LIMIT 1",
+  );
+  const selectNextSummarizeJob = sqlite.prepare(
+    "SELECT * FROM jobs WHERE status = 'pending' AND type != 'join' AND type != 'transcribe' ORDER BY id LIMIT 1",
+  );
+  const selectRunningJoinJob = sqlite.prepare(
+    "SELECT id FROM jobs WHERE status = 'running' AND type = 'join' LIMIT 1",
+  );
+  const selectRunningTranscribeJob = sqlite.prepare(
+    "SELECT id FROM jobs WHERE status = 'running' AND type = 'transcribe' LIMIT 1",
+  );
+  const selectRunningSummarizeJob = sqlite.prepare(
+    "SELECT id FROM jobs WHERE status = 'running' AND type != 'join' AND type != 'transcribe' LIMIT 1",
   );
   const claimJob = sqlite.prepare(
     "UPDATE jobs SET status = 'running', attempts = attempts + 1, claimed_at = ? WHERE id = ? AND status = 'pending'",
@@ -538,6 +586,37 @@ export function createDb(path = defaultDbPath()) {
     return updated;
   }
 
+  function updateMeetingTitle(id: string, title: string): Meeting | null {
+    const existing = getMeeting(id);
+    if (!existing) {
+      return null;
+    }
+    const trimmed = title.trim();
+    updateMeetingTitleStmt.run({
+      id,
+      title: trimmed || null,
+    });
+    rebuildFts(id);
+    return getMeeting(id);
+  }
+
+  function updateMeetingProject(id: string, projectId: string): Meeting | null {
+    const existing = getMeeting(id);
+    if (!existing) {
+      return null;
+    }
+    const trimmed = projectId.trim();
+    if (!trimmed || !getProject(trimmed)) {
+      return null;
+    }
+    updateMeetingProjectStmt.run({
+      id,
+      project_id: trimmed,
+    });
+    rebuildFts(id);
+    return getMeeting(id);
+  }
+
   function listTranscript(meetingId: string): TranscriptSegment[] {
     return (selectSegments.all(meetingId) as Record<string, unknown>[]).map(
       (row) => ({
@@ -570,6 +649,64 @@ export function createDb(path = defaultDbPath()) {
     return listTranscript(meetingId);
   }
 
+  function updateTranscriptSegment(
+    meetingId: string,
+    segmentId: string,
+    text: string,
+  ): TranscriptSegment | null {
+    const updated = updateSegmentText.run(text, segmentId, meetingId);
+    if (updated.changes === 0) {
+      return null;
+    }
+    rebuildFts(meetingId);
+    const row = selectSegment.get(segmentId, meetingId) as
+      | Record<string, unknown>
+      | undefined;
+    if (!row) {
+      return null;
+    }
+    return {
+      id: String(row.id),
+      meetingId: String(row.meeting_id),
+      speaker: String(row.speaker),
+      startedAtMs: Number(row.started_at_ms),
+      endedAtMs: row.ended_at_ms == null ? null : Number(row.ended_at_ms),
+      text: String(row.text),
+    };
+  }
+
+  function removeTranscriptSegments(meetingId: string, ids: string[]): void {
+    const unique = [...new Set(ids.filter(Boolean))];
+    if (unique.length === 0) {
+      return;
+    }
+    const drop = sqlite.transaction(() => {
+      for (const id of unique) {
+        deleteSegmentById.run(meetingId, id);
+      }
+    });
+    drop();
+    rebuildFts(meetingId);
+  }
+
+  function deleteMeeting(id: string): Meeting | null {
+    const meeting = getMeeting(id);
+    if (!meeting) {
+      return null;
+    }
+    const tx = sqlite.transaction((meetingId: string) => {
+      deleteSegments.run(meetingId);
+      deleteSummaryByMeeting.run(meetingId);
+      deleteActionItemsByMeeting.run(meetingId);
+      deleteJobsByMeeting.run(meetingId);
+      deleteWebhooksByMeeting.run(meetingId);
+      deleteFts.run(meetingId);
+      deleteMeetingRow.run(meetingId);
+    });
+    tx(id);
+    return meeting;
+  }
+
   function getSummary(meetingId: string): Summary | null {
     const row = selectSummary.get(meetingId) as Record<string, unknown> | undefined;
     if (!row) {
@@ -581,6 +718,20 @@ export function createDb(path = defaultDbPath()) {
       decisions: String(row.decisions),
       risks: String(row.risks),
       nextStep: String(row.next_step),
+      decisionSegmentIds: (() => {
+        const raw = row.decision_segment_ids;
+        if (raw == null || raw === "") {
+          return [] as string[];
+        }
+        try {
+          const parsed = JSON.parse(String(raw)) as unknown;
+          return Array.isArray(parsed)
+            ? parsed.map((id) => String(id)).filter(Boolean)
+            : [];
+        } catch {
+          return [];
+        }
+      })(),
     };
   }
 
@@ -609,7 +760,9 @@ export function createDb(path = defaultDbPath()) {
 
   function saveSummary(
     meetingId: string,
-    summary: Omit<Summary, "meetingId">,
+    summary: Omit<Summary, "meetingId" | "decisionSegmentIds"> & {
+      decisionSegmentIds?: string[];
+    },
   ): Summary {
     upsertSummary.run({
       meeting_id: meetingId,
@@ -617,6 +770,7 @@ export function createDb(path = defaultDbPath()) {
       decisions: summary.decisions,
       risks: summary.risks,
       next_step: summary.nextStep,
+      decision_segment_ids: JSON.stringify(summary.decisionSegmentIds ?? []),
     });
     const meeting = getMeeting(meetingId);
     if (
@@ -624,7 +778,7 @@ export function createDb(path = defaultDbPath()) {
       !meeting.title?.trim() &&
       isPromotableSummaryHeadline(summary.headline)
     ) {
-      updateMeetingTitle.run({
+      updateMeetingTitleStmt.run({
         id: meetingId,
         title: summary.headline.trim(),
       });
@@ -680,6 +834,7 @@ export function createDb(path = defaultDbPath()) {
       segmentId: string | null;
     }>,
   ): ActionItem[] {
+    deleteActionItemsByMeeting.run(meetingId);
     for (const item of items) {
       insertActionItem.run({
         id: crypto.randomUUID(),
@@ -747,6 +902,7 @@ export function createDb(path = defaultDbPath()) {
       recordingModeDefault: (map.get("recordingModeDefault") ??
         "text") as RecordingMode,
       trackerType: (map.get("trackerType") ?? "clickup") as TrackerType,
+      llmProvider: (map.get("llmProvider") ?? "claude") as Settings["llmProvider"],
       asanaProjectLabel: map.get("asanaProjectLabel") ?? "",
       asanaAutoSend: parseBool(map.get("asanaAutoSend") ?? "false"),
       webhookUrl: map.get("webhookUrl") ?? "",
@@ -765,6 +921,12 @@ export function createDb(path = defaultDbPath()) {
       upsertSetting.run({
         key: "trackerType",
         value: patch.trackerType,
+      });
+    }
+    if (patch.llmProvider !== undefined) {
+      upsertSetting.run({
+        key: "llmProvider",
+        value: patch.llmProvider,
       });
     }
     if (patch.asanaProjectLabel !== undefined) {
@@ -842,6 +1004,7 @@ export function createDb(path = defaultDbPath()) {
       attempts: Number(row.attempts),
       lastError: row.last_error == null ? null : String(row.last_error),
       claimedAt: row.claimed_at == null ? null : String(row.claimed_at),
+      createdAt: row.created_at == null ? null : String(row.created_at),
     };
   }
 
@@ -864,6 +1027,7 @@ export function createDb(path = defaultDbPath()) {
 
   function enqueueJob(input: { meetingId: string; type: string }): Job {
     const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
     insertJob.run({
       id,
       meeting_id: input.meetingId,
@@ -872,6 +1036,7 @@ export function createDb(path = defaultDbPath()) {
       attempts: 0,
       last_error: null,
       claimed_at: null,
+      created_at: createdAt,
     });
     return {
       id,
@@ -881,6 +1046,7 @@ export function createDb(path = defaultDbPath()) {
       attempts: 0,
       lastError: null,
       claimedAt: null,
+      createdAt,
     };
   }
 
@@ -923,16 +1089,7 @@ export function createDb(path = defaultDbPath()) {
     return failed;
   }
 
-  function claimNextJob(): Job | null {
-    failStaleRunningJobs();
-    const running = selectRunningJob.get() as Record<string, unknown> | undefined;
-    if (running) {
-      return null;
-    }
-    const row = selectNextJob.get() as Record<string, unknown> | undefined;
-    if (!row) {
-      return null;
-    }
+  function claimJobRow(row: Record<string, unknown>): Job | null {
     const claimedAt = new Date().toISOString();
     const result = claimJob.run(claimedAt, String(row.id));
     if (result.changes === 0) {
@@ -944,6 +1101,44 @@ export function createDb(path = defaultDbPath()) {
       attempts: Number(row.attempts) + 1,
       claimedAt,
     };
+  }
+
+  function claimNextJob(): Job | null {
+    failStaleRunningJobs();
+    const joinRunning = selectRunningJoinJob.get() as
+      | Record<string, unknown>
+      | undefined;
+    if (!joinRunning) {
+      const joinRow = selectNextJoinJob.get() as
+        | Record<string, unknown>
+        | undefined;
+      if (joinRow) {
+        return claimJobRow(joinRow);
+      }
+    }
+    const transcribeRunning = selectRunningTranscribeJob.get() as
+      | Record<string, unknown>
+      | undefined;
+    if (!transcribeRunning) {
+      const transcribeRow = selectNextTranscribeJob.get() as
+        | Record<string, unknown>
+        | undefined;
+      if (transcribeRow) {
+        return claimJobRow(transcribeRow);
+      }
+    }
+    const summarizeRunning = selectRunningSummarizeJob.get() as
+      | Record<string, unknown>
+      | undefined;
+    if (!summarizeRunning) {
+      const summarizeRow = selectNextSummarizeJob.get() as
+        | Record<string, unknown>
+        | undefined;
+      if (summarizeRow) {
+        return claimJobRow(summarizeRow);
+      }
+    }
+    return null;
   }
 
   function finishJob(id: string): void {
@@ -1285,6 +1480,48 @@ export function createDb(path = defaultDbPath()) {
     deleteSession.run(sessionId);
   }
 
+  function getIntegrationAccessToken(provider: string): string | null {
+    const row = selectIntegration.get(provider) as
+      | { access_token: string }
+      | undefined;
+    const token = row?.access_token?.trim();
+    if (!token || token === "stub") {
+      return null;
+    }
+    return token;
+  }
+
+  function getIntegrationToken(provider: string): {
+    accessToken: string;
+    refreshToken: string | null;
+    expiresAt: string | null;
+    meta: Record<string, unknown>;
+  } | null {
+    const row = selectIntegrationFull.get(provider) as
+      | {
+          access_token: string;
+          refresh_token: string | null;
+          expires_at: string | null;
+          meta_json: string;
+        }
+      | undefined;
+    if (!row) {
+      return null;
+    }
+    let meta: Record<string, unknown> = {};
+    try {
+      meta = JSON.parse(row.meta_json) as Record<string, unknown>;
+    } catch {
+      meta = {};
+    }
+    return {
+      accessToken: row.access_token,
+      refreshToken: row.refresh_token,
+      expiresAt: row.expires_at,
+      meta,
+    };
+  }
+
   function isIntegrationConnected(provider: string): boolean {
     const row = selectIntegration.get(provider) as
       | { access_token: string; meta_json: string }
@@ -1314,8 +1551,13 @@ export function createDb(path = defaultDbPath()) {
     getMeetingForUser,
     searchMeetings,
     updateMeetingStatus,
+    updateMeetingTitle,
+    updateMeetingProject,
     saveTranscript,
     listTranscript,
+    updateTranscriptSegment,
+    removeTranscriptSegments,
+    deleteMeeting,
     saveSummary,
     getSummary,
     listHeadlines,
@@ -1356,6 +1598,8 @@ export function createDb(path = defaultDbPath()) {
     getSession,
     destroySession,
     isIntegrationConnected,
+    getIntegrationAccessToken,
+    getIntegrationToken,
     upsertIntegrationToken,
     deleteIntegrationToken,
     close() {
