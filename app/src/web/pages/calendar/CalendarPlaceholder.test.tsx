@@ -1,13 +1,25 @@
 import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { CalendarFeed } from "../../../shared/types.ts";
 import { CalendarView } from "./CalendarView.tsx";
 
 describe("CalendarPlaceholder", () => {
   it("показывает заголовок и приглашение вставить ссылку без событий", () => {
+    const feed: CalendarFeed = {
+      connected: false,
+      account: null,
+      expired: false,
+      events: [],
+    };
     const html = renderToString(
       <MemoryRouter>
-        <CalendarView meetings={[]} />
+        <CalendarView
+          feed={feed}
+          meetings={[]}
+          onSendBot={vi.fn()}
+          sendingEventId={null}
+        />
       </MemoryRouter>,
     );
     expect(html).toContain("Календарь");

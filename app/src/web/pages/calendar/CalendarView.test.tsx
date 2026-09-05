@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
-import type { Meeting } from "../../../shared/types.ts";
+import { describe, expect, it, vi } from "vitest";
+import type { CalendarEvent, CalendarFeed, Meeting } from "../../../shared/types.ts";
 import { CalendarView } from "./CalendarView.tsx";
 
 const meeting: Meeting = {
@@ -19,56 +19,118 @@ const meeting: Meeting = {
   audioPath: null,
 };
 
+const zoomEvent: CalendarEvent = {
+  id: "evt-1",
+  title: "Стендап",
+  startsAt: "2026-09-08T08:00:00.000Z",
+  endsAt: "2026-09-08T08:30:00.000Z",
+  url: "https://zoom.us/j/555111222",
+  platform: "zoom",
+  supported: true,
+  meetingId: null,
+  meetingStatus: null,
+};
+
+function disconnectedFeed(): CalendarFeed {
+  return { connected: false, account: null, expired: false, events: [] };
+}
+
+function connectedFeed(events: CalendarEvent[]): CalendarFeed {
+  return { connected: true, account: "user@example.com", expired: false, events };
+}
+
+function renderView(props: {
+  feed: CalendarFeed;
+  meetings?: Meeting[];
+  onSendBot?: (event: CalendarEvent) => void;
+  sendingEventId?: string | null;
+}) {
+  return renderToString(
+    <MemoryRouter>
+      <CalendarView
+        feed={props.feed}
+        meetings={props.meetings ?? []}
+        onSendBot={props.onSendBot ?? vi.fn()}
+        sendingEventId={props.sendingEventId ?? null}
+      />
+    </MemoryRouter>,
+  );
+}
+
 describe("CalendarView", () => {
-  it("пустое состояние приглашает вставить ссылку на Главной", () => {
-    const html = renderToString(
-      <MemoryRouter>
-        <CalendarView meetings={[]} />
-      </MemoryRouter>,
-    );
+  it("не подключён: прежний баннер и приглашение вставить ссылку на Главной", () => {
+    const html = renderView({ feed: disconnectedFeed() });
     expect(html).toContain("Календарь");
     expect(html).toContain("Выключен. Бот идёт только по ссылке.");
     expect(html).toContain("не подключён");
+    expect(html).toContain("Живой календарь в этой версии не подключается");
     expect(html).toContain("Вставьте ссылку на встречу на Главной");
-    expect(html).toContain('href="/"');
-    expect(html).not.toContain("будет позже");
-    expect(html).not.toContain("не подключено в этой версии");
-    expect(html).not.toContain("\u2014");
+    expect(html).toContain('href="/settings#integrations"');
+    expect(html).not.toContain("—");
   });
 
-  it("для queued показывает Отправить бота, для ready Открыть", () => {
-    const queued = { ...meeting, status: "queued" as const };
-    const ready = { ...meeting, id: "m-ready", status: "ready" as const };
-    const htmlQueued = renderToString(
-      <MemoryRouter>
-        <CalendarView meetings={[queued]} />
-      </MemoryRouter>,
-    );
-    expect(htmlQueued).toContain("Отправить бота");
-    expect(htmlQueued).toContain('href="/?url=');
-
-    const htmlReady = renderToString(
-      <MemoryRouter>
-        <CalendarView meetings={[ready]} />
-      </MemoryRouter>,
-    );
-    expect(htmlReady).toContain("Открыть");
-    expect(htmlReady).toContain('href="/meetings/m-ready"');
+  it("не подключён: сохранённые встречи из базы показаны, не пустой список", () => {
+    const html = renderView({ feed: disconnectedFeed(), meetings: [meeting] });
+    expect(html).toContain("Стендап");
+    expect(html).not.toContain("Вставьте ссылку на встречу на Главной");
   });
 
-  it("показывает строку: название, время, платформа, URL", () => {
-    const html = renderToString(
-      <MemoryRouter>
-        <CalendarView meetings={[meeting]} />
-      </MemoryRouter>,
+  it("подключение истекло: сообщение и ссылка в Настройки", () => {
+    const feed: CalendarFeed = {
+      connected: false,
+      account: "user@example.com",
+      expired: true,
+      events: [],
+    };
+    const html = renderView({ feed });
+    expect(html).toContain(
+      "Подключение к Google истекло, подключите календарь заново",
     );
+    expect(html).toContain('href="/settings#integrations"');
+  });
+
+  it("подключён, событий нет: понятная пустая строка", () => {
+    const html = renderView({ feed: connectedFeed([]) });
+    expect(html).toContain("На ближайшие 7 дней звонков не найдено");
+  });
+
+  it("подключён: событие показывает название, время, платформу, ссылку", () => {
+    const html = renderView({ feed: connectedFeed([zoomEvent]) });
     expect(html).toContain("Стендап");
     expect(html).toContain("Zoom");
     expect(html).toContain("https://zoom.us/j/555111222");
     expect(html).toMatch(/\d{2}:\d{2}/);
-    expect(html).not.toContain("будет позже");
-    expect(html).not.toContain("не подключено в этой версии");
-    expect(html).not.toContain("\u2014");
-    expect(html).not.toContain("#0062FF");
+  });
+
+  it("событие без meetingId для Zoom: кнопка Отправить бота", () => {
+    const html = renderView({ feed: connectedFeed([zoomEvent]) });
+    expect(html).toContain("Отправить бота");
+    expect(html).not.toContain("disabled");
+  });
+
+  it("событие с meetingId: кнопка Открыть ведёт на встречу", () => {
+    const withMeeting: CalendarEvent = {
+      ...zoomEvent,
+      meetingId: "m-ready",
+      meetingStatus: "ready",
+    };
+    const html = renderView({ feed: connectedFeed([withMeeting]) });
+    expect(html).toContain("Открыть");
+    expect(html).toContain('href="/meetings/m-ready"');
+    expect(html).not.toContain("Отправить бота");
+  });
+
+  it("событие meet/telemost: кнопка неактивна с подсказкой", () => {
+    const meetEvent: CalendarEvent = {
+      ...zoomEvent,
+      id: "evt-meet",
+      url: "https://meet.google.com/abc-defg-hij",
+      platform: "meet",
+      supported: false,
+    };
+    const html = renderView({ feed: connectedFeed([meetEvent]) });
+    expect(html).toContain("Отправить бота");
+    expect(html).toContain('title="Живой вход пока только для Zoom"');
+    expect(html).toContain("disabled");
   });
 });
