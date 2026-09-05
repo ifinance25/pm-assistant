@@ -6,6 +6,7 @@ import { SettingsView, type ProjectRow } from "./SettingsView.tsx";
 const settings: Settings = {
   recordingModeDefault: "text",
   trackerType: "clickup",
+  llmProvider: "claude",
   asanaProjectLabel: "",
   asanaAutoSend: false,
   webhookUrl: "",
@@ -139,10 +140,28 @@ describe("SettingsView", () => {
     expect(html).toContain("Подключить Google Календарь");
     expect(html).toContain("Локальный список встреч");
     expect(html).toContain("активен на этом компьютере");
+    expect(html).toContain("LLM для расшифровки");
+    expect(html).toContain("активный: Claude");
+    expect(html).toContain("settings__llm-row");
+    expect(html).toContain("Подключить Kimi");
     expect(html).not.toContain("Jira");
   });
 
-  it("показывает кнопки отключения, когда интеграции подключены", () => {
+  it("показывает отключение только у подключённых LLM-провайдеров", () => {
+    const html = render({
+      llmConnections: {
+        claude: true,
+        openai: false,
+        cursor: false,
+        kimi: false,
+      },
+    });
+    expect(html).toContain("Отключить Claude");
+    expect(html).toContain("Подключить Kimi");
+    expect(html).not.toContain("Отключить Kimi");
+  });
+
+  it("показывает кнопки отключения трекера и календаря, когда они подключены", () => {
     const html = render({
       googleCalendarConnected: true,
       trackerConnected: true,
@@ -150,6 +169,14 @@ describe("SettingsView", () => {
     expect(html).toContain("подключён");
     expect(html).toContain("Отключить");
     expect(html).toContain("Отключить ClickUp");
+  });
+
+  it("показывает почту аккаунта у подключённого Google Календаря", () => {
+    const html = render({
+      googleCalendarConnected: true,
+      googleCalendarAccount: "ilya@example.com",
+    });
+    expect(html).toContain("подключён · ilya@example.com");
   });
 
   it("показывает кнопку перезапуска бота и скрывает диалог", () => {
@@ -178,6 +205,55 @@ describe("SettingsView", () => {
   it("показывает версию приложения внизу экрана", () => {
     const html = render();
     expect(html).toContain("settings__version");
-    expect(html).toContain("PM Assistant · v0.2.1");
+    expect(html).toContain("PM Assistant · v0.2.6");
+  });
+
+  it("показывает кнопку очереди транскрибации и модалку с таблицей", () => {
+    const html = render();
+    expect(html).toContain("Очередь транскрибации");
+    expect(html).not.toContain("settings__queue-table");
+
+    const openHtml = render({
+      queueDialogOpen: true,
+      queueItems: [
+        {
+          job: {
+            id: "job-1",
+            meetingId: "m-1",
+            type: "transcribe",
+            status: "running",
+            attempts: 1,
+            lastError: null,
+            claimedAt: "2026-09-05T10:00:00.000Z",
+            createdAt: "2026-09-05T09:55:00.000Z",
+          },
+          meeting: {
+            id: "m-1",
+            title: "Созвон",
+            url: "https://zoom.us/j/1",
+            status: "transcribing",
+          },
+          queuedAt: "2026-09-05T09:55:00.000Z",
+          processingMs: 120_000,
+          transcribeProgress: {
+            percent: 40,
+            etaAt: "2026-09-05T10:30:00.000Z",
+            remainingMs: 1_800_000,
+            transcribedMs: 120_000,
+            audioDurationMs: 300_000,
+            startedAt: "2026-09-05T10:00:00.000Z",
+          },
+        },
+      ],
+    });
+    expect(openHtml).toContain("settings__queue-table");
+    expect(openHtml).toContain("Добавлено в очередь");
+    expect(openHtml).toContain("В обработке");
+    expect(openHtml).toContain("Осталось");
+    expect(openHtml).toContain("в работе · расшифровка");
+    expect(openHtml).toContain("Созвон");
+    expect(openHtml).toContain("Обновить");
+    expect(openHtml).toContain("Закрыть");
+    expect(openHtml).not.toContain("\u2014");
   });
 });

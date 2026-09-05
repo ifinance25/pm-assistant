@@ -39,7 +39,7 @@ describe("Shell / Sidebar v2", () => {
     const html = renderShell("/calendar");
     expect(html).toContain("Главная");
     expect(html).toContain("Календарь");
-    expect(html).toContain("Расшифровки");
+    expect(html).toContain("Транскрибации");
     expect(html).toContain("Настройки");
     expect(html).not.toContain("Интеграции");
     expect(html).not.toContain("Команда");
@@ -60,6 +60,20 @@ describe("Shell / Sidebar v2", () => {
     expect(html).not.toContain("встречи и протоколы");
     expect(html).not.toContain("Поиск по встречам");
     expect(html).not.toContain("Уведомления");
+  });
+
+  it("подпись подвала меняется на «Календарь подключён», когда календарь подключён", () => {
+    const html = renderToString(
+      <MemoryRouter initialEntries={["/"]}>
+        <SidebarView
+          collapsed={false}
+          onToggleCollapsed={() => undefined}
+          googleCalendarConnected
+        />
+      </MemoryRouter>,
+    );
+    expect(html).toContain("Календарь подключён");
+    expect(html).not.toContain("Календарь выключен");
   });
 
   it("в collapsed режиме показывает компактное хранилище и аватар", () => {
@@ -89,5 +103,20 @@ describe("Shell route defaults", () => {
     expect(html).not.toContain("Поиск по встречам");
     expect(html).not.toContain("Уведомления");
     expect(html).not.toContain("topbar");
+  });
+
+  it("на экране встречи фиксирует высоту рабочей области", () => {
+    const html = renderToString(
+      <MemoryRouter initialEntries={["/meetings/abc"]}>
+        <Routes>
+          <Route element={<Shell />}>
+            <Route path="/meetings/:id" element={<p>встреча</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(html).toContain("shell--lock");
+    expect(html).toContain("workspace__main--lock");
+    expect(html).toContain("встреча");
   });
 });

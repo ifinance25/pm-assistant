@@ -289,7 +289,7 @@ UI: `/` Главная, `/calendar`, `/archive`, `/settings`, `/meetings/:id`; `
 Имена (значения не хранить и не выдумывать):
 
 - `.env.example`: `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `OPENAI_API_KEY`, `ASANA_PAT`, `TRELLO_API_KEY`, `CLICKUP_API_TOKEN`, `NOTION_API_KEY`, `APP_API_TOKEN`
-- Один Google OAuth client (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) для входа и календаря (ADR `.autopilot/spec.md` §8). Redirect: `PM_ASSISTANT_GOOGLE_REDIRECT_URI`.
+- Один Google OAuth client (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) для входа и календаря (ADR `.autopilot/spec.md` §8). Redirect входа: `PM_ASSISTANT_GOOGLE_REDIRECT_URI`. Redirect календаря (второй, тот же client): `PM_ASSISTANT_GOOGLE_CALENDAR_REDIRECT_URI`.
 - Трекер по умолчанию: ClickUp. Живые OAuth трекеров в v2: заглушки connect/disconnect.
 - в коде ещё: `PORT` (по умолчанию 8787), `PM_ASSISTANT_DB_PATH` (по умолчанию `data/app.sqlite`), `WHISPER_BIN`
 

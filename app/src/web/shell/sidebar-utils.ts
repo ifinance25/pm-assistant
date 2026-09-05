@@ -4,6 +4,10 @@ export function routePrefersCollapsedSidebar(pathname: string): boolean {
   return pathname === "/calendar" || pathname.startsWith("/meetings/");
 }
 
+export function routeLocksWorkspace(pathname: string): boolean {
+  return /^\/meetings\/[^/]+$/.test(pathname);
+}
+
 export function readSidebarCollapsed(pathname: string): boolean {
   if (typeof localStorage === "undefined") {
     return routePrefersCollapsedSidebar(pathname);

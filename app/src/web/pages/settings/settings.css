@@ -354,6 +354,20 @@
   cursor: default;
 }
 
+.settings__logs-button {
+  margin-top: 16px;
+  margin-left: 10px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .settings__dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -411,6 +425,59 @@
 .settings__dialog-yes:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.settings__log-dialog {
+  width: min(100%, 720px);
+}
+
+.settings__queue-dialog {
+  width: min(100%, 920px);
+}
+
+.settings__queue-table-wrap {
+  margin-top: 12px;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.settings__queue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.settings__queue-table th,
+.settings__queue-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-tertiary);
+  vertical-align: top;
+}
+
+.settings__queue-table th {
+  color: var(--foreground-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.settings__queue-sub {
+  margin-top: 4px;
+  color: var(--foreground-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.settings__log-body {
+  margin: 12px 0 0;
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .settings__version {
@@ -602,6 +669,83 @@
 
 .settings__integrations .settings__status {
   color: var(--foreground-secondary);
+}
+
+.settings__integration--llm .settings__hint {
+  margin: 8px 0 0;
+}
+
+.settings__llm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.settings__llm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-tertiary);
+  border-radius: 12px;
+  background: var(--canvas);
+}
+
+.settings__llm-row--active {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.settings__llm-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.settings__llm-choice input {
+  margin: 0;
+}
+
+.settings__llm-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings__llm-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+}
+
+.settings__llm-badge--on {
+  color: var(--accent);
+}
+
+.settings__llm-action {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--surface-tertiary);
+  border-radius: 999px;
+  background: var(--foreground-primary);
+  color: var(--foreground-inverse);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings__llm-action--connect {
+  background: var(--canvas);
+  color: var(--foreground-primary);
+}
+
+.settings__llm-input {
+  width: 100%;
+  margin-top: 12px;
 }
 
 @media (max-width: 1100px) {

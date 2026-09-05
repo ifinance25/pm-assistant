@@ -1,5 +1,19 @@
-import type { RecordingMode, Settings, TrackerType } from "../../../shared/types.ts";
-import { TRACKER_LABELS, TRACKER_TYPES } from "../../../shared/types.ts";
+import { useState } from "react";
+import type {
+  LlmProvider,
+  RecordingMode,
+  Settings,
+  TrackerType,
+  TranscriptionQueueItem,
+} from "../../../shared/types.ts";
+import {
+  LLM_PROVIDERS,
+  LLM_PROVIDER_LABELS,
+  TRACKER_LABELS,
+  TRACKER_TYPES,
+  emptyLlmConnections,
+  type LlmConnections,
+} from "../../../shared/types.ts";
 import { APP_VERSION } from "../../../shared/version.ts";
 
 const MODES: { id: RecordingMode; title: string; short: string; text: string }[] =
@@ -44,10 +58,22 @@ export type SettingsViewProps = {
   restartDialogOpen?: boolean;
   restarting?: boolean;
   googleCalendarConnected?: boolean;
+  googleCalendarAccount?: string | null;
   trackerConnected?: boolean;
+  llmConnections?: LlmConnections;
+  llmDialogProvider?: LlmProvider | null;
+  llmDialogOpen?: boolean;
+  llmDialogInstructions?: string | null;
+  llmDialogBusy?: boolean;
+  llmDialogError?: string | null;
   tableError?: string | null;
   onRecordingModeChange?: (mode: RecordingMode) => void;
   onTrackerTypeChange?: (type: TrackerType) => void;
+  onLlmProviderChange?: (provider: LlmProvider) => void;
+  onConnectLlm?: (provider: LlmProvider) => void;
+  onDisconnectLlm?: (provider: LlmProvider) => void;
+  onLlmCodeSubmit?: (value: string) => void;
+  onLlmDialogClose?: () => void;
   onSave?: () => void;
   onAddProject?: () => void;
   onRowFieldChange?: (
@@ -65,7 +91,107 @@ export type SettingsViewProps = {
   onRestartClick?: () => void;
   onRestartConfirm?: () => void;
   onRestartCancel?: () => void;
+  logDialogOpen?: boolean;
+  logLoading?: boolean;
+  logText?: string | null;
+  onLogsClick?: () => void;
+  onLogsRefresh?: () => void;
+  onLogsClose?: () => void;
+  queueDialogOpen?: boolean;
+  queueLoading?: boolean;
+  queueItems?: TranscriptionQueueItem[];
+  queueError?: string | null;
+  onQueueClick?: () => void;
+  onQueueRefresh?: () => void;
+  onQueueClose?: () => void;
 };
+
+const JOB_TYPE_LABELS: Record<string, string> = {
+  join: "вход",
+  transcribe: "расшифровка",
+  summarize: "резюме",
+};
+
+const JOB_STATUS_LABELS: Record<string, string> = {
+  pending: "ожидает",
+  running: "в работе",
+};
+
+const MEETING_STATUS_LABELS: Record<string, string> = {
+  queued: "в очереди",
+  joining: "подключение",
+  waiting_room: "зал ожидания",
+  recording: "запись",
+  transcribing: "расшифровка",
+  summarizing: "резюме",
+  ready: "готово",
+  error: "ошибка",
+};
+
+function formatQueuedAt(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+  return date.toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatEtaClock(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+function formatRemaining(ms: number): string {
+  const totalMin = Math.max(1, Math.round(ms / 60_000));
+  if (totalMin < 60) {
+    return `${totalMin} мин`;
+  }
+  const hours = Math.floor(totalMin / 60);
+  const rest = totalMin % 60;
+  return rest === 0 ? `${hours} ч` : `${hours} ч ${rest} мин`;
+}
+
+function formatProcessingMs(ms: number): string {
+  const totalMin = Math.max(1, Math.round(ms / 60_000));
+  if (totalMin < 60) {
+    return `${totalMin} мин`;
+  }
+  const hours = Math.floor(totalMin / 60);
+  const rest = totalMin % 60;
+  return rest === 0 ? `${hours} ч` : `${hours} ч ${rest} мин`;
+}
+
+function formatEta(item: TranscriptionQueueItem): string {
+  const progress = item.transcribeProgress;
+  if (!progress?.etaAt || progress.remainingMs == null) {
+    return "—";
+  }
+  const percent = Math.max(0, Math.round(progress.percent));
+  return `${percent}%, ~${formatEtaClock(progress.etaAt)}, осталось ${formatRemaining(progress.remainingMs)}`;
+}
+
+function jobTypeLabel(type: string): string {
+  return JOB_TYPE_LABELS[type] ?? type;
+}
+
+function jobStatusLabel(status: string): string {
+  return JOB_STATUS_LABELS[status] ?? status;
+}
+
+function meetingStatusLabel(status: string): string {
+  return MEETING_STATUS_LABELS[status] ?? status;
+}
 
 function rowClass(row: ProjectRow): string {
   const parts = ["settings__row"];
@@ -91,10 +217,22 @@ export function SettingsView({
   restartDialogOpen = false,
   restarting = false,
   googleCalendarConnected = false,
+  googleCalendarAccount = null,
   trackerConnected = false,
+  llmConnections = emptyLlmConnections(),
+  llmDialogProvider = null,
+  llmDialogOpen = false,
+  llmDialogInstructions = null,
+  llmDialogBusy = false,
+  llmDialogError = null,
   tableError = null,
   onRecordingModeChange,
   onTrackerTypeChange,
+  onLlmProviderChange,
+  onConnectLlm,
+  onDisconnectLlm,
+  onLlmCodeSubmit,
+  onLlmDialogClose,
   onSave,
   onAddProject,
   onRowFieldChange,
@@ -108,8 +246,26 @@ export function SettingsView({
   onRestartClick,
   onRestartConfirm,
   onRestartCancel,
+  logDialogOpen = false,
+  logLoading = false,
+  logText = null,
+  onLogsClick,
+  onLogsRefresh,
+  onLogsClose,
+  queueDialogOpen = false,
+  queueLoading = false,
+  queueItems = [],
+  queueError = null,
+  onQueueClick,
+  onQueueRefresh,
+  onQueueClose,
 }: SettingsViewProps) {
   const trackerLabel = TRACKER_LABELS[settings.trackerType];
+  const activeLlmLabel = LLM_PROVIDER_LABELS[settings.llmProvider];
+  const dialogLlmLabel = llmDialogProvider
+    ? LLM_PROVIDER_LABELS[llmDialogProvider]
+    : activeLlmLabel;
+  const [llmInput, setLlmInput] = useState("");
 
   return (
     <section className="settings">
@@ -348,7 +504,11 @@ export function SettingsView({
             <div>
               <strong>Google Календарь</strong>
               <span className="settings__status">
-                {googleCalendarConnected ? "подключён" : "не подключён"}
+                {googleCalendarConnected
+                  ? googleCalendarAccount
+                    ? `подключён · ${googleCalendarAccount}`
+                    : "подключён"
+                  : "не подключён"}
               </span>
             </div>
             {googleCalendarConnected ? (
@@ -430,6 +590,82 @@ export function SettingsView({
               <span className="settings__status">активен на этом компьютере</span>
             </div>
           </div>
+          <div className="settings__integration settings__integration--llm">
+            <div>
+              <strong>LLM для расшифровки</strong>
+              <span className="settings__status">
+                {`активный: ${activeLlmLabel}`}
+                {llmConnections[settings.llmProvider]
+                  ? " · подключён"
+                  : " · не подключён"}
+              </span>
+            </div>
+            <div
+              className="settings__llm-list"
+              role="radiogroup"
+              aria-label="Активный провайдер LLM"
+            >
+              {LLM_PROVIDERS.map((provider) => {
+                const selected = settings.llmProvider === provider;
+                const connected = llmConnections[provider];
+                const label = LLM_PROVIDER_LABELS[provider];
+                return (
+                  <div
+                    key={provider}
+                    className={
+                      selected
+                        ? "settings__llm-row settings__llm-row--active"
+                        : "settings__llm-row"
+                    }
+                  >
+                    <label className="settings__llm-choice">
+                      <input
+                        type="radio"
+                        name="llmProvider"
+                        value={provider}
+                        checked={selected}
+                        onChange={() => onLlmProviderChange?.(provider)}
+                      />
+                      <span className="settings__llm-name">{label}</span>
+                      <span
+                        className={
+                          connected
+                            ? "settings__llm-badge settings__llm-badge--on"
+                            : "settings__llm-badge"
+                        }
+                      >
+                        {connected ? "подключён" : "не подключён"}
+                      </span>
+                    </label>
+                    {connected ? (
+                      <button
+                        type="button"
+                        className="settings__llm-action"
+                        onClick={() => onDisconnectLlm?.(provider)}
+                      >
+                        {`Отключить ${label}`}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="settings__llm-action settings__llm-action--connect"
+                        onClick={() => onConnectLlm?.(provider)}
+                      >
+                        {`Подключить ${label}`}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="settings__hint">
+              Радиокнопка выбирает, какой провайдер использует воркер после
+              «Сохранить». Подключение и отключение у каждого провайдера своё.
+              Токен сохраняется в env-файл окружения (локально `.env`, на сервере
+              `/etc/pm-assistant.env`). Cursor вызывает локальный CLI `agent`
+              (режим ask), не Cloud Agents API.
+            </p>
+          </div>
         </section>
       </div>
 
@@ -446,6 +682,20 @@ export function SettingsView({
           disabled={restarting}
         >
           Перезапустить бота
+        </button>
+        <button
+          type="button"
+          className="settings__logs-button"
+          onClick={() => onLogsClick?.()}
+        >
+          Журнал подключений
+        </button>
+        <button
+          type="button"
+          className="settings__logs-button"
+          onClick={() => onQueueClick?.()}
+        >
+          Очередь транскрибации
         </button>
       </section>
 
@@ -477,6 +727,179 @@ export function SettingsView({
                 disabled={restarting}
               >
                 Да
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {logDialogOpen ? (
+        <div className="settings__dialog-backdrop">
+          <div
+            className="settings__dialog settings__log-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-logs-title"
+          >
+            <h2 id="settings-logs-title">Журнал подключений</h2>
+            {logLoading ? (
+              <p className="settings__hint">Загрузка...</p>
+            ) : logText === "no-systemd" ? (
+              <p className="settings__hint">
+                Логи доступны только на боевом сервере. В локальной разработке
+                смотрите вывод в терминале.
+              </p>
+            ) : logText ? (
+              <pre className="settings__log-body">{logText}</pre>
+            ) : (
+              <p className="settings__hint">Не удалось загрузить логи.</p>
+            )}
+            <div className="settings__dialog-actions">
+              <button
+                type="button"
+                className="settings__dialog-no"
+                onClick={() => onLogsRefresh?.()}
+                disabled={logLoading}
+              >
+                Обновить
+              </button>
+              <button
+                type="button"
+                className="settings__dialog-yes"
+                onClick={() => onLogsClose?.()}
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {llmDialogOpen ? (
+        <div className="settings__dialog-backdrop">
+          <div
+            className="settings__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-llm-title"
+          >
+            <h2 id="settings-llm-title">Подключение {dialogLlmLabel}</h2>
+            {llmDialogInstructions ? (
+              <p className="settings__hint">{llmDialogInstructions}</p>
+            ) : null}
+            {llmDialogError ? (
+              <p className="settings__error">{llmDialogError}</p>
+            ) : null}
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                const value = llmInput.trim();
+                if (!value) {
+                  return;
+                }
+                onLlmCodeSubmit?.(value);
+              }}
+            >
+              <input
+                key={llmDialogProvider ?? "none"}
+                className="settings__cell-input settings__llm-input"
+                value={llmInput}
+                onChange={(event) => setLlmInput(event.target.value)}
+                placeholder={
+                  llmDialogProvider === "claude"
+                    ? "Код авторизации Claude"
+                    : llmDialogProvider === "kimi"
+                      ? "KIMI_API_KEY"
+                      : llmDialogProvider === "cursor"
+                        ? "CURSOR_API_KEY"
+                        : "OPENAI_API_KEY"
+                }
+                aria-label="Код или токен авторизации"
+                disabled={llmDialogBusy}
+              />
+              <div className="settings__dialog-actions">
+                <button
+                  type="button"
+                  className="settings__dialog-no"
+                  onClick={() => onLlmDialogClose?.()}
+                  disabled={llmDialogBusy}
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  className="settings__dialog-yes"
+                  disabled={llmDialogBusy || !llmInput.trim()}
+                >
+                  Сохранить
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+      {queueDialogOpen ? (
+        <div className="settings__dialog-backdrop">
+          <div
+            className="settings__dialog settings__queue-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-queue-title"
+          >
+            <h2 id="settings-queue-title">Очередь транскрибации</h2>
+            {queueLoading && queueItems.length === 0 ? (
+              <p className="settings__hint">Загрузка...</p>
+            ) : queueError ? (
+              <p className="settings__error">{queueError}</p>
+            ) : queueItems.length === 0 ? (
+              <p className="settings__hint">Активных заданий нет.</p>
+            ) : (
+              <div className="settings__queue-table-wrap">
+                <table className="settings__queue-table">
+                  <thead>
+                    <tr>
+                      <th>Добавлено в очередь</th>
+                      <th>Статус</th>
+                      <th>В обработке</th>
+                      <th>Осталось</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {queueItems.map((item) => (
+                      <tr key={item.job.id}>
+                        <td>{formatQueuedAt(item.queuedAt)}</td>
+                        <td>
+                          <div>{`${jobStatusLabel(item.job.status)} · ${jobTypeLabel(item.job.type)}`}</div>
+                          <div className="settings__queue-sub">
+                            {item.meeting.title || item.meeting.url}
+                            {` · ${meetingStatusLabel(item.meeting.status)}`}
+                          </div>
+                        </td>
+                        <td>
+                          {item.processingMs == null
+                            ? "ожидает"
+                            : formatProcessingMs(item.processingMs)}
+                        </td>
+                        <td>{formatEta(item)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div className="settings__dialog-actions">
+              <button
+                type="button"
+                className="settings__dialog-no"
+                onClick={() => onQueueRefresh?.()}
+                disabled={queueLoading}
+              >
+                Обновить
+              </button>
+              <button
+                type="button"
+                className="settings__dialog-yes"
+                onClick={() => onQueueClose?.()}
+              >
+                Закрыть
               </button>
             </div>
           </div>

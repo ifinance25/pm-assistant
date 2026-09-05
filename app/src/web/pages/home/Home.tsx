@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import type { Meeting } from "../../../shared/types.ts";
+import type { CalendarEvent, CalendarFeed, Meeting } from "../../../shared/types.ts";
 import { HomeView, type HomeProject, type StorageStats } from "./HomeView.tsx";
 
 const PROJECT_STORAGE_KEY = "pm-assistant:selectedProjectId";
@@ -53,6 +53,9 @@ export function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState(
     readStoredProjectId() ?? "",
   );
+  const [upcomingCalendarEvents, setUpcomingCalendarEvents] = useState<
+    CalendarEvent[]
+  >([]);
 
   async function loadMeetings(): Promise<void> {
     const res = await fetch("/api/meetings");
@@ -90,10 +93,20 @@ export function Home() {
     setError(null);
   }
 
+  async function loadCalendar(): Promise<void> {
+    const res = await fetch("/api/calendar/events");
+    if (!res.ok) {
+      return;
+    }
+    const body = (await res.json()) as CalendarFeed;
+    setUpcomingCalendarEvents(body.events.slice(0, 3));
+  }
+
   useEffect(() => {
     void loadAll().catch(() => {
       setError("Не удалось загрузить главную");
     });
+    void loadCalendar().catch(() => undefined);
     const timer = window.setInterval(() => {
       void loadMeetings().catch(() => undefined);
     }, 2000);
@@ -159,6 +172,7 @@ export function Home() {
       error={error}
       notice={notice}
       busy={busy}
+      upcomingCalendarEvents={upcomingCalendarEvents}
       onUrlChange={setUrl}
       onProjectChange={onProjectChange}
       onSubmit={onSubmit}

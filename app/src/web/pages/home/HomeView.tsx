@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { detectPlatform } from "../../../adapters/platform/detect.ts";
 import type {
+  CalendarEvent,
   Meeting,
   MeetingStatus,
   Platform,
@@ -38,6 +39,7 @@ export type HomeViewProps = {
   error: string | null;
   notice: string | null;
   busy: boolean;
+  upcomingCalendarEvents?: CalendarEvent[];
   onUrlChange: (url: string) => void;
   onProjectChange: (projectId: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -47,6 +49,7 @@ export type HomeViewProps = {
 const STATUS_LABEL: Record<MeetingStatus, string> = {
   queued: "В очереди",
   joining: "Входит",
+  waiting_room: "Зал ожидания",
   recording: "Идёт запись",
   transcribing: "Расшифровка",
   summarizing: "Резюме",
@@ -68,6 +71,7 @@ const STEPS: {
 }[] = [
   { id: "queued", title: "Очередь", caption: "Ссылка принята" },
   { id: "joining", title: "Вход", caption: "Бот подключается" },
+  { id: "waiting_room", title: "Зал ожидания", caption: "Ждём хоста" },
   { id: "recording", title: "Запись", caption: "Запись: идёт звук" },
   { id: "transcribing", title: "Расшифровка", caption: "Речь в текст" },
   { id: "summarizing", title: "Резюме", caption: "Саммари и задачи" },
@@ -76,6 +80,7 @@ const STEPS: {
 const PIPELINE: MeetingStatus[] = [
   "queued",
   "joining",
+  "waiting_room",
   "recording",
   "transcribing",
   "summarizing",
@@ -83,6 +88,7 @@ const PIPELINE: MeetingStatus[] = [
 
 const LIVE_STATUSES: MeetingStatus[] = [
   "joining",
+  "waiting_room",
   "recording",
   "transcribing",
   "summarizing",
@@ -132,12 +138,23 @@ function formatDay(iso: string | null): string {
   });
 }
 
-function formatMinutes(startIso: string | null, endIso: string | null): string | null {
+function formatMinutes(
+  startIso: string | null,
+  endIso: string | null,
+  status?: Meeting["status"],
+): string | null {
   if (!startIso) {
     return null;
   }
   const start = new Date(startIso).getTime();
-  const end = endIso ? new Date(endIso).getTime() : Date.now();
+  const end = endIso
+    ? new Date(endIso).getTime()
+    : status === "recording"
+      ? Date.now()
+      : Number.NaN;
+  if (!Number.isFinite(end) || end <= start) {
+    return null;
+  }
   const minutes = Math.max(1, Math.round((end - start) / 60000));
   return `${minutes} мин`;
 }
@@ -301,6 +318,80 @@ function SearchIcon() {
   );
 }
 
+function CheckIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+function StepCheckIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+      <path d="m21.854 2.147-10.94 10.939" />
+    </svg>
+  );
+}
+
 export function HomeView({
   meetings,
   projects,
@@ -311,6 +402,7 @@ export function HomeView({
   error,
   notice,
   busy,
+  upcomingCalendarEvents = [],
   onUrlChange,
   onProjectChange,
   onSubmit,
@@ -320,6 +412,7 @@ export function HomeView({
   const [pickerOpen, setPickerOpen] = useState(false);
   const { live, upcoming, transcripts } = splitMeetings(meetings);
   const recognized = detectedLabel(url);
+  const detectedPlatform = detectPlatform(url.trim());
   const liveCaption =
     STEPS.find((step) => step.id === live?.status)?.caption ?? null;
   const selectedProject =
@@ -414,26 +507,89 @@ export function HomeView({
         </div>
         <div className="home__capture-meta">
           <div className="home__platforms">
-            <span className="home__platform-chip">Zoom</span>
-            <span className="home__platform-chip">Google Meet</span>
-            <span className="home__platform-chip">Яндекс Телемост</span>
+            <span
+              className={
+                detectedPlatform === "zoom"
+                  ? "home__platform-chip home__platform-chip--active"
+                  : "home__platform-chip"
+              }
+            >
+              Zoom
+            </span>
+            <span
+              className={
+                detectedPlatform === "meet"
+                  ? "home__platform-chip home__platform-chip--active"
+                  : "home__platform-chip"
+              }
+            >
+              Google Meet
+            </span>
+            <span
+              className={
+                detectedPlatform === "telemost"
+                  ? "home__platform-chip home__platform-chip--active"
+                  : "home__platform-chip"
+              }
+            >
+              Яндекс Телемост
+            </span>
           </div>
           {recognized ? (
-            <p className="home__platform-hint">{recognized}</p>
+            <p className="home__platform-hint">
+              <CheckIcon />
+              {recognized}
+            </p>
           ) : null}
         </div>
         {error ? <p className="home__error">{error}</p> : null}
         {notice ? <p className="home__notice">{notice}</p> : null}
       </form>
 
+      {upcomingCalendarEvents.length > 0 ? (
+        <section
+          className="home__calendar-preview"
+          aria-label="Ближайшие звонки из календаря"
+        >
+          <div className="home__section-head">
+            <h2 className="home__section-title">Ближайшие звонки</h2>
+            <Link className="home__section-link" to="/calendar">
+              Календарь
+            </Link>
+          </div>
+          <ul className="home__queue">
+            {upcomingCalendarEvents.map((event) => (
+              <li key={event.id} className="home__queue-item">
+                <div className="home__queue-row">
+                  <div className="home__queue-left">
+                    <span className="home__row-time">
+                      {formatClock(event.startsAt) ?? "нет времени"}
+                    </span>
+                    <span className="home__queue-copy">
+                      <span className="home__row-title">{event.title}</span>
+                      <span className="home__row-platform">
+                        {PLATFORM_LABEL[event.platform]}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {live ? (
         <section className="home__live" aria-label="Живой звонок">
           <div className="home__live-row">
             <div className="home__live-meeting">
-              <h2 className="home__live-title">{meetingTitle(live)}</h2>
+              <div className="home__live-title-row">
+                <span className="home__live-rec" aria-hidden="true" />
+                <h2 className="home__live-title">{meetingTitle(live)}</h2>
+              </div>
               <p className="home__live-meta">
                 {[
-                  formatMinutes(live.startedAt, live.endedAt),
+                  formatMinutes(live.startedAt, live.endedAt, live.status),
                   PLATFORM_LABEL[live.platform],
                   projectName(live, projects),
                 ]
@@ -442,25 +598,47 @@ export function HomeView({
               </p>
             </div>
             <div className="home__live-stepper-col">
-              <ol className="home__stepper" aria-label="Ход расшифровки">
-                {STEPS.map((step) => {
+              <div className="home__stepper" aria-label="Ход расшифровки">
+                {STEPS.map((step, index) => {
                   const state = stepState(live.status, step.id);
+                  const connectorDone =
+                    index < STEPS.length - 1 &&
+                    stepState(live.status, STEPS[index].id) === "done";
                   return (
-                    <li
-                      key={step.id}
-                      className={`home__step home__step--${state}`}
-                    >
-                      <span className="home__step-label">{step.title}</span>
-                    </li>
+                    <div key={step.id} className="home__step-group">
+                      <div className={`home__step home__step--${state}`}>
+                        <span
+                          className={`home__step-dot home__step-dot--${state}`}
+                          aria-hidden="true"
+                        >
+                          {state === "done" ? <StepCheckIcon /> : null}
+                          {state === "active" ? (
+                            <span className="home__step-dot-inner" />
+                          ) : null}
+                        </span>
+                        <span className="home__step-label">{step.title}</span>
+                      </div>
+                      {index < STEPS.length - 1 ? (
+                        <span
+                          className={
+                            connectorDone
+                              ? "home__step-connector home__step-connector--done"
+                              : "home__step-connector"
+                          }
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                    </div>
                   );
                 })}
-              </ol>
+              </div>
               {liveCaption ? (
                 <p className="home__live-caption">{liveCaption}</p>
               ) : null}
             </div>
             <Link className="home__btn home__btn--open" to={`/meetings/${live.id}`}>
               Открыть
+              <ArrowRightIcon />
             </Link>
           </div>
         </section>
@@ -481,9 +659,12 @@ export function HomeView({
                   <h3 className="home__project-name">{project.name}</h3>
                   <p className="home__project-meta">{projectMetaLine(project)}</p>
                 </div>
-                <span className="home__project-count">
+                <Link
+                  className="home__project-count"
+                  to={`/archive?projectId=${encodeURIComponent(project.id)}`}
+                >
                   {`${project.meetingCount ?? 0} ${meetingWord(project.meetingCount ?? 0)}`}
-                </span>
+                </Link>
               </li>
             ))}
           </ul>
@@ -497,38 +678,56 @@ export function HomeView({
             <span className="home__section-meta">ссылки уже сохранены</span>
           </div>
           {upcoming.length === 0 ? (
-            <p className="home__empty-text">
-              Пока нет следующих звонков. Вставьте ссылку сверху, чтобы
-              отправить бота.
-            </p>
+            <div className="home__queue home__queue--empty">
+              <p className="home__empty-text">
+                Пока нет следующих звонков. Вставьте ссылку сверху, чтобы
+                отправить бота.
+              </p>
+            </div>
           ) : (
-            <ul className="home__rows">
-              {upcoming.map((meeting) => (
-                <li key={meeting.id}>
-                  <div className="home__row home__row--queue">
-                    <span className="home__row-time">
-                      {formatClock(meeting.startedAt) ?? "нет времени"}
-                    </span>
-                    <span className="home__row-title">
-                      {meetingTitle(meeting)}
-                    </span>
-                    <span className="home__row-platform">
-                      {`${PLATFORM_LABEL[meeting.platform]} · ${projectName(meeting, projects)}`}
-                    </span>
-                    <span className="home__pill home__pill--queued">
-                      {upcomingPill(meeting)}
-                    </span>
-                    <button
-                      type="button"
-                      className="home__btn home__btn--ghost"
-                      disabled={busy}
-                      onClick={() => onSendBot(meeting.url, meeting.projectId)}
-                    >
-                      Отправить бота
-                    </button>
-                  </div>
-                </li>
-              ))}
+            <ul className="home__queue">
+              {upcoming.map((meeting) => {
+                const pill = upcomingPill(meeting);
+                return (
+                  <li key={meeting.id} className="home__queue-item">
+                    <div className="home__queue-row">
+                      <div className="home__queue-left">
+                        <span className="home__row-time">
+                          {formatClock(meeting.startedAt) ?? "нет времени"}
+                        </span>
+                        <span className="home__queue-copy">
+                          <span className="home__row-title">
+                            {meetingTitle(meeting)}
+                          </span>
+                          <span className="home__row-platform">
+                            {`${PLATFORM_LABEL[meeting.platform]} · ${projectName(meeting, projects)}`}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="home__queue-right">
+                        <span
+                          className={
+                            pill.startsWith("Через ")
+                              ? "home__queue-pill home__queue-pill--soon"
+                              : "home__queue-pill home__queue-pill--idle"
+                          }
+                        >
+                          {pill}
+                        </span>
+                        <button
+                          type="button"
+                          className="home__btn home__btn--send"
+                          disabled={busy}
+                          onClick={() => onSendBot(meeting.url, meeting.projectId)}
+                        >
+                          <SendIcon />
+                          Отправить бота
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
@@ -541,7 +740,9 @@ export function HomeView({
             </Link>
           </div>
           {transcripts.length === 0 ? (
-            <p className="home__empty-text">Пока нет расшифровок.</p>
+            <div className="home__queue home__queue--empty">
+              <p className="home__empty-text">Пока нет расшифровок.</p>
+            </div>
           ) : (
             <ul className="home__cards">
               {transcripts.map((meeting) => (
@@ -560,7 +761,11 @@ export function HomeView({
                     <span className="home__card-meta">
                       {[
                         PLATFORM_LABEL[meeting.platform],
-                        formatMinutes(meeting.startedAt, meeting.endedAt),
+                        formatMinutes(
+                          meeting.startedAt,
+                          meeting.endedAt,
+                          meeting.status,
+                        ),
                         formatDay(meeting.startedAt),
                         projectName(meeting, projects),
                       ]

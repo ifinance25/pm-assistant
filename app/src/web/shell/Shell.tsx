@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import {
   readSidebarCollapsed,
+  routeLocksWorkspace,
   routePrefersCollapsedSidebar,
   SIDEBAR_COLLAPSED_KEY,
   writeSidebarCollapsed,
@@ -35,11 +36,26 @@ export function Shell() {
     }
   }, [location.pathname]);
 
+  const lockWorkspace = routeLocksWorkspace(location.pathname);
+  const shellClass = [
+    "shell",
+    collapsed ? "shell--sidebar-collapsed" : "",
+    lockWorkspace ? "shell--lock" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className={collapsed ? "shell shell--sidebar-collapsed" : "shell"}>
+    <div className={shellClass}>
       <Sidebar collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
       <div className="workspace">
-        <main className="workspace__main">
+        <main
+          className={
+            lockWorkspace
+              ? "workspace__main workspace__main--lock"
+              : "workspace__main"
+          }
+        >
           <Outlet />
         </main>
       </div>

@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import type {
+  LlmProvider,
   Project,
   RecordingMode,
   SessionInfo,
   Settings,
   TrackerType,
+  TranscriptionQueueItem,
+  LlmConnections,
 } from "../../../shared/types.ts";
+import { emptyLlmConnections, LLM_PROVIDER_LABELS } from "../../../shared/types.ts";
 import { readResponseJson } from "../../read-response-json.ts";
 import {
   SettingsView,
@@ -62,13 +66,35 @@ export function SettingsPage() {
   const [rows, setRows] = useState<DraftRow[]>([]);
   const [loaded, setLoaded] = useState<Project[]>([]);
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [googleCalendarAccount, setGoogleCalendarAccount] = useState<string | null>(
+    null,
+  );
   const [trackerConnected, setTrackerConnected] = useState(false);
+  const [llmConnections, setLlmConnections] = useState<LlmConnections>(
+    emptyLlmConnections(),
+  );
+  const [llmDialogProvider, setLlmDialogProvider] = useState<LlmProvider | null>(
+    null,
+  );
+  const [llmDialogOpen, setLlmDialogOpen] = useState(false);
+  const [llmDialogInstructions, setLlmDialogInstructions] = useState<string | null>(
+    null,
+  );
+  const [llmDialogBusy, setLlmDialogBusy] = useState(false);
+  const [llmDialogError, setLlmDialogError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tableError, setTableError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [restarting, setRestarting] = useState(false);
+  const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [logLoading, setLogLoading] = useState(false);
+  const [logText, setLogText] = useState<string | null>(null);
+  const [queueDialogOpen, setQueueDialogOpen] = useState(false);
+  const [queueLoading, setQueueLoading] = useState(false);
+  const [queueItems, setQueueItems] = useState<TranscriptionQueueItem[]>([]);
+  const [queueError, setQueueError] = useState<string | null>(null);
 
   async function loadAll(): Promise<void> {
     const [settingsRes, projectsRes, sessionRes] = await Promise.all([
@@ -101,7 +127,11 @@ export function SettingsPage() {
     if (sessionRes.ok) {
       const session = await readResponseJson<SessionInfo>(sessionRes);
       setGoogleCalendarConnected(session.integrations.googleCalendar);
+      setGoogleCalendarAccount(session.integrations.googleCalendarAccount);
       setTrackerConnected(session.integrations.trackerConnected);
+      setLlmConnections(
+        session.integrations.llmConnections ?? emptyLlmConnections(),
+      );
     }
   }
 
@@ -210,6 +240,77 @@ export function SettingsPage() {
     }
   }
 
+  async function fetchLogs(): Promise<void> {
+    setLogLoading(true);
+    try {
+      const res = await fetch("/api/logs");
+      if (!res.ok) {
+        throw new Error("logs");
+      }
+      const body = await readResponseJson<{
+        ok: boolean;
+        text?: string;
+        reason?: string;
+      }>(res);
+      setLogText(body.ok ? body.text ?? "" : body.reason ?? "error");
+    } catch {
+      setLogText("error");
+    } finally {
+      setLogLoading(false);
+    }
+  }
+
+  function onLogsClick(): void {
+    setLogDialogOpen(true);
+    void fetchLogs();
+  }
+
+  function onLogsClose(): void {
+    setLogDialogOpen(false);
+  }
+
+  async function fetchQueue(): Promise<void> {
+    setQueueLoading(true);
+    try {
+      const res = await fetch("/api/transcription-queue");
+      if (res.status === 403) {
+        setQueueError("Нужны права администратора");
+        setQueueItems([]);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error("queue");
+      }
+      const body = await readResponseJson<{ items: TranscriptionQueueItem[] }>(res);
+      setQueueItems(body.items);
+      setQueueError(null);
+    } catch {
+      setQueueError("Не удалось загрузить очередь");
+      setQueueItems([]);
+    } finally {
+      setQueueLoading(false);
+    }
+  }
+
+  function onQueueClick(): void {
+    setQueueDialogOpen(true);
+    void fetchQueue();
+  }
+
+  function onQueueClose(): void {
+    setQueueDialogOpen(false);
+  }
+
+  useEffect(() => {
+    if (!queueDialogOpen) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      void fetchQueue();
+    }, 1500);
+    return () => window.clearInterval(timer);
+  }, [queueDialogOpen]);
+
   async function onSave(): Promise<void> {
     if (!settings) {
       return;
@@ -266,6 +367,7 @@ export function SettingsPage() {
         body: JSON.stringify({
           recordingModeDefault: settings.recordingModeDefault,
           trackerType: settings.trackerType,
+          llmProvider: settings.llmProvider,
         }),
       });
       if (!settingsRes.ok) {
@@ -313,6 +415,69 @@ export function SettingsPage() {
     await loadAll();
   }
 
+  async function onConnectLlm(provider: LlmProvider): Promise<void> {
+    setLlmDialogError(null);
+    setLlmDialogProvider(provider);
+    const res = await fetch(`/api/integrations/llm/${provider}/start`);
+    if (!res.ok) {
+      setError("Не удалось начать авторизацию LLM");
+      setLlmDialogProvider(null);
+      return;
+    }
+    const body = await readResponseJson<{
+      authUrl?: string;
+      instructions?: string;
+    }>(res);
+    if (body.authUrl) {
+      window.open(body.authUrl, "_blank", "noopener,noreferrer");
+    }
+    setLlmDialogInstructions(body.instructions ?? null);
+    setLlmDialogOpen(true);
+  }
+
+  async function onLlmCodeSubmit(value: string): Promise<void> {
+    if (!llmDialogProvider) {
+      return;
+    }
+    setLlmDialogBusy(true);
+    setLlmDialogError(null);
+    try {
+      const payload =
+        llmDialogProvider === "claude" ? { code: value } : { token: value };
+      const res = await fetch(
+        `/api/integrations/llm/${llmDialogProvider}/complete`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+      if (!res.ok) {
+        const errBody = await readResponseJson<{ error?: string }>(res);
+        throw new Error(errBody.error ?? "complete");
+      }
+      setLlmDialogOpen(false);
+      setLlmDialogProvider(null);
+      setNotice(`${LLM_PROVIDER_LABELS[llmDialogProvider]} подключён, токен сохранён в .env`);
+      setError(null);
+      await loadAll();
+    } catch (err) {
+      setLlmDialogError(
+        err instanceof Error && err.message !== "complete"
+          ? err.message
+          : "Не удалось сохранить токен",
+      );
+    } finally {
+      setLlmDialogBusy(false);
+    }
+  }
+
+  function onLlmDialogClose(): void {
+    setLlmDialogOpen(false);
+    setLlmDialogProvider(null);
+    setLlmDialogError(null);
+  }
+
   if (!settings) {
     return (
       <section className="settings">
@@ -332,7 +497,14 @@ export function SettingsPage() {
         restartDialogOpen={restartDialogOpen}
         restarting={restarting}
         googleCalendarConnected={googleCalendarConnected}
+        googleCalendarAccount={googleCalendarAccount}
         trackerConnected={trackerConnected}
+        llmConnections={llmConnections}
+        llmDialogProvider={llmDialogProvider}
+        llmDialogOpen={llmDialogOpen}
+        llmDialogInstructions={llmDialogInstructions}
+        llmDialogBusy={llmDialogBusy}
+        llmDialogError={llmDialogError}
         tableError={tableError}
         onRecordingModeChange={(mode: RecordingMode) =>
           setSettings((prev) =>
@@ -341,6 +513,9 @@ export function SettingsPage() {
         }
         onTrackerTypeChange={(type: TrackerType) =>
           setSettings((prev) => (prev ? { ...prev, trackerType: type } : prev))
+        }
+        onLlmProviderChange={(provider: LlmProvider) =>
+          setSettings((prev) => (prev ? { ...prev, llmProvider: provider } : prev))
         }
         onSave={() => void onSave()}
         onAddProject={() => setRows((prev) => [...prev, emptyRow()])}
@@ -356,15 +531,34 @@ export function SettingsPage() {
         onDisconnectTracker={() =>
           void disconnect(`/api/integrations/tracker/${settings.trackerType}`)
         }
-        onConnectGoogle={() =>
-          void connect("/api/integrations/google-calendar/start")
-        }
+        onConnectGoogle={() => {
+          window.location.href = "/api/integrations/google-calendar/start";
+        }}
         onDisconnectGoogle={() =>
           void disconnect("/api/integrations/google-calendar")
         }
+        onConnectLlm={(provider) => void onConnectLlm(provider)}
+        onDisconnectLlm={(provider) =>
+          void disconnect(`/api/integrations/llm/${provider}`)
+        }
+        onLlmCodeSubmit={(value) => void onLlmCodeSubmit(value)}
+        onLlmDialogClose={onLlmDialogClose}
         onRestartClick={() => setRestartDialogOpen(true)}
         onRestartCancel={() => setRestartDialogOpen(false)}
         onRestartConfirm={() => void onRestartConfirm()}
+        logDialogOpen={logDialogOpen}
+        logLoading={logLoading}
+        logText={logText}
+        onLogsClick={onLogsClick}
+        onLogsRefresh={() => void fetchLogs()}
+        onLogsClose={onLogsClose}
+        queueDialogOpen={queueDialogOpen}
+        queueLoading={queueLoading}
+        queueItems={queueItems}
+        queueError={queueError}
+        onQueueClick={onQueueClick}
+        onQueueRefresh={() => void fetchQueue()}
+        onQueueClose={onQueueClose}
       />
     </>
   );

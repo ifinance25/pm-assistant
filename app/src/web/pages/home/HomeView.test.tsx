@@ -1,6 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import type { CalendarEvent } from "../../../shared/types.ts";
 import { HomeView, type HomeMeeting, type HomeProject } from "./HomeView.tsx";
 
 const projects: HomeProject[] = [
@@ -124,12 +125,18 @@ describe("HomeView", () => {
     expect(html).toContain("Epic ROAD-100");
     expect(html).toContain("Синк по roadmap Q4");
     expect(html).toContain("home__stepper");
+    expect(html).toContain("home__live-rec");
+    expect(html).toContain("home__step-dot");
+    expect(html).toContain("home__step-connector");
     expect(html).toContain("Запись");
     expect(html).toContain("Запись: идёт звук");
     expect(html).toContain("Следующие по ссылке");
     expect(html).toContain("ссылки уже сохранены");
+    expect(html).toContain("home__queue");
+    expect(html).toContain("home__queue-pill");
+    expect(html).toContain("home__btn--send");
     expect(html).toContain("1:1 с дизайнером");
-    expect(html).toContain("Ссылка готова");
+    expect(html).toMatch(/Ссылка готова|Через \d+ мин/);
     expect(html).toContain("Последние расшифровки");
     expect(html).toContain("Встреча по onboarding");
     expect(html).toContain("Первый экран сокращаем до одного поля.");
@@ -145,5 +152,39 @@ describe("HomeView", () => {
     const html = renderHome([]);
     expect(html).toContain("home__picker-chip");
     expect(html).toContain("Свои");
+  });
+
+  it("пустые колонки оставляют белую карточку с текстом внутри", () => {
+    const html = renderHome([]);
+    expect(html).toContain("home__queue--empty");
+    expect(html).toContain("Пока нет следующих звонков");
+    expect(html).toContain("Пока нет расшифровок");
+  });
+
+  it("показывает ближайшие звонки календаря под блоком отправки бота", () => {
+    const events: CalendarEvent[] = [
+      {
+        id: "ev-1",
+        title: "Синк по продукту",
+        startsAt: "2026-09-06T09:00:00.000Z",
+        endsAt: "2026-09-06T09:30:00.000Z",
+        url: "https://zoom.us/j/999",
+        platform: "zoom",
+        supported: true,
+        meetingId: null,
+        meetingStatus: null,
+      },
+    ];
+    const html = renderHome([], { upcomingCalendarEvents: events });
+    const capturedIndex = html.indexOf("home__capture-submit");
+    const calendarIndex = html.indexOf("Ближайшие звонки");
+    expect(capturedIndex).toBeGreaterThan(-1);
+    expect(calendarIndex).toBeGreaterThan(capturedIndex);
+    expect(html).toContain("Синк по продукту");
+  });
+
+  it("не показывает секцию ближайших звонков, когда календарь пуст", () => {
+    const html = renderHome([]);
+    expect(html).not.toContain("Ближайшие звонки");
   });
 });

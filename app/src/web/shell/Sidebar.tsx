@@ -10,7 +10,7 @@ import {
 const items = [
   { to: "/", label: "Главная", icon: "house", end: true },
   { to: "/calendar", label: "Календарь", icon: "calendar", end: false },
-  { to: "/archive", label: "Расшифровки", icon: "file-text", end: false },
+  { to: "/archive", label: "Транскрибации", icon: "file-text", end: false },
   { to: "/settings", label: "Настройки", icon: "settings", end: false },
 ] as const;
 
@@ -30,6 +30,7 @@ type SidebarViewProps = {
   meetingCount?: number;
   usedBytes?: number;
   loggingOut?: boolean;
+  googleCalendarConnected?: boolean;
   onLogout?: () => void;
 };
 
@@ -132,6 +133,7 @@ export function SidebarView({
   meetingCount = 0,
   usedBytes = 0,
   loggingOut = false,
+  googleCalendarConnected = false,
   onLogout,
 }: SidebarViewProps) {
   const storageMb = formatStorageMb(usedBytes);
@@ -199,7 +201,9 @@ export function SidebarView({
       <div className="sidebar__footer">
         {!collapsed ? (
           <div className="sidebar__notice">
-            <div className="sidebar__notice-title">Календарь выключен</div>
+            <div className="sidebar__notice-title">
+              {googleCalendarConnected ? "Календарь подключён" : "Календарь выключен"}
+            </div>
             <p className="sidebar__notice-text">
               В этой версии бот идёт только по ссылке.
             </p>
@@ -316,6 +320,7 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
       meetingCount={meetingCount}
       usedBytes={usedBytes}
       loggingOut={loggingOut}
+      googleCalendarConnected={session?.integrations.googleCalendar}
       onLogout={() => {
         void handleLogout();
       }}
