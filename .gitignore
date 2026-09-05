@@ -13,3 +13,10 @@ dist/
 
 # macOS
 .DS_Store
+
+# автопилот: рабочие файлы orchestration-скилла, не часть проекта
+.autopilot/
+
+# временные экспорты дизайн-макетов и тестовые аудиозаписи — не версионируем новые
+artifacts/designs/**/exports-tmp/
+artifacts/audio-regression-*/*.wav
