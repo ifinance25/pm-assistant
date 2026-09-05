@@ -1,0 +1,18 @@
+[Unit]
+Description=PM Assistant API
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/pm-assistant/app
+EnvironmentFile=/etc/pm-assistant.env
+Environment=PATH=/opt/node-24/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PM_ASSISTANT_DB_PATH=/var/lib/pm-assistant/app.sqlite
+ExecStart=/opt/node-24/bin/node src/server/index.ts
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

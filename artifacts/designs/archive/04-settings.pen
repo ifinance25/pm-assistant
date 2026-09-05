@@ -1,0 +1,1713 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "sXcbyU",
+      "x": 0,
+      "y": 0,
+      "name": "PM Assistant Settings Screen",
+      "clip": true,
+      "width": 1440,
+      "height": 1120,
+      "fill": "$surface-secondary",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "sWWciZ",
+          "name": "Top Bar",
+          "width": "fill_container",
+          "height": 88,
+          "fill": "$surface-primary",
+          "stroke": "$surface-tertiary",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": [
+            0,
+            40
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "sHpjKa",
+              "name": "Brand Area",
+              "gap": 14,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "soPvy9",
+                  "name": "PM Mark",
+                  "width": 38,
+                  "height": 38,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sskJfk",
+                      "name": "PM Mark Text",
+                      "fill": "$foreground-inverse",
+                      "content": "PM",
+                      "fontFamily": "$font-caption",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sGQ57N",
+                  "name": "Brand Text",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sCYpek",
+                      "name": "Product Name",
+                      "fill": "$foreground-primary",
+                      "content": "PM Assistant",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sR6KfMR",
+                      "name": "Workspace Name",
+                      "fill": "$foreground-secondary",
+                      "content": "Настройки рабочего пространства",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ssi2Q5",
+              "name": "Header Status",
+              "gap": 18,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sRb9Ww",
+                  "name": "Sync Label",
+                  "fill": "$foreground-secondary",
+                  "content": "Синхронизация: 2 мин назад",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "skOLMO",
+                  "name": "User Avatar",
+                  "width": 36,
+                  "height": 36,
+                  "fill": "#EDE7D7",
+                  "cornerRadius": 6,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sqZJSL",
+                      "name": "User Initials",
+                      "fill": "$foreground-primary",
+                      "content": "IF",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "siZQ15",
+          "name": "Settings Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "gap": 28,
+          "padding": 40,
+          "children": [
+            {
+              "type": "frame",
+              "id": "sLPmsU",
+              "name": "Settings Navigation",
+              "width": 260,
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                8,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "sBnjXK",
+                  "name": "Nav Item Общие",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$foreground-primary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "ssuMGq",
+                      "name": "Nav Icon Общие",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "settings",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sUptB4",
+                      "name": "Nav Label Общие",
+                      "fill": "$foreground-secondary",
+                      "content": "Общие",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sxjsHC",
+                  "name": "Nav Item Запись встреч",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$surface-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$surface-tertiary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sBdtxG",
+                      "name": "Nav Icon Запись встреч",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "mic",
+                      "library": "lucide",
+                      "fill": "$accent-primary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "smAFly",
+                      "name": "Nav Label Запись встреч",
+                      "fill": "$foreground-primary",
+                      "content": "Запись встреч",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "socgxe",
+                  "name": "Nav Item Интеграции",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$foreground-primary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sxPNvu",
+                      "name": "Nav Icon Интеграции",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "plug",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "snUsUQ",
+                      "name": "Nav Label Интеграции",
+                      "fill": "$foreground-secondary",
+                      "content": "Интеграции",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sloKHx",
+                  "name": "Nav Item Команда",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$foreground-primary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sUzp1Z",
+                      "name": "Nav Icon Команда",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "users",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "semK3y",
+                      "name": "Nav Label Команда",
+                      "fill": "$foreground-secondary",
+                      "content": "Команда",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sZf6Hl",
+                  "name": "Nav Item Безопасность",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$foreground-primary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sZ7nEm1",
+                      "name": "Nav Icon Безопасность",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "shield",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "scNf1z",
+                      "name": "Nav Label Безопасность",
+                      "fill": "$foreground-secondary",
+                      "content": "Безопасность",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sqhCWW",
+                  "name": "Nav Item Биллинг",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$foreground-primary",
+                  "cornerRadius": 6,
+                  "stroke": "$foreground-primary",
+                  "strokeWidth": 1,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "syRohV",
+                      "name": "Nav Icon Биллинг",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "credit-card",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sQNQ4R",
+                      "name": "Nav Label Биллинг",
+                      "fill": "$foreground-secondary",
+                      "content": "Биллинг",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "syfLiU",
+              "name": "Main Settings Panel",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "sl61HTD",
+                  "name": "Page Intro",
+                  "width": "fill_container",
+                  "padding": [
+                    4,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "szXCrt",
+                      "name": "Page Intro Text",
+                      "width": 680,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "soN04R",
+                          "name": "Page Title",
+                          "fill": "$foreground-primary",
+                          "content": "Настройки встреч",
+                          "fontFamily": "$font-body",
+                          "fontSize": 34,
+                          "fontWeight": "750"
+                        },
+                        {
+                          "type": "text",
+                          "id": "sdW9mS",
+                          "name": "Page Subtitle",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Управляйте тем, как PM Assistant фиксирует обсуждения, отправляет задачи в Asana и подключается к календарям.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sa3zIj",
+                      "name": "Save Button",
+                      "height": 44,
+                      "fill": "$foreground-primary",
+                      "cornerRadius": 6,
+                      "gap": 9,
+                      "padding": [
+                        0,
+                        18
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "soYvOG",
+                          "name": "Save Icon",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "save",
+                          "library": "lucide",
+                          "fill": "$foreground-inverse"
+                        },
+                        {
+                          "type": "text",
+                          "id": "sjGSh6",
+                          "name": "Save Label",
+                          "fill": "$foreground-inverse",
+                          "content": "Сохранить",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "suh58K",
+                  "name": "Settings Content Row",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sS1I7z",
+                      "name": "Primary Settings Column",
+                      "width": 640,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "sb4m9y",
+                          "name": "Recording Mode Section",
+                          "width": "fill_container",
+                          "fill": "$surface-primary",
+                          "cornerRadius": 6,
+                          "stroke": "$surface-tertiary",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "gap": 18,
+                          "padding": 24,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sw3ZTX",
+                              "name": "Recording Header",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "so8hbmL",
+                                  "name": "Recording Title Block",
+                                  "width": 420,
+                                  "layout": "vertical",
+                                  "gap": 5,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "sBBVLV",
+                                      "name": "Recording Section Title",
+                                      "fill": "$foreground-primary",
+                                      "content": "Режим записи по умолчанию",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 20,
+                                      "fontWeight": "750"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "szQIiG",
+                                      "name": "Recording Section Subtitle",
+                                      "fill": "$foreground-secondary",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Можно изменить отдельно для каждой встречи перед стартом.",
+                                      "lineHeight": 1.3,
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sL2hFTi",
+                                  "name": "Privacy Badge",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 6,
+                                  "gap": 7,
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "sJ8N18X",
+                                      "name": "Privacy Icon",
+                                      "width": 14,
+                                      "height": 14,
+                                      "icon": "lock",
+                                      "library": "lucide",
+                                      "fill": "$accent-primary"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "sdOjzj",
+                                      "name": "Privacy Label",
+                                      "fill": "$accent-primary",
+                                      "content": "Контроль приватности",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "svfi5R",
+                              "name": "Recording Options",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 12,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "sPxSdh",
+                                  "name": "Recording Option Только текст, без сохранения аудио",
+                                  "width": "fill_container",
+                                  "fill": "$accent-soft",
+                                  "cornerRadius": 6,
+                                  "stroke": "$accent-primary",
+                                  "strokeWidth": 2,
+                                  "gap": 14,
+                                  "padding": 16,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "sJfrhu",
+                                      "name": "Radio Только текст, без сохранения аудио",
+                                      "fill": "$surface-primary",
+                                      "width": 20,
+                                      "height": 20,
+                                      "stroke": "$accent-primary",
+                                      "strokeWidth": 2
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "sX5Mouv",
+                                      "name": "Mode Icon Только текст, без сохранения аудио",
+                                      "width": 22,
+                                      "height": 22,
+                                      "icon": "file-text",
+                                      "library": "lucide",
+                                      "fill": "$accent-primary"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sHa49y",
+                                      "name": "Mode Copy Только текст, без сохранения аудио",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "syE9ME",
+                                          "name": "Mode Title Только текст, без сохранения аудио",
+                                          "fill": "$foreground-primary",
+                                          "content": "Только текст, без сохранения аудио",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 15,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "swy0AO",
+                                          "name": "Mode Description Только текст, без сохранения аудио",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Ассистент делает транскрипт и summary, аудиофайл не сохраняется после обработки.",
+                                          "lineHeight": 1.32,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sKHqHm",
+                                  "name": "Recording Option Локальное аудио",
+                                  "width": "fill_container",
+                                  "fill": "$surface-primary",
+                                  "cornerRadius": 6,
+                                  "stroke": "$surface-tertiary",
+                                  "strokeWidth": 1,
+                                  "gap": 14,
+                                  "padding": 16,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "seqPjh",
+                                      "name": "Radio Локальное аудио",
+                                      "fill": "$surface-primary",
+                                      "width": 20,
+                                      "height": 20,
+                                      "stroke": "$surface-tertiary",
+                                      "strokeWidth": 2
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "sVgqGW",
+                                      "name": "Mode Icon Локальное аудио",
+                                      "width": 22,
+                                      "height": 22,
+                                      "icon": "hard-drive",
+                                      "library": "lucide",
+                                      "fill": "$foreground-secondary"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "shVcsR",
+                                      "name": "Mode Copy Локальное аудио",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sh4KYNk",
+                                          "name": "Mode Title Локальное аудио",
+                                          "fill": "$foreground-primary",
+                                          "content": "Локальное аудио",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 15,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sUnr1X",
+                                          "name": "Mode Description Локальное аудио",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Аудио остается на устройстве владельца встречи и не отправляется в облачное хранилище.",
+                                          "lineHeight": 1.32,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sRIsXq",
+                                  "name": "Recording Option Полная запись",
+                                  "width": "fill_container",
+                                  "fill": "$surface-primary",
+                                  "cornerRadius": 6,
+                                  "stroke": "$surface-tertiary",
+                                  "strokeWidth": 1,
+                                  "gap": 14,
+                                  "padding": 16,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "srDoda",
+                                      "name": "Radio Полная запись",
+                                      "fill": "$surface-primary",
+                                      "width": 20,
+                                      "height": 20,
+                                      "stroke": "$surface-tertiary",
+                                      "strokeWidth": 2
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "soSGo7",
+                                      "name": "Mode Icon Полная запись",
+                                      "width": 22,
+                                      "height": 22,
+                                      "icon": "radio-tower",
+                                      "library": "lucide",
+                                      "fill": "$foreground-secondary"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sAXgxw",
+                                      "name": "Mode Copy Полная запись",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sO2dbP",
+                                          "name": "Mode Title Полная запись",
+                                          "fill": "$foreground-primary",
+                                          "content": "Полная запись",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 15,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sdeMhx",
+                                          "name": "Mode Description Полная запись",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Сохраняются аудио, транскрипт, summary и решения для последующего аудита.",
+                                          "lineHeight": 1.32,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sRvRm9",
+                          "name": "Asana Automation Section",
+                          "width": "fill_container",
+                          "fill": "$surface-primary",
+                          "cornerRadius": 6,
+                          "stroke": "$surface-tertiary",
+                          "strokeWidth": 1,
+                          "gap": 18,
+                          "padding": 24,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sU9ZLgS",
+                              "name": "Asana Icon Wrap",
+                              "width": 48,
+                              "height": 48,
+                              "fill": "$foreground-primary",
+                              "cornerRadius": 6,
+                              "layout": "vertical",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "sBrIpV",
+                                  "name": "Asana Send Icon",
+                                  "width": 22,
+                                  "height": 22,
+                                  "icon": "send",
+                                  "library": "lucide",
+                                  "fill": "$foreground-inverse"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sle2Of",
+                              "name": "Asana Text Block",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sq1QI5",
+                                  "name": "Asana Title",
+                                  "fill": "$foreground-primary",
+                                  "content": "Автоматически отправлять задачи в Asana",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 18,
+                                  "fontWeight": "750"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sTKBcT",
+                                  "name": "Asana Description",
+                                  "fill": "$foreground-secondary",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "После каждой встречи PM Assistant создаст задачи, владельцев и сроки в выбранном проекте Asana.",
+                                  "lineHeight": 1.35,
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sezW3k",
+                              "name": "Asana Toggle On",
+                              "width": 54,
+                              "height": 30,
+                              "fill": "$accent-primary",
+                              "cornerRadius": 6,
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "snQLX1",
+                                  "x": 27,
+                                  "y": 3,
+                                  "name": "Asana Toggle Knob",
+                                  "fill": "$surface-primary",
+                                  "width": 24,
+                                  "height": 24
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sLUQeC",
+                          "name": "Asana Project Row",
+                          "width": "fill_container",
+                          "fill": "$surface-primary",
+                          "cornerRadius": 6,
+                          "stroke": "$surface-tertiary",
+                          "strokeWidth": 1,
+                          "padding": 20,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sYQWGz",
+                              "name": "Asana Project Text",
+                              "width": 420,
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sz4ftLq",
+                                  "name": "Project Label",
+                                  "fill": "$foreground-secondary",
+                                  "content": "Проект Asana",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sWdAdW",
+                                  "name": "Project Value",
+                                  "fill": "$foreground-primary",
+                                  "content": "PM Assistant / Встречи и follow-up",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 15,
+                                  "fontWeight": "650"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "icon",
+                              "id": "srdDjz",
+                              "name": "Project Chevron",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "chevron-down",
+                              "library": "lucide",
+                              "fill": "$foreground-secondary"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sJbGBr",
+                      "name": "Connections Column",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "sPWWfg",
+                          "name": "Calendar Connections Section",
+                          "width": "fill_container",
+                          "fill": "$surface-primary",
+                          "cornerRadius": 6,
+                          "stroke": "$surface-tertiary",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "gap": 18,
+                          "padding": 24,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "sqfEtt",
+                              "name": "Calendar Header",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sP8XE75",
+                                  "name": "Calendar Title",
+                                  "fill": "$foreground-primary",
+                                  "content": "Календарные подключения",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 20,
+                                  "fontWeight": "750"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sPoRuX",
+                                  "name": "Calendar Subtitle",
+                                  "fill": "$foreground-secondary",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "PM Assistant видит встречи, участников и ссылки на звонки. Содержимое писем не читается.",
+                                  "lineHeight": 1.35,
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "seFCrI",
+                              "name": "Calendar List",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 10,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ssy7Uy",
+                                  "name": "Calendar Connection Google Calendar",
+                                  "width": "fill_container",
+                                  "fill": "#FAFBFC",
+                                  "cornerRadius": 6,
+                                  "stroke": "$surface-tertiary",
+                                  "strokeWidth": 1,
+                                  "gap": 12,
+                                  "padding": 14,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "sw2Ee4",
+                                      "name": "Calendar Icon Wrap Google Calendar",
+                                      "width": 38,
+                                      "height": 38,
+                                      "fill": "$accent-soft",
+                                      "cornerRadius": 6,
+                                      "layout": "vertical",
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "sOWStB",
+                                          "name": "Calendar Icon Google Calendar",
+                                          "width": 20,
+                                          "height": 20,
+                                          "icon": "calendar-check",
+                                          "library": "lucide",
+                                          "fill": "$accent-primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sr8ymU9",
+                                      "name": "Calendar Text Google Calendar",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 3,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sf6hdy",
+                                          "name": "Calendar Name Google Calendar",
+                                          "fill": "$foreground-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Google Calendar",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 14,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sFy9jq",
+                                          "name": "Calendar Detail Google Calendar",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "ifinance@gmail.com",
+                                          "lineHeight": 1.25,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sHnad4",
+                                      "name": "Calendar Status Google Calendar",
+                                      "fill": "#E9F7F1",
+                                      "cornerRadius": 7,
+                                      "gap": 6,
+                                      "padding": [
+                                        6,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "ellipse",
+                                          "id": "sH9kxg",
+                                          "name": "Calendar Status Dot Google Calendar",
+                                          "fill": "$success",
+                                          "width": 7,
+                                          "height": 7
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sfwQly",
+                                          "name": "Calendar Status Label Google Calendar",
+                                          "fill": "$success",
+                                          "textGrowth": "fixed-width",
+                                          "width": 86,
+                                          "content": "Подключено",
+                                          "textAlign": "center",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sZVSG3",
+                                  "name": "Calendar Connection Microsoft Outlook",
+                                  "width": "fill_container",
+                                  "fill": "$surface-primary",
+                                  "cornerRadius": 6,
+                                  "stroke": "$surface-tertiary",
+                                  "strokeWidth": 1,
+                                  "gap": 12,
+                                  "padding": 14,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "sc3coSv",
+                                      "name": "Calendar Icon Wrap Microsoft Outlook",
+                                      "width": 38,
+                                      "height": 38,
+                                      "fill": "$surface-secondary",
+                                      "cornerRadius": 6,
+                                      "layout": "vertical",
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "sL8UH1",
+                                          "name": "Calendar Icon Microsoft Outlook",
+                                          "width": 20,
+                                          "height": 20,
+                                          "icon": "calendar-plus",
+                                          "library": "lucide",
+                                          "fill": "$foreground-secondary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sgTS0R",
+                                      "name": "Calendar Text Microsoft Outlook",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 3,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sXT0mQ",
+                                          "name": "Calendar Name Microsoft Outlook",
+                                          "fill": "$foreground-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Microsoft Outlook",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 14,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "srkOuO",
+                                          "name": "Calendar Detail Microsoft Outlook",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Добавить рабочий календарь",
+                                          "lineHeight": 1.25,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sZDkaV",
+                                      "name": "Calendar Status Microsoft Outlook",
+                                      "fill": "$surface-secondary",
+                                      "cornerRadius": 7,
+                                      "gap": 6,
+                                      "padding": [
+                                        6,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "ellipse",
+                                          "id": "sgf6Ey",
+                                          "name": "Calendar Status Dot Microsoft Outlook",
+                                          "fill": "$foreground-secondary",
+                                          "width": 7,
+                                          "height": 7
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "st1uy0",
+                                          "name": "Calendar Status Label Microsoft Outlook",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": 86,
+                                          "content": "Не подключено",
+                                          "textAlign": "center",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sB6LfV",
+                                  "name": "Calendar Connection Apple Calendar",
+                                  "width": "fill_container",
+                                  "fill": "#FAFBFC",
+                                  "cornerRadius": 6,
+                                  "stroke": "$surface-tertiary",
+                                  "strokeWidth": 1,
+                                  "gap": 12,
+                                  "padding": 14,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "si2gPI",
+                                      "name": "Calendar Icon Wrap Apple Calendar",
+                                      "width": 38,
+                                      "height": 38,
+                                      "fill": "$accent-soft",
+                                      "cornerRadius": 6,
+                                      "layout": "vertical",
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "szv4yP",
+                                          "name": "Calendar Icon Apple Calendar",
+                                          "width": 20,
+                                          "height": 20,
+                                          "icon": "calendar-days",
+                                          "library": "lucide",
+                                          "fill": "$accent-primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "shSjFY",
+                                      "name": "Calendar Text Apple Calendar",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 3,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "stNH8p",
+                                          "name": "Calendar Name Apple Calendar",
+                                          "fill": "$foreground-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Apple Calendar",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 14,
+                                          "fontWeight": "750"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sQ9eC9",
+                                          "name": "Calendar Detail Apple Calendar",
+                                          "fill": "$foreground-secondary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Через системный календарь macOS",
+                                          "lineHeight": 1.25,
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sEejzu",
+                                      "name": "Calendar Status Apple Calendar",
+                                      "fill": "#E9F7F1",
+                                      "cornerRadius": 7,
+                                      "gap": 6,
+                                      "padding": [
+                                        6,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "ellipse",
+                                          "id": "sOs0OE",
+                                          "name": "Calendar Status Dot Apple Calendar",
+                                          "fill": "$success",
+                                          "width": 7,
+                                          "height": 7
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "sj1jJVS",
+                                          "name": "Calendar Status Label Apple Calendar",
+                                          "fill": "$success",
+                                          "textGrowth": "fixed-width",
+                                          "width": 86,
+                                          "content": "Локально",
+                                          "textAlign": "center",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sk9j0C8",
+                              "name": "Add Calendar Button",
+                              "width": "fill_container",
+                              "height": 44,
+                              "fill": "$surface-primary",
+                              "cornerRadius": 6,
+                              "stroke": "$surface-tertiary",
+                              "strokeWidth": 1,
+                              "gap": 8,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "sFir5J",
+                                  "name": "Add Calendar Icon",
+                                  "width": 17,
+                                  "height": 17,
+                                  "icon": "plus",
+                                  "library": "lucide",
+                                  "fill": "$foreground-primary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sQwLRj",
+                                  "name": "Add Calendar Label",
+                                  "fill": "$foreground-primary",
+                                  "content": "Подключить календарь",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "slRP9K",
+                          "name": "Meeting Rules Section",
+                          "width": "fill_container",
+                          "fill": "$foreground-primary",
+                          "cornerRadius": 6,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "padding": 24,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sY1ozzO",
+                              "name": "Rules Title",
+                              "fill": "$foreground-inverse",
+                              "content": "Правила для новых встреч",
+                              "fontFamily": "$font-body",
+                              "fontSize": 18,
+                              "fontWeight": "750"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "scoSrk",
+                              "name": "Rule Row Запись",
+                              "width": "fill_container",
+                              "stroke": "#FFFFFF22",
+                              "strokeWidth": {
+                                "bottom": 1
+                              },
+                              "padding": [
+                                0,
+                                0,
+                                10,
+                                0
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "shMhn1",
+                                  "name": "Rule Key Запись",
+                                  "fill": "#FFFFFF99",
+                                  "content": "Запись",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sZOQFc",
+                                  "name": "Rule Value Запись",
+                                  "fill": "$foreground-inverse",
+                                  "content": "Только текст",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "750"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sK7iUyM",
+                              "name": "Rule Row Авто Asana",
+                              "width": "fill_container",
+                              "stroke": "#FFFFFF22",
+                              "strokeWidth": {
+                                "bottom": 1
+                              },
+                              "padding": [
+                                0,
+                                0,
+                                10,
+                                0
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sF6yrD",
+                                  "name": "Rule Key Авто Asana",
+                                  "fill": "#FFFFFF99",
+                                  "content": "Авто Asana",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sX7x4y",
+                                  "name": "Rule Value Авто Asana",
+                                  "fill": "$foreground-inverse",
+                                  "content": "Включено",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "750"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sdU2QF",
+                              "name": "Rule Row Календарь",
+                              "width": "fill_container",
+                              "stroke": "#FFFFFF22",
+                              "strokeWidth": {
+                                "bottom": 1
+                              },
+                              "padding": [
+                                0,
+                                0,
+                                10,
+                                0
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "soHu2s",
+                                  "name": "Rule Key Календарь",
+                                  "fill": "#FFFFFF99",
+                                  "content": "Календарь",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "szSYEc",
+                                  "name": "Rule Value Календарь",
+                                  "fill": "$foreground-inverse",
+                                  "content": "Google + Apple",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "750"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sO7pcq",
+                              "name": "Rule Row Язык summary",
+                              "width": "fill_container",
+                              "stroke": "#FFFFFF22",
+                              "strokeWidth": {
+                                "bottom": 1
+                              },
+                              "padding": [
+                                0,
+                                0,
+                                10,
+                                0
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sD3TCeA",
+                                  "name": "Rule Key Язык summary",
+                                  "fill": "#FFFFFF99",
+                                  "content": "Язык summary",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sJLaYv",
+                                  "name": "Rule Value Язык summary",
+                                  "fill": "$foreground-inverse",
+                                  "content": "Русский",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "750"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sRQTww",
+                          "name": "Retention Notice",
+                          "width": "fill_container",
+                          "fill": "#FFF8E8",
+                          "cornerRadius": 6,
+                          "stroke": "#EACB80",
+                          "strokeWidth": 1,
+                          "gap": 12,
+                          "padding": 18,
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "sRXqJr",
+                              "name": "Retention Icon",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "info",
+                              "library": "lucide",
+                              "fill": "$warning"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sPGf1h",
+                              "name": "Retention Text",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sJVi6L",
+                                  "name": "Retention Title",
+                                  "fill": "$foreground-primary",
+                                  "content": "Политика хранения",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "750"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "sP2PRBn",
+                                  "name": "Retention Body",
+                                  "fill": "$foreground-secondary",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Для режима «Только текст» аудио удаляется сразу после создания транскрипта. Изменение режима не влияет на уже обработанные встречи.",
+                                  "lineHeight": 1.35,
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "surface-primary": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "surface-secondary": {
+      "type": "color",
+      "value": "#F7F8FA"
+    },
+    "surface-tertiary": {
+      "type": "color",
+      "value": "#EEF0F4"
+    },
+    "foreground-primary": {
+      "type": "color",
+      "value": "#1A1A1A"
+    },
+    "foreground-secondary": {
+      "type": "color",
+      "value": "#4B5563"
+    },
+    "foreground-inverse": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "accent-primary": {
+      "type": "color",
+      "value": "#0062FF"
+    },
+    "accent-secondary": {
+      "type": "color",
+      "value": "#4F46E5"
+    },
+    "accent-soft": {
+      "type": "color",
+      "value": "#E8F0FF"
+    },
+    "success": {
+      "type": "color",
+      "value": "#168C5B"
+    },
+    "warning": {
+      "type": "color",
+      "value": "#B67812"
+    },
+    "danger": {
+      "type": "color",
+      "value": "#C44834"
+    },
+    "font-head": {
+      "type": "string",
+      "value": "Anton"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Funnel Sans"
+    },
+    "font-caption": {
+      "type": "string",
+      "value": "Geist Mono"
+    }
+  },
+  "fileToken": "52f2a2a5-d912-46ee-9f1c-6b5ed8edf910"
+}

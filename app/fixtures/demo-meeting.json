@@ -1,0 +1,65 @@
+{
+  "segments": [
+    {
+      "speaker": "Анна Петрова",
+      "startedAtMs": 0,
+      "endedAtMs": 8500,
+      "text": "Привет, начинаем standup. Сегодня разберём статус по релизам."
+    },
+    {
+      "speaker": "Иван Смирнов",
+      "startedAtMs": 8500,
+      "endedAtMs": 18000,
+      "text": "По API gateway задержка. Нужен hotfix до пятницы, иначе deadline съедет."
+    },
+    {
+      "speaker": "Мария Козлова",
+      "startedAtMs": 18000,
+      "endedAtMs": 28000,
+      "text": "Я возьму changelog и проверю feature flag на staging."
+    },
+    {
+      "speaker": "Анна Петрова",
+      "startedAtMs": 28000,
+      "endedAtMs": 36000,
+      "text": "Хорошо. Иван готовит hotfix, Мария пишет changelog. Следующий синкап в понедельник."
+    }
+  ],
+  "summary": {
+    "headline": "Команда согласовала hotfix API gateway до пятницы и changelog к релизу",
+    "decisions": "hotfix API gateway до пятницы; changelog готовит Мария; следующий синкап в понедельник",
+    "risks": "Если hotfix не успеет, deadline релиза съедет",
+    "nextStep": "Иван выкладывает hotfix, Мария публикует changelog, синкап в понедельник"
+  },
+  "slides": [
+    {
+      "id": "slot-1",
+      "title": "Повестка standup",
+      "capturedAtMs": 0
+    },
+    {
+      "id": "slot-2",
+      "title": "Статус API gateway",
+      "capturedAtMs": 8500
+    },
+    {
+      "id": "slot-3",
+      "title": "План релиза",
+      "capturedAtMs": 28000
+    }
+  ],
+  "actionItems": [
+    {
+      "assignee": "Иван Смирнов",
+      "title": "Подготовить hotfix для API gateway",
+      "dueAt": "2026-09-05",
+      "timecodeMs": 8500
+    },
+    {
+      "assignee": "Мария Козлова",
+      "title": "Написать changelog и проверить feature flag на staging",
+      "dueAt": "2026-09-08",
+      "timecodeMs": 18000
+    }
+  ]
+}

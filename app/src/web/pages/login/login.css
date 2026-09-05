@@ -1,0 +1,140 @@
+.login {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--canvas);
+}
+
+.login__card {
+  width: min(100%, 420px);
+  background: var(--card);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  box-shadow: 0 12px 40px rgba(26, 23, 20, 0.08);
+}
+
+.login__brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login__logo {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.login__title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+}
+
+.login__subtitle {
+  margin: 8px 0 0;
+  color: var(--foreground-secondary);
+  font-size: 0.95rem;
+}
+
+.login__google {
+  width: 100%;
+  border: 1px solid #d8d0c8;
+  background: var(--card);
+  color: var(--foreground-primary);
+  border-radius: var(--radius-button);
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.login__google:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.login__divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--foreground-secondary);
+  font-size: 0.9rem;
+}
+
+.login__divider::before,
+.login__divider::after {
+  content: "";
+  height: 1px;
+  background: #e5ddd4;
+}
+
+.login__form {
+  display: grid;
+  gap: 16px;
+}
+
+.login__field {
+  display: grid;
+  gap: 8px;
+}
+
+.login__label,
+.login__label-row {
+  font-size: 0.9rem;
+  color: var(--foreground-secondary);
+}
+
+.login__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.login__field input {
+  border: 1px solid #d8d0c8;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.login__link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login__error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.login__submit {
+  border: none;
+  background: var(--accent);
+  color: var(--foreground-inverse);
+  border-radius: var(--radius-button);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.login__submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.login__register {
+  margin: 20px 0 0;
+  text-align: center;
+  color: var(--foreground-secondary);
+  font-size: 0.9rem;
+}

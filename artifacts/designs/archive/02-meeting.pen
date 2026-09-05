@@ -1,0 +1,1655 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "mV5wZMF",
+      "x": 0,
+      "y": 0,
+      "name": "PM Assistant Meeting Result Screen",
+      "clip": true,
+      "width": 1440,
+      "height": 1080,
+      "fill": "$surface-secondary",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "mw4IzPo",
+          "name": "Top Bar",
+          "width": "fill_container",
+          "height": 88,
+          "fill": "$surface-primary",
+          "stroke": "$surface-tertiary",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": [
+            0,
+            40
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "mJGewy",
+              "name": "Brand Area",
+              "gap": 14,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mKYYYy",
+                  "name": "PM Logo Mark",
+                  "width": 38,
+                  "height": 38,
+                  "fill": "$success",
+                  "cornerRadius": 6,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "mlph58",
+                      "x": 8,
+                      "y": 8,
+                      "name": "Logo Check Icon",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "check-check",
+                      "library": "lucide",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "moSt0V",
+                  "name": "Brand Text",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mUD7bq",
+                      "name": "Product Name",
+                      "fill": "$foreground-primary",
+                      "content": "PM Assistant",
+                      "fontFamily": "$font-body",
+                      "fontSize": 16,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mhIDr8",
+                      "name": "Meeting Meta",
+                      "fill": "$foreground-secondary",
+                      "content": "Итоги встречи / 03.09.2026 / 47 мин",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mP6lT4T",
+              "name": "Status Controls",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mt7TVX0",
+                  "name": "Ready Badge",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 6,
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "mQHvkO",
+                      "name": "Ready Dot",
+                      "fill": "$success",
+                      "width": 8,
+                      "height": 8
+                    },
+                    {
+                      "type": "text",
+                      "id": "mPaqCu",
+                      "name": "Ready Text",
+                      "fill": "$success",
+                      "content": "Готово к отправке",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "icon",
+                  "id": "mVwHR9",
+                  "name": "More Menu Icon",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "ellipsis",
+                  "library": "lucide",
+                  "fill": "$foreground-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "mT0JRgq",
+          "name": "Content Area",
+          "width": "fill_container",
+          "height": "fill_container",
+          "gap": 24,
+          "padding": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "moz2fN",
+              "name": "Transcript Panel",
+              "width": 420,
+              "height": "fill_container",
+              "fill": "$surface-primary",
+              "cornerRadius": 6,
+              "stroke": "$surface-tertiary",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 18,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mvLhWo",
+                  "name": "Transcript Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mVsS5Z",
+                      "name": "Transcript Title",
+                      "fill": "$foreground-primary",
+                      "content": "Транскрипт встречи",
+                      "fontFamily": "$font-body",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mt25qC1",
+                  "name": "Transcript Search",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#F2F4F1",
+                  "cornerRadius": 6,
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "mdJ16Y",
+                      "name": "Search Icon",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "search",
+                      "library": "lucide",
+                      "fill": "$foreground-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mzFZCs",
+                      "name": "Search Placeholder",
+                      "fill": "$foreground-secondary",
+                      "content": "Поиск по словам и спикерам",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mEXv3e",
+                  "name": "Transcript List",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mEFQEf",
+                      "name": "Transcript Row 00:03",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mgjnqv",
+                          "name": "Transcript Meta 00:03",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mcZpa2",
+                              "name": "Transcript Time 00:03",
+                              "fill": "$success",
+                              "content": "00:03",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mb2CIDt",
+                              "name": "Transcript Speaker Анна",
+                              "fill": "$foreground-primary",
+                              "content": "Анна",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mRieW2",
+                          "name": "Transcript Text 00:03",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Коллеги, цель встречи — согласовать MVP ассистента и подготовить пилот для отдела маркетинга.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mn04GEf",
+                      "name": "Transcript Row 04:18",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "meexZA",
+                          "name": "Transcript Meta 04:18",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mDQQza",
+                              "name": "Transcript Time 04:18",
+                              "fill": "$success",
+                              "content": "04:18",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mg4rkm",
+                              "name": "Transcript Speaker Илья",
+                              "fill": "$foreground-primary",
+                              "content": "Илья",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mTcoUP",
+                          "name": "Transcript Text 04:18",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Я беру интеграцию с календарем и выгрузку участников. Нужен доступ к тестовому Asana workspace.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mvZa6T",
+                      "name": "Transcript Row 12:46",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mX9bwAN",
+                          "name": "Transcript Meta 12:46",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "maugPP",
+                              "name": "Transcript Time 12:46",
+                              "fill": "$success",
+                              "content": "12:46",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mdDE6L",
+                              "name": "Transcript Speaker Мария",
+                              "fill": "$foreground-primary",
+                              "content": "Мария",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mgszP2",
+                          "name": "Transcript Text 12:46",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "По резюме важно показывать решения отдельно от обсуждений, чтобы менеджер мог быстро проверить контекст.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mgcHjK",
+                      "name": "Transcript Row 24:09",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mcVVJr",
+                          "name": "Transcript Meta 24:09",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mHObgM",
+                              "name": "Transcript Time 24:09",
+                              "fill": "$success",
+                              "content": "24:09",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mK1vcL8",
+                              "name": "Transcript Speaker Анна",
+                              "fill": "$foreground-primary",
+                              "content": "Анна",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "miINGk",
+                          "name": "Transcript Text 24:09",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Давайте добавим экспорт action items и отправку задач в Asana одной кнопкой.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mA5sO06",
+                      "name": "Transcript Row 38:31",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "miCs8h",
+                          "name": "Transcript Meta 38:31",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mKkbLR",
+                              "name": "Transcript Time 38:31",
+                              "fill": "$success",
+                              "content": "38:31",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mzhZjQ",
+                              "name": "Transcript Speaker Илья",
+                              "fill": "$foreground-primary",
+                              "content": "Илья",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mkZQn6",
+                          "name": "Transcript Text 38:31",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "До пятницы подготовлю прототип отправки задач с ответственными и дедлайнами.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mlOPKI",
+                      "name": "Transcript Row 44:02",
+                      "width": "fill_container",
+                      "cornerRadius": 4,
+                      "stroke": "#E8ECE7",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": [
+                        12,
+                        0,
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mqygoN",
+                          "name": "Transcript Meta 44:02",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mAuYt6",
+                              "name": "Transcript Time 44:02",
+                              "fill": "$success",
+                              "content": "44:02",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mXwytL",
+                              "name": "Transcript Speaker Мария",
+                              "fill": "$foreground-primary",
+                              "content": "Мария",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mJEAji",
+                          "name": "Transcript Text 44:02",
+                          "fill": "$foreground-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Я соберу шаблоны русских summary для разных типов встреч.",
+                          "lineHeight": 1.35,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mR0Ywi",
+              "name": "Summary Panel",
+              "width": 498,
+              "height": "fill_container",
+              "fill": "$surface-primary",
+              "cornerRadius": 6,
+              "stroke": "$surface-tertiary",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mWZphD",
+                  "name": "Summary Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mcc4Ba",
+                      "name": "Summary Title",
+                      "fill": "$foreground-primary",
+                      "content": "Краткое резюме",
+                      "fontFamily": "$font-body",
+                      "fontSize": 22,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "me4E9w",
+                  "name": "Summary Lead",
+                  "width": "fill_container",
+                  "fill": "#F8FAF7",
+                  "cornerRadius": 6,
+                  "stroke": "$surface-tertiary",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mq8Np3L",
+                      "name": "Summary Lead Title",
+                      "fill": "$foreground-primary",
+                      "content": "Основной результат",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mXI12j",
+                      "name": "Summary Lead Text",
+                      "fill": "$foreground-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Команда согласовала первый сценарий PM Assistant: обработка русской записи встречи, выделение решений и автоматическая отправка action items в Asana.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mOQ1ab",
+                  "name": "Summary Block Решения",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mE2u5k",
+                      "name": "Summary Block Title Решения",
+                      "fill": "$success",
+                      "content": "Решения",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mJ9A8x",
+                      "name": "Summary Block Text Решения",
+                      "fill": "$foreground-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• MVP включает транскрипт со спикерами, summary и таблицу задач.\n• Отправка в Asana должна сохранять ответственного, срок и ссылку на момент в записи.\n• Для пилота выбран отдел маркетинга.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbX3KH",
+                  "name": "Summary Block Риски",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mV32sj",
+                      "name": "Summary Block Title Риски",
+                      "fill": "$success",
+                      "content": "Риски",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mUQcKf",
+                      "name": "Summary Block Text Риски",
+                      "fill": "$foreground-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• Нужны права на тестовый Asana workspace.\n• Качество распознавания спикеров проверить на шумных созвонах.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mDgIlO",
+                  "name": "Summary Block Следующий шаг",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ma2BBqk",
+                      "name": "Summary Block Title Следующий шаг",
+                      "fill": "$success",
+                      "content": "Следующий шаг",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mwk0u8",
+                      "name": "Summary Block Text Следующий шаг",
+                      "fill": "$foreground-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "До 06.09 команда собирает прототип интеграции и шаблоны summary для проверки на реальных встречах.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mPIe9a",
+                  "name": "Meeting Metrics",
+                  "width": "fill_container",
+                  "height": 118,
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mN6hvN",
+                      "name": "Metric фрагментов",
+                      "width": 132,
+                      "height": 96,
+                      "fill": "#F2F5F2",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "gap": 3,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mdZkKi",
+                          "name": "Metric Value фрагментов",
+                          "fill": "$foreground-primary",
+                          "content": "6",
+                          "fontFamily": "$font-body",
+                          "fontSize": 24,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mNkBLg",
+                          "name": "Metric Label фрагментов",
+                          "fill": "$foreground-secondary",
+                          "content": "фрагментов",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbct7G",
+                      "name": "Metric решения",
+                      "width": 132,
+                      "height": 96,
+                      "fill": "#F2F5F2",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "gap": 3,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mMWAWJ",
+                          "name": "Metric Value решения",
+                          "fill": "$foreground-primary",
+                          "content": "3",
+                          "fontFamily": "$font-body",
+                          "fontSize": 24,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mMZch0",
+                          "name": "Metric Label решения",
+                          "fill": "$foreground-secondary",
+                          "content": "решения",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mjjKCX",
+                      "name": "Metric задачи",
+                      "width": 132,
+                      "height": 96,
+                      "fill": "#F2F5F2",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "gap": 3,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mx5sAQ9",
+                          "name": "Metric Value задачи",
+                          "fill": "$foreground-primary",
+                          "content": "4",
+                          "fontFamily": "$font-body",
+                          "fontSize": 24,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mUzTlm",
+                          "name": "Metric Label задачи",
+                          "fill": "$foreground-secondary",
+                          "content": "задачи",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mJwh2k",
+              "name": "Action Items Panel",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$surface-primary",
+              "cornerRadius": 6,
+              "stroke": "$surface-tertiary",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 14,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mB1AxVB",
+                  "name": "Actions Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mjolGD",
+                      "name": "Actions Title",
+                      "fill": "$foreground-primary",
+                      "content": "Action items",
+                      "fontFamily": "$font-body",
+                      "fontSize": 22,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mOjzpF",
+                      "name": "Actions Subtitle",
+                      "fill": "$foreground-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Извлечено из встречи. Проверьте ответственных и сроки перед отправкой.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mUYduU",
+                  "name": "Send To Asana Button",
+                  "width": "fill_container",
+                  "height": 50,
+                  "fill": "$accent-primary",
+                  "cornerRadius": 6,
+                  "gap": 10,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "mRJw9K",
+                      "name": "Asana Send Icon",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "send",
+                      "library": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mh0FXr",
+                      "name": "Asana Button Label",
+                      "fill": "#FFFFFF",
+                      "content": "Отправить 4 задачи в Asana",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mqAOJ1",
+                  "name": "Action Items List",
+                  "width": "fill_container",
+                  "height": 600,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "myVWeO",
+                      "name": "Action Item Илья 04:18",
+                      "width": "fill_container",
+                      "fill": "#FBFCFA",
+                      "cornerRadius": 6,
+                      "stroke": "$surface-tertiary",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mVB395",
+                          "name": "Action Top 04:18",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "mPzATY",
+                              "name": "Assignee Илья 04:18",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "mBQ2iF",
+                                  "name": "Assignee Dot Илья 04:18",
+                                  "fill": "#DDE8FF",
+                                  "width": 22,
+                                  "height": 22,
+                                  "stroke": "#FFFFFF",
+                                  "strokeWidth": 1
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mIXaP4",
+                                  "name": "Assignee Name Илья 04:18",
+                                  "fill": "$foreground-primary",
+                                  "content": "Илья",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mbWmsH",
+                              "name": "Timestamp Badge 04:18",
+                              "fill": "$accent-soft",
+                              "cornerRadius": 6,
+                              "gap": 5,
+                              "padding": [
+                                5,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "mIBeYs",
+                                  "name": "Timestamp Clock 04:18",
+                                  "width": 12,
+                                  "height": 12,
+                                  "icon": "timer",
+                                  "library": "lucide",
+                                  "fill": "$success"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mt0ziwC",
+                                  "name": "Timestamp Text 04:18",
+                                  "fill": "$success",
+                                  "content": "04:18",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mkjBEI",
+                          "name": "Action Task 04:18",
+                          "fill": "$foreground-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Подключить тестовый Asana workspace и проверить права OAuth",
+                          "lineHeight": 1.3,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mPlzHT",
+                          "name": "Action Bottom 04:18",
+                          "width": "fill_container",
+                          "gap": 8,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mXA4KX",
+                              "name": "Action Due 04:18",
+                              "fill": "$warning",
+                              "content": "Когда: до 04.09",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mV999TV",
+                              "name": "Action Category 04:18",
+                              "fill": "$foreground-secondary",
+                              "content": "Интеграция",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mY0hDb",
+                      "name": "Action Item Мария 44:02",
+                      "width": "fill_container",
+                      "fill": "#FBFCFA",
+                      "cornerRadius": 6,
+                      "stroke": "$surface-tertiary",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mvjGsF",
+                          "name": "Action Top 44:02",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "myyZYK",
+                              "name": "Assignee Мария 44:02",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "mrUcKw",
+                                  "name": "Assignee Dot Мария 44:02",
+                                  "fill": "#F1E4FF",
+                                  "width": 22,
+                                  "height": 22,
+                                  "stroke": "#FFFFFF",
+                                  "strokeWidth": 1
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "maWRZX",
+                                  "name": "Assignee Name Мария 44:02",
+                                  "fill": "$foreground-primary",
+                                  "content": "Мария",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mQ9mBld",
+                              "name": "Timestamp Badge 44:02",
+                              "fill": "$accent-soft",
+                              "cornerRadius": 6,
+                              "gap": 5,
+                              "padding": [
+                                5,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "mb5hgt0",
+                                  "name": "Timestamp Clock 44:02",
+                                  "width": 12,
+                                  "height": 12,
+                                  "icon": "timer",
+                                  "library": "lucide",
+                                  "fill": "$success"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mAAbCc",
+                                  "name": "Timestamp Text 44:02",
+                                  "fill": "$success",
+                                  "content": "44:02",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mS0gt71",
+                          "name": "Action Task 44:02",
+                          "fill": "$foreground-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Собрать шаблоны summary на русском для проектных и статусных встреч",
+                          "lineHeight": 1.3,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mfhP7a",
+                          "name": "Action Bottom 44:02",
+                          "width": "fill_container",
+                          "gap": 8,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mMsSZd",
+                              "name": "Action Due 44:02",
+                              "fill": "$warning",
+                              "content": "Когда: до 06.09",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mQUjgS",
+                              "name": "Action Category 44:02",
+                              "fill": "$foreground-secondary",
+                              "content": "Контент",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mTNPVF",
+                      "name": "Action Item Анна 00:03",
+                      "width": "fill_container",
+                      "fill": "#FBFCFA",
+                      "cornerRadius": 6,
+                      "stroke": "$surface-tertiary",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mfz5bP",
+                          "name": "Action Top 00:03",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "mK7Ly2G",
+                              "name": "Assignee Анна 00:03",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "mUhLRk",
+                                  "name": "Assignee Dot Анна 00:03",
+                                  "fill": "$accent-soft",
+                                  "width": 22,
+                                  "height": 22,
+                                  "stroke": "#FFFFFF",
+                                  "strokeWidth": 1
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mG2oli",
+                                  "name": "Assignee Name Анна 00:03",
+                                  "fill": "$foreground-primary",
+                                  "content": "Анна",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mHZYSM",
+                              "name": "Timestamp Badge 00:03",
+                              "fill": "$accent-soft",
+                              "cornerRadius": 6,
+                              "gap": 5,
+                              "padding": [
+                                5,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "mZO66c",
+                                  "name": "Timestamp Clock 00:03",
+                                  "width": 12,
+                                  "height": 12,
+                                  "icon": "timer",
+                                  "library": "lucide",
+                                  "fill": "$success"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mUTklI",
+                                  "name": "Timestamp Text 00:03",
+                                  "fill": "$success",
+                                  "content": "00:03",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mFeVpa",
+                          "name": "Action Task 00:03",
+                          "fill": "$foreground-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Утвердить формат MVP и критерии пилота для маркетинга",
+                          "lineHeight": 1.3,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mk7gmi",
+                          "name": "Action Bottom 00:03",
+                          "width": "fill_container",
+                          "gap": 8,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mg8ZDn7",
+                              "name": "Action Due 00:03",
+                              "fill": "$warning",
+                              "content": "Когда: сегодня",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mT1EUv",
+                              "name": "Action Category 00:03",
+                              "fill": "$foreground-secondary",
+                              "content": "PM",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mWiERP",
+                      "name": "Action Item Илья 38:31",
+                      "width": "fill_container",
+                      "fill": "#FBFCFA",
+                      "cornerRadius": 6,
+                      "stroke": "$surface-tertiary",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mG1QIp",
+                          "name": "Action Top 38:31",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "mcvc43",
+                              "name": "Assignee Илья 38:31",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "mX18oht",
+                                  "name": "Assignee Dot Илья 38:31",
+                                  "fill": "#DDE8FF",
+                                  "width": 22,
+                                  "height": 22,
+                                  "stroke": "#FFFFFF",
+                                  "strokeWidth": 1
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "muTmIt",
+                                  "name": "Assignee Name Илья 38:31",
+                                  "fill": "$foreground-primary",
+                                  "content": "Илья",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mAqntU",
+                              "name": "Timestamp Badge 38:31",
+                              "fill": "$accent-soft",
+                              "cornerRadius": 6,
+                              "gap": 5,
+                              "padding": [
+                                5,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "meS1Ac",
+                                  "name": "Timestamp Clock 38:31",
+                                  "width": 12,
+                                  "height": 12,
+                                  "icon": "timer",
+                                  "library": "lucide",
+                                  "fill": "$success"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mx8oEUy",
+                                  "name": "Timestamp Text 38:31",
+                                  "fill": "$success",
+                                  "content": "38:31",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mO64bZj",
+                          "name": "Action Task 38:31",
+                          "fill": "$foreground-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Сделать прототип отправки задач с ответственными, сроками и timestamp-ссылками",
+                          "lineHeight": 1.3,
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mLpiWH",
+                          "name": "Action Bottom 38:31",
+                          "width": "fill_container",
+                          "gap": 8,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mYkggL",
+                              "name": "Action Due 38:31",
+                              "fill": "$warning",
+                              "content": "Когда: до 06.09",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "myEExL",
+                              "name": "Action Category 38:31",
+                              "fill": "$foreground-secondary",
+                              "content": "Backend",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mIHxYM",
+                  "name": "Asana Destination",
+                  "width": "fill_container",
+                  "fill": "#F4F6FF",
+                  "cornerRadius": 6,
+                  "gap": 10,
+                  "padding": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "mj4ISNp",
+                      "name": "Asana Project Icon",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "folder-kanban",
+                      "library": "lucide",
+                      "fill": "$accent-primary"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mZ4lclD",
+                      "name": "Asana Destination Text",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mw2btie",
+                          "name": "Asana Destination Label",
+                          "fill": "$foreground-secondary",
+                          "content": "Проект Asana",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mW8OeB",
+                          "name": "Asana Destination Name",
+                          "fill": "$foreground-primary",
+                          "content": "PM Assistant / MVP Pilot",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "surface-primary": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "surface-secondary": {
+      "type": "color",
+      "value": "#F7F8FA"
+    },
+    "surface-tertiary": {
+      "type": "color",
+      "value": "#EEF0F4"
+    },
+    "foreground-primary": {
+      "type": "color",
+      "value": "#1A1A1A"
+    },
+    "foreground-secondary": {
+      "type": "color",
+      "value": "#4B5563"
+    },
+    "foreground-inverse": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "accent-primary": {
+      "type": "color",
+      "value": "#0062FF"
+    },
+    "accent-secondary": {
+      "type": "color",
+      "value": "#4F46E5"
+    },
+    "accent-soft": {
+      "type": "color",
+      "value": "#E8F0FF"
+    },
+    "success": {
+      "type": "color",
+      "value": "#168C5B"
+    },
+    "warning": {
+      "type": "color",
+      "value": "#B67812"
+    },
+    "danger": {
+      "type": "color",
+      "value": "#C44834"
+    },
+    "font-head": {
+      "type": "string",
+      "value": "Anton"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Funnel Sans"
+    },
+    "font-caption": {
+      "type": "string",
+      "value": "Geist Mono"
+    }
+  },
+  "fileToken": "3e432de8-05b9-4cd7-b3f9-7c97ae12899e"
+}

@@ -1,0 +1,59 @@
+:root {
+  --canvas: #faf7f2;
+  --card: #ffffff;
+  --sidebar-bg: #ffffff;
+  --sidebar-line: #e8e0d6;
+  --sidebar-peach: #f5e6df;
+  --sidebar-active: #c86b4a;
+  --accent: #c86b4a;
+  --accent-soft: #f3d6cb;
+  --foreground-primary: #1a1714;
+  --foreground-secondary: #6b6560;
+  --foreground-inverse: #ffffff;
+  --success: #2f7d4a;
+  --warning: #c4a35a;
+  --danger: #c44834;
+  --card-dark: #2a2624;
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --sidebar-width: 256px;
+  --sidebar-width-collapsed: 64px;
+  --font-head: "Funnel Sans", "Inter", sans-serif;
+  --font-body: "Funnel Sans", "Inter", sans-serif;
+  --font-caption: "Geist Mono", ui-monospace, monospace;
+
+  --surface-primary: var(--card);
+  --surface-secondary: var(--canvas);
+  --surface-tertiary: #ede6dc;
+  --accent-primary: var(--accent);
+  --accent-secondary: var(--accent);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--foreground-primary);
+  background: var(--canvas);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}

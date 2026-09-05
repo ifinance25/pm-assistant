@@ -1,0 +1,146 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1120px;
+}
+
+.calendar__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar__title {
+  font-family: var(--font-head);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.calendar__lead {
+  margin: 0;
+  color: var(--foreground-secondary);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.calendar__banner {
+  background: var(--accent-soft);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calendar__banner-title {
+  margin: 0;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.calendar__banner-text {
+  margin: 0;
+  color: var(--foreground-primary);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.calendar__text,
+.calendar__empty,
+.calendar__error {
+  margin: 0;
+  color: var(--foreground-secondary);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.calendar__error {
+  color: var(--danger);
+}
+
+.calendar__empty a {
+  color: var(--accent);
+}
+
+.calendar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.calendar__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: 0 1px 2px rgb(26 23 20 / 0.06);
+}
+
+.calendar__item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.calendar__item-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.calendar__item-meta {
+  color: var(--foreground-secondary);
+  font-size: 13px;
+}
+
+.calendar__item-url {
+  color: var(--accent);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.calendar__open {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius-button);
+  background: var(--accent);
+  color: var(--foreground-inverse);
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar__list--compact {
+  gap: 8px;
+}
+
+.calendar__list--compact .calendar__item {
+  padding: 10px 12px;
+}
+
+.calendar__list--compact .calendar__item-title {
+  font-size: 13px;
+}
+
+.calendar__list--compact .calendar__item-url {
+  font-size: 12px;
+}
+
+.calendar__list--compact .calendar__open {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
