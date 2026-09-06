@@ -352,6 +352,12 @@
     font-weight: 500;
   }
 
+  .workspace__main {
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .workspace__main:not(.workspace__main--lock) {
     padding-bottom: 96px;
   }
