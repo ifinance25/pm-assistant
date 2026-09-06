@@ -7,7 +7,7 @@ import {
   SIDEBAR_COLLAPSED_KEY,
   writeSidebarCollapsed,
 } from "./sidebar-utils.ts";
-import { Sidebar } from "./Sidebar.tsx";
+import { Sidebar, TabBar } from "./Sidebar.tsx";
 
 export function Shell() {
   const location = useLocation();
@@ -48,6 +48,7 @@ export function Shell() {
   return (
     <div className={shellClass}>
       <Sidebar collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
+      <TabBar />
       <div className="workspace">
         <main
           className={

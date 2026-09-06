@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import { SidebarView } from "./Sidebar.tsx";
+import { SidebarView, TabBar } from "./Sidebar.tsx";
 import { Shell } from "./Shell.tsx";
 
 function renderShell(path: string, collapsed = false) {
@@ -44,8 +44,7 @@ describe("Shell / Sidebar v2", () => {
     expect(html).not.toContain("Интеграции");
     expect(html).not.toContain("Команда");
     expect(html).not.toContain("Биллинг");
-    expect(html).toContain("Календарь выключен");
-    expect(html).toContain("В этой версии бот идёт только по ссылке");
+    expect(html).not.toContain("Календарь выключен");
     expect(html).toContain("3 расшифровки · 184 МБ");
     expect(html).toContain("На этом компьютере, без облачной квоты");
     expect(html).toContain("Илья");
@@ -60,20 +59,6 @@ describe("Shell / Sidebar v2", () => {
     expect(html).not.toContain("встречи и протоколы");
     expect(html).not.toContain("Поиск по встречам");
     expect(html).not.toContain("Уведомления");
-  });
-
-  it("подпись подвала меняется на «Календарь подключён», когда календарь подключён", () => {
-    const html = renderToString(
-      <MemoryRouter initialEntries={["/"]}>
-        <SidebarView
-          collapsed={false}
-          onToggleCollapsed={() => undefined}
-          googleCalendarConnected
-        />
-      </MemoryRouter>,
-    );
-    expect(html).toContain("Календарь подключён");
-    expect(html).not.toContain("Календарь выключен");
   });
 
   it("в collapsed режиме показывает компактное хранилище и аватар", () => {
@@ -118,5 +103,47 @@ describe("Shell route defaults", () => {
     expect(html).toContain("shell--lock");
     expect(html).toContain("workspace__main--lock");
     expect(html).toContain("встреча");
+  });
+});
+
+describe("TabBar", () => {
+  function renderTabBar(path: string) {
+    return renderToString(
+      <MemoryRouter initialEntries={[path]}>
+        <TabBar />
+      </MemoryRouter>,
+    );
+  }
+
+  it("рендерит 4 вкладки с иконкой, подписью и ссылкой на нужный роут", () => {
+    const html = renderTabBar("/");
+    expect(html).toContain('data-icon="house"');
+    expect(html).toContain('data-icon="calendar"');
+    expect(html).toContain('data-icon="file-text"');
+    expect(html).toContain('data-icon="settings"');
+    expect(html).toContain('href="/calendar"');
+    expect(html).toContain('href="/archive"');
+    expect(html).toContain('href="/settings"');
+    expect(html).toContain("Главная");
+    expect(html).toContain("Календарь");
+    expect(html).toContain("Архив");
+    expect(html).toContain("Настройки");
+  });
+
+  it("на Главной подсвечен таб Главная, остальные — нет", () => {
+    const html = renderTabBar("/");
+    const tabs = html.split("<a ").slice(1);
+    expect(tabs).toHaveLength(4);
+    expect(tabs[0]).toContain("tabbar__item--active");
+    expect(tabs[1]).not.toContain("tabbar__item--active");
+    expect(tabs[2]).not.toContain("tabbar__item--active");
+    expect(tabs[3]).not.toContain("tabbar__item--active");
+  });
+
+  it("на Архиве подсвечен таб Архив, Главная — нет", () => {
+    const html = renderTabBar("/archive");
+    const tabs = html.split("<a ").slice(1);
+    expect(tabs[0]).not.toContain("tabbar__item--active");
+    expect(tabs[2]).toContain("tabbar__item--active");
   });
 });

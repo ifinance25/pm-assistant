@@ -30,7 +30,6 @@ type SidebarViewProps = {
   meetingCount?: number;
   usedBytes?: number;
   loggingOut?: boolean;
-  googleCalendarConnected?: boolean;
   onLogout?: () => void;
 };
 
@@ -133,7 +132,6 @@ export function SidebarView({
   meetingCount = 0,
   usedBytes = 0,
   loggingOut = false,
-  googleCalendarConnected = false,
   onLogout,
 }: SidebarViewProps) {
   const storageMb = formatStorageMb(usedBytes);
@@ -199,17 +197,6 @@ export function SidebarView({
       </div>
 
       <div className="sidebar__footer">
-        {!collapsed ? (
-          <div className="sidebar__notice">
-            <div className="sidebar__notice-title">
-              {googleCalendarConnected ? "Календарь подключён" : "Календарь выключен"}
-            </div>
-            <p className="sidebar__notice-text">
-              В этой версии бот идёт только по ссылке.
-            </p>
-          </div>
-        ) : null}
-
         {collapsed ? (
           <div className="sidebar__storage-compact" aria-label={storageLine}>
             <Icon name="hard-drive" />
@@ -258,6 +245,34 @@ export function SidebarView({
         ) : null}
       </div>
     </aside>
+  );
+}
+
+const tabBarItems = [
+  { to: "/", label: "Главная", icon: "house", end: true },
+  { to: "/calendar", label: "Календарь", icon: "calendar", end: false },
+  { to: "/archive", label: "Архив", icon: "file-text", end: false },
+  { to: "/settings", label: "Настройки", icon: "settings", end: false },
+] as const;
+
+export function TabBar() {
+  return (
+    <nav className="tabbar" aria-label="Мобильная навигация">
+      {tabBarItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          end={item.end}
+          data-icon={item.icon}
+          className={({ isActive }) =>
+            isActive ? "tabbar__item tabbar__item--active" : "tabbar__item"
+          }
+        >
+          <Icon name={item.icon} />
+          <span className="tabbar__label">{item.label}</span>
+        </NavLink>
+      ))}
+    </nav>
   );
 }
 
@@ -320,7 +335,6 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
       meetingCount={meetingCount}
       usedBytes={usedBytes}
       loggingOut={loggingOut}
-      googleCalendarConnected={session?.integrations.googleCalendar}
       onLogout={() => {
         void handleLogout();
       }}

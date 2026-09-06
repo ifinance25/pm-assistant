@@ -694,3 +694,18 @@
     width: 100%;
   }
 }
+
+@media (max-width: 640px) {
+  .home__project-copy {
+    min-width: 0;
+  }
+
+  .home__project-name {
+    overflow-wrap: break-word;
+  }
+
+  .home__card-title {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
