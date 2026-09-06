@@ -1181,3 +1181,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .meeting__title {
+    overflow-wrap: break-word;
+  }
+
+  .meeting__player {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 12px 14px;
+  }
+
+  .meeting__player-progress {
+    flex-basis: 100%;
+  }
+}
