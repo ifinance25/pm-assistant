@@ -754,3 +754,83 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .settings__panel-head {
+    flex-wrap: wrap;
+  }
+
+  .settings__panel-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .settings__table thead {
+    display: none;
+  }
+
+  .settings__table,
+  .settings__table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .settings__table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--surface-tertiary);
+    border-radius: var(--radius-card);
+  }
+
+  .settings__table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .settings__table td {
+    display: block;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(1) {
+    grid-column: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(4) {
+    grid-column: 2;
+    color: var(--foreground-secondary);
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(2),
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(3),
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(5) {
+    grid-column: 1 / -1;
+  }
+
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(2) {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .settings__table tr:not(.settings__row--delete) td:nth-of-type(3)::before {
+    content: "Epic ";
+    color: var(--foreground-secondary);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .settings__table tr.settings__row--delete td {
+    grid-column: 1 / -1;
+  }
+
+  .settings__table tr.settings__row--delete .settings__delete-bar {
+    flex-wrap: wrap;
+  }
+}
