@@ -17,6 +17,13 @@ dist/
 # автопилот: рабочие файлы orchestration-скилла, не часть проекта
 .autopilot/
 
-# временные экспорты дизайн-макетов и тестовые аудиозаписи — не версионируем новые
+# временные экспорты дизайн-макетов и тестовые записи реальных встреч — не версионируем новые
 artifacts/designs/**/exports-tmp/
-artifacts/audio-regression-*/*.wav
+artifacts/audio-regression-*/
+
+# рабочий мусор инструментов: логи, pid-файлы, кэш Python
+*.log
+*.pid
+__pycache__/
+*.pyc
+app/.playwright-cli/
