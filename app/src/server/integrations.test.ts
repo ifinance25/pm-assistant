@@ -116,7 +116,9 @@ describe("Integrations stubs", () => {
       { headers: authHeaders(auth) },
     );
     expect(callback.status).toBe(302);
-    expect(callback.headers.get("location")).toBe("/settings?error=google-calendar");
+    expect(callback.headers.get("location")).toBe(
+      "/settings?error=google-calendar&reason=state",
+    );
     expect(db.isIntegrationConnected("google_calendar")).toBe(false);
   });
 

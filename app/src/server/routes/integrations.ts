@@ -24,7 +24,8 @@ export const integrationsRouter = new Hono<AppEnv>();
 const LLM_OAUTH_COOKIE = "pm_assistant_llm_oauth";
 const STUB_NOTICE = "заглушка: OAuth не настроен";
 export const CALENDAR_OAUTH_STATE_COOKIE = "pm_assistant_calendar_oauth_state";
-const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events.readonly";
+const CALENDAR_SCOPE =
+  "openid email https://www.googleapis.com/auth/calendar.events.readonly";
 const CALENDAR_TOKEN_TTL_DEFAULT_SEC = 3600;
 
 function cookieSecure(c: Context): boolean {
@@ -113,12 +114,20 @@ integrationsRouter.get("/google-calendar/callback", async (c) => {
     maxAge: 0,
   });
   if (error || !code || !state || !expected || state !== expected) {
-    return c.redirect("/settings?error=google-calendar");
+    console.error("[google-calendar] callback state check failed", {
+      hasError: Boolean(error),
+      hasCode: Boolean(code),
+      hasState: Boolean(state),
+      hasExpected: Boolean(expected),
+      stateMatches: state === expected,
+    });
+    return c.redirect("/settings?error=google-calendar&reason=state");
   }
 
   const { clientId, clientSecret, redirectUri } = readGoogleCalendarConfig();
   if (!clientId || !clientSecret) {
-    return c.redirect("/settings?error=google-calendar");
+    console.error("[google-calendar] missing clientId/clientSecret config");
+    return c.redirect("/settings?error=google-calendar&reason=config");
   }
 
   const tokenRes = await fetchWithTimeout("https://oauth2.googleapis.com/token", {
@@ -133,7 +142,9 @@ integrationsRouter.get("/google-calendar/callback", async (c) => {
     }),
   });
   if (!tokenRes.ok) {
-    return c.redirect("/settings?error=google-calendar");
+    const body = await tokenRes.text().catch(() => "");
+    console.error("[google-calendar] token exchange failed", tokenRes.status, body);
+    return c.redirect("/settings?error=google-calendar&reason=token");
   }
   const tokenBody = (await tokenRes.json()) as {
     access_token?: string;
@@ -141,7 +152,8 @@ integrationsRouter.get("/google-calendar/callback", async (c) => {
     expires_in?: number;
   };
   if (!tokenBody.access_token) {
-    return c.redirect("/settings?error=google-calendar");
+    console.error("[google-calendar] token response missing access_token");
+    return c.redirect("/settings?error=google-calendar&reason=token");
   }
 
   const profileRes = await fetchWithTimeout(
@@ -149,11 +161,14 @@ integrationsRouter.get("/google-calendar/callback", async (c) => {
     { headers: { authorization: `Bearer ${tokenBody.access_token}` } },
   );
   if (!profileRes.ok) {
-    return c.redirect("/settings?error=google-calendar");
+    const body = await profileRes.text().catch(() => "");
+    console.error("[google-calendar] profile fetch failed", profileRes.status, body);
+    return c.redirect("/settings?error=google-calendar&reason=profile");
   }
   const profile = (await profileRes.json()) as { email?: string };
   if (!profile.email) {
-    return c.redirect("/settings?error=google-calendar");
+    console.error("[google-calendar] profile response missing email");
+    return c.redirect("/settings?error=google-calendar&reason=profile");
   }
 
   const ttlSec =
