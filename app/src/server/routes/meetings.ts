@@ -51,13 +51,18 @@ meetingsRouter.get("/", (c) => {
 });
 
 meetingsRouter.post("/", async (c) => {
-  let body: { url?: unknown; projectId?: unknown };
+  let body: { url?: unknown; projectId?: unknown; title?: unknown };
   try {
-    body = (await c.req.json()) as { url?: unknown; projectId?: unknown };
+    body = (await c.req.json()) as {
+      url?: unknown;
+      projectId?: unknown;
+      title?: unknown;
+    };
   } catch {
     return c.json({ error: "Вставьте ссылку на встречу" }, 400);
   }
   const url = typeof body.url === "string" ? body.url.trim() : "";
+  const title = typeof body.title === "string" ? body.title.trim() || null : null;
   if (!url) {
     return c.json({ error: "Вставьте ссылку на встречу" }, 400);
   }
@@ -93,6 +98,7 @@ meetingsRouter.post("/", async (c) => {
   const settings = db.getSettings();
   const meeting = db.createMeeting({
     url,
+    title,
     platform,
     recordingMode: settings.recordingModeDefault,
     source: "stub",

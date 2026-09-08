@@ -75,7 +75,7 @@ export function CalendarPage() {
       const res = await fetch("/api/meetings", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url: event.url, projectId }),
+        body: JSON.stringify({ url: event.url, projectId, title: event.title }),
       });
       const body = (await res.json()) as CreateMeetingResponse;
       if (!res.ok || !body.meeting) {
