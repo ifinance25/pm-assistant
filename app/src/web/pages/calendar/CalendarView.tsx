@@ -232,11 +232,6 @@ export function CalendarView({
           <p className="calendar__lead">Выключен. Бот идёт только по ссылке.</p>
         </header>
         <aside className="calendar__banner">
-          <p className="calendar__banner-title">Google Календарь: не подключён</p>
-          <p className="calendar__banner-text">
-            Живой календарь в этой версии не подключается. Встречи ниже уже есть в
-            базе, бот запускается с Главной по URL.
-          </p>
           <Link className="calendar__open" to="/settings#integrations">
             Подключить в Настройках
           </Link>

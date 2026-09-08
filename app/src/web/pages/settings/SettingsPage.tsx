@@ -5,6 +5,7 @@ import type {
   RecordingMode,
   SessionInfo,
   Settings,
+  SettingsResponse,
   TrackerType,
   TranscriptionQueueItem,
   LlmConnections,
@@ -69,6 +70,11 @@ export function SettingsPage() {
   const [googleCalendarAccount, setGoogleCalendarAccount] = useState<string | null>(
     null,
   );
+  const [googleClientId, setGoogleClientId] = useState("");
+  const [googleClientSecretSet, setGoogleClientSecretSet] = useState(false);
+  const [googleDialogOpen, setGoogleDialogOpen] = useState(false);
+  const [googleDialogBusy, setGoogleDialogBusy] = useState(false);
+  const [googleDialogError, setGoogleDialogError] = useState<string | null>(null);
   const [trackerConnected, setTrackerConnected] = useState(false);
   const [llmConnections, setLlmConnections] = useState<LlmConnections>(
     emptyLlmConnections(),
@@ -107,8 +113,10 @@ export function SettingsPage() {
       throw new Error("settings");
     }
 
-    const nextSettings = await readResponseJson<Settings>(settingsRes);
+    const nextSettings = await readResponseJson<SettingsResponse>(settingsRes);
     setSettings(nextSettings);
+    setGoogleClientId(nextSettings.googleClientId);
+    setGoogleClientSecretSet(nextSettings.googleClientSecretSet);
     setError(null);
 
     if (projectsRes.ok) {
@@ -373,7 +381,7 @@ export function SettingsPage() {
       if (!settingsRes.ok) {
         throw new Error("settings");
       }
-      setSettings(await readResponseJson<Settings>(settingsRes));
+      setSettings(await readResponseJson<SettingsResponse>(settingsRes));
       await loadAll();
       setNotice("Настройки сохранены");
       setError(null);
@@ -478,6 +486,50 @@ export function SettingsPage() {
     setLlmDialogError(null);
   }
 
+  function onGoogleCredentialsClick(): void {
+    setGoogleDialogError(null);
+    setGoogleDialogOpen(true);
+  }
+
+  function onGoogleDialogClose(): void {
+    setGoogleDialogOpen(false);
+    setGoogleDialogError(null);
+  }
+
+  async function onGoogleCredentialsSubmit(
+    clientId: string,
+    clientSecret: string,
+  ): Promise<void> {
+    setGoogleDialogBusy(true);
+    setGoogleDialogError(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          googleClientId: clientId,
+          googleClientSecret: clientSecret,
+        }),
+      });
+      if (!res.ok) {
+        const errBody = await readResponseJson<{ error?: string }>(res);
+        throw new Error(errBody.error ?? "google-credentials");
+      }
+      setGoogleDialogOpen(false);
+      setNotice("Google Client ID/Secret сохранены в .env");
+      setError(null);
+      await loadAll();
+    } catch (err) {
+      setGoogleDialogError(
+        err instanceof Error && err.message !== "google-credentials"
+          ? err.message
+          : "Не удалось сохранить Client ID/Secret",
+      );
+    } finally {
+      setGoogleDialogBusy(false);
+    }
+  }
+
   if (!settings) {
     return (
       <section className="settings">
@@ -498,6 +550,11 @@ export function SettingsPage() {
         restarting={restarting}
         googleCalendarConnected={googleCalendarConnected}
         googleCalendarAccount={googleCalendarAccount}
+        googleClientId={googleClientId}
+        googleClientSecretSet={googleClientSecretSet}
+        googleDialogOpen={googleDialogOpen}
+        googleDialogBusy={googleDialogBusy}
+        googleDialogError={googleDialogError}
         trackerConnected={trackerConnected}
         llmConnections={llmConnections}
         llmDialogProvider={llmDialogProvider}
@@ -537,6 +594,11 @@ export function SettingsPage() {
         onDisconnectGoogle={() =>
           void disconnect("/api/integrations/google-calendar")
         }
+        onGoogleCredentialsClick={onGoogleCredentialsClick}
+        onGoogleCredentialsSubmit={(clientId, clientSecret) =>
+          void onGoogleCredentialsSubmit(clientId, clientSecret)
+        }
+        onGoogleDialogClose={onGoogleDialogClose}
         onConnectLlm={(provider) => void onConnectLlm(provider)}
         onDisconnectLlm={(provider) =>
           void disconnect(`/api/integrations/llm/${provider}`)

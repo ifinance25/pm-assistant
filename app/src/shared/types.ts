@@ -192,6 +192,11 @@ export type Settings = {
   workerHeartbeatAt: string | null;
 };
 
+export type SettingsResponse = Settings & {
+  googleClientId: string;
+  googleClientSecretSet: boolean;
+};
+
 export type WebhookDeliveryStatus = "delivered" | "skipped" | "failed";
 
 export type WebhookDelivery = {

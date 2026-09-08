@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   LlmProvider,
   RecordingMode,
@@ -59,6 +59,11 @@ export type SettingsViewProps = {
   restarting?: boolean;
   googleCalendarConnected?: boolean;
   googleCalendarAccount?: string | null;
+  googleClientId?: string;
+  googleClientSecretSet?: boolean;
+  googleDialogOpen?: boolean;
+  googleDialogBusy?: boolean;
+  googleDialogError?: string | null;
   trackerConnected?: boolean;
   llmConnections?: LlmConnections;
   llmDialogProvider?: LlmProvider | null;
@@ -88,6 +93,9 @@ export type SettingsViewProps = {
   onDisconnectTracker?: () => void;
   onConnectGoogle?: () => void;
   onDisconnectGoogle?: () => void;
+  onGoogleCredentialsClick?: () => void;
+  onGoogleCredentialsSubmit?: (clientId: string, clientSecret: string) => void;
+  onGoogleDialogClose?: () => void;
   onRestartClick?: () => void;
   onRestartConfirm?: () => void;
   onRestartCancel?: () => void;
@@ -218,6 +226,11 @@ export function SettingsView({
   restarting = false,
   googleCalendarConnected = false,
   googleCalendarAccount = null,
+  googleClientId = "",
+  googleClientSecretSet = false,
+  googleDialogOpen = false,
+  googleDialogBusy = false,
+  googleDialogError = null,
   trackerConnected = false,
   llmConnections = emptyLlmConnections(),
   llmDialogProvider = null,
@@ -243,6 +256,9 @@ export function SettingsView({
   onDisconnectTracker,
   onConnectGoogle,
   onDisconnectGoogle,
+  onGoogleCredentialsClick,
+  onGoogleCredentialsSubmit,
+  onGoogleDialogClose,
   onRestartClick,
   onRestartConfirm,
   onRestartCancel,
@@ -266,6 +282,14 @@ export function SettingsView({
     ? LLM_PROVIDER_LABELS[llmDialogProvider]
     : activeLlmLabel;
   const [llmInput, setLlmInput] = useState("");
+  const [googleClientIdInput, setGoogleClientIdInput] = useState(googleClientId);
+  const [googleClientSecretInput, setGoogleClientSecretInput] = useState("");
+  useEffect(() => {
+    if (googleDialogOpen) {
+      setGoogleClientIdInput(googleClientId);
+      setGoogleClientSecretInput("");
+    }
+  }, [googleDialogOpen, googleClientId]);
 
   return (
     <section className="settings">
@@ -510,7 +534,21 @@ export function SettingsView({
                     : "подключён"
                   : "не подключён"}
               </span>
+              <span className="settings__status">
+                {googleClientId && googleClientSecretSet
+                  ? "Client ID и Secret настроены"
+                  : "Client ID / Secret не настроены"}
+              </span>
             </div>
+            <button
+              type="button"
+              className="settings__connect"
+              onClick={() => onGoogleCredentialsClick?.()}
+            >
+              {googleClientId && googleClientSecretSet
+                ? "Изменить Client ID/Secret"
+                : "Настроить Client ID/Secret"}
+            </button>
             {googleCalendarConnected ? (
               <button
                 type="button"
@@ -524,11 +562,18 @@ export function SettingsView({
                 type="button"
                 className="settings__connect"
                 onClick={() => onConnectGoogle?.()}
+                disabled={!googleClientId || !googleClientSecretSet}
               >
                 Подключить Google Календарь
               </button>
             )}
           </div>
+          <p className="settings__hint">
+            Client ID и Secret из Google Cloud Console. Один и тот же ключ
+            используется и для входа через Google, и для календаря. Secret
+            сохраняется в env-файл окружения (локально `.env`, на сервере
+            `/etc/pm-assistant.env`) и не показывается повторно.
+          </p>
           <div className="settings__integration">
             <div>
               <strong>Трекер задач</strong>
@@ -828,6 +873,75 @@ export function SettingsView({
                   type="submit"
                   className="settings__dialog-yes"
                   disabled={llmDialogBusy || !llmInput.trim()}
+                >
+                  Сохранить
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+      {googleDialogOpen ? (
+        <div className="settings__dialog-backdrop">
+          <div
+            className="settings__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-google-title"
+          >
+            <h2 id="settings-google-title">Google Client ID/Secret</h2>
+            <p className="settings__hint">
+              Возьмите значения в Google Cloud Console (OAuth client). Один
+              ключ работает и для входа через Google, и для календаря.
+            </p>
+            {googleDialogError ? (
+              <p className="settings__error">{googleDialogError}</p>
+            ) : null}
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                const clientId = googleClientIdInput.trim();
+                const clientSecret = googleClientSecretInput.trim();
+                if (!clientId || !clientSecret) {
+                  return;
+                }
+                onGoogleCredentialsSubmit?.(clientId, clientSecret);
+              }}
+            >
+              <input
+                className="settings__cell-input settings__llm-input"
+                value={googleClientIdInput}
+                onChange={(event) => setGoogleClientIdInput(event.target.value)}
+                placeholder="Client ID"
+                aria-label="Google Client ID"
+                disabled={googleDialogBusy}
+              />
+              <input
+                type="password"
+                className="settings__cell-input settings__llm-input"
+                value={googleClientSecretInput}
+                onChange={(event) => setGoogleClientSecretInput(event.target.value)}
+                placeholder="Client Secret"
+                aria-label="Google Client Secret"
+                disabled={googleDialogBusy}
+              />
+              <div className="settings__dialog-actions">
+                <button
+                  type="button"
+                  className="settings__dialog-no"
+                  onClick={() => onGoogleDialogClose?.()}
+                  disabled={googleDialogBusy}
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  className="settings__dialog-yes"
+                  disabled={
+                    googleDialogBusy ||
+                    !googleClientIdInput.trim() ||
+                    !googleClientSecretInput.trim()
+                  }
                 >
                   Сохранить
                 </button>

@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { getDb } from "../../db/index.ts";
-import type { RecordingMode, Settings } from "../../shared/types.ts";
+import type { RecordingMode, Settings, SettingsResponse } from "../../shared/types.ts";
 import { isLlmProvider, isTrackerType } from "../../shared/types.ts";
 import { assertPublicWebhookUrl } from "../../shared/webhook-url.ts";
+import { upsertEnvVariable } from "../env-file.ts";
 import type { AppEnv } from "../app-env.ts";
 
 const RECORDING_MODES: RecordingMode[] = ["text", "local_audio", "full"];
@@ -11,10 +12,18 @@ function isRecordingMode(value: unknown): value is RecordingMode {
   return typeof value === "string" && RECORDING_MODES.includes(value as RecordingMode);
 }
 
+function withGoogleConfig(settings: Settings): SettingsResponse {
+  return {
+    ...settings,
+    googleClientId: process.env.GOOGLE_CLIENT_ID?.trim() ?? "",
+    googleClientSecretSet: Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim()),
+  };
+}
+
 export const settingsRouter = new Hono<AppEnv>();
 
 settingsRouter.get("/settings", (c) => {
-  return c.json(getDb().getSettings());
+  return c.json(withGoogleConfig(getDb().getSettings()));
 });
 
 settingsRouter.put("/settings", async (c) => {
@@ -73,5 +82,17 @@ settingsRouter.put("/settings", async (c) => {
       return c.json({ error: message }, 400);
     }
   }
-  return c.json(getDb().putSettings(patch));
+  if ("googleClientId" in body) {
+    if (typeof body.googleClientId !== "string" || !body.googleClientId.trim()) {
+      return c.json({ error: "нужен Google Client ID" }, 400);
+    }
+    upsertEnvVariable("GOOGLE_CLIENT_ID", body.googleClientId.trim());
+  }
+  if ("googleClientSecret" in body) {
+    if (typeof body.googleClientSecret !== "string" || !body.googleClientSecret.trim()) {
+      return c.json({ error: "нужен Google Client Secret" }, 400);
+    }
+    upsertEnvVariable("GOOGLE_CLIENT_SECRET", body.googleClientSecret.trim());
+  }
+  return c.json(withGoogleConfig(getDb().putSettings(patch)));
 });

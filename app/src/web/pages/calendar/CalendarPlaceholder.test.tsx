@@ -24,7 +24,6 @@ describe("CalendarPlaceholder", () => {
     );
     expect(html).toContain("Календарь");
     expect(html).toContain("Выключен. Бот идёт только по ссылке.");
-    expect(html).toContain("не подключён");
     expect(html).toContain("Вставьте ссылку на встречу на Главной");
     expect(html).not.toContain("Команда");
     expect(html).not.toContain("Биллинг");

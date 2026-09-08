@@ -58,12 +58,10 @@ function renderView(props: {
 }
 
 describe("CalendarView", () => {
-  it("не подключён: прежний баннер и приглашение вставить ссылку на Главной", () => {
+  it("не подключён: приглашение вставить ссылку на Главной и ссылка в Настройки", () => {
     const html = renderView({ feed: disconnectedFeed() });
     expect(html).toContain("Календарь");
     expect(html).toContain("Выключен. Бот идёт только по ссылке.");
-    expect(html).toContain("не подключён");
-    expect(html).toContain("Живой календарь в этой версии не подключается");
     expect(html).toContain("Вставьте ссылку на встречу на Главной");
     expect(html).toContain('href="/settings#integrations"');
     expect(html).not.toContain("—");
