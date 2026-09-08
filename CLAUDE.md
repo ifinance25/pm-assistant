@@ -258,6 +258,7 @@ app/
 - `src/worker/pipeline.ts`, `src/worker/status.ts`, `src/worker/index.ts`
 - `src/adapters/platform/`, `src/adapters/stt/`, `src/adapters/llm/`, `src/adapters/asana/`, `src/adapters/webhook/`, `src/adapters/announce/`, `src/adapters/slides/`, `src/adapters/voiceprint/`
 - `src/web/App.tsx`, `src/web/shell/Shell.tsx`, `src/web/pages/home/Home.tsx`, `src/web/pages/meeting/MeetingPage.tsx`, `src/web/pages/archive/ArchivePage.tsx`, `src/web/pages/calendar/CalendarPage.tsx`, `src/web/pages/settings/SettingsPage.tsx`
+- `src/web/shell/Sidebar.tsx` (`Sidebar` + `TabBar`), `src/web/styles/tokens.css`, `src/web/styles/shell.css`: мобильный каркас
 - `src/mcp/protocol.ts`, `src/mcp/index.ts`
 - `fixtures/demo-meeting.json`, `.env.example`, `vite.config.ts`, `vitest.config.ts`, `package.json`
 
@@ -283,6 +284,9 @@ UI: `/` Главная, `/calendar`, `/archive`, `/settings`, `/meetings/:id`; `
 - Слушать только `127.0.0.1`; секреты не коммитить (`.env` в `.gitignore`).
 - HTTP-тесты: `createDb(":memory:")`, `setDb(db)`, `app.request`.
 - React-тесты: `renderToString`, среда Vitest `node` (не jsdom).
+- Мобильный порог: комментарий вверху `tokens.css` фиксирует 640/1024 как общий breakpoint проекта (телефон ≤640, планшет 641-1024, десктоп >1024); этими же числами пользуются `@media` во всех `*.css` экранов.
+- Сайдбар↔таббар на ≤640px переключается чисто CSS (`shell.css`, `@media(max-width:640px)`: `.sidebar{display:none}`, `.tabbar{display:flex}`), без JS/matchMedia/state; `TabBar()` — экспорт `Sidebar.tsx`, `Shell.tsx` рендерит его всегда в DOM рядом с `<Sidebar>`.
+- Таблица проектов в Настройках на ≤640px — карточки только через `display:grid` на `.settings__table tr` (`settings.css`), разметка `<table>` не менялась.
 
 ## Окружение
 
