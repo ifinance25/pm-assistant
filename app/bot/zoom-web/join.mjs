@@ -1,7 +1,14 @@
 import { createServer } from "node:http";
-import { createWriteStream, existsSync, mkdirSync, statSync, unlinkSync } from "node:fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawn } from "node:child_process";
 import { chromium } from "playwright";
@@ -370,18 +377,43 @@ async function waitUntilMeetingEnds(page, isEnded) {
   emit("ZOOM_BOT_ENDED:timeout");
 }
 
-async function stopPageCapture(page) {
+/**
+ * __pmStopCapture (фаза 3.3) сам дожидается requestData()+stop() и заливки
+ * последнего куска звука — здесь больше не нужна фиксированная пауза
+ * (была временной подпоркой на 1200мс). Заодно забираем таймлайн
+ * активного спикера (фаза 4.2), пока страница ещё жива.
+ */
+async function stopPageCaptureAndCollectTimeline(page) {
   if (page.isClosed()) {
-    return;
+    return null;
   }
-  await page
+  return page
     .evaluate(async () => {
       if (typeof window.__pmStopCapture === "function") {
         await window.__pmStopCapture();
       }
+      return typeof window.__pmGetSpeakerTimeline === "function"
+        ? window.__pmGetSpeakerTimeline()
+        : null;
     })
-    .catch(() => {});
-  await page.waitForTimeout(1200);
+    .catch(() => null);
+}
+
+function writeSpeakerTimeline(audioPath, timelineJson) {
+  if (!audioPath || !timelineJson) {
+    return;
+  }
+  try {
+    const parsed = JSON.parse(timelineJson);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return;
+    }
+    const meetingId = basename(audioPath).replace(/\.[^.]+$/, "");
+    const dest = join(dirname(audioPath), `${meetingId}.speakers.json`);
+    writeFileSync(dest, JSON.stringify(parsed));
+  } catch {
+    // таймлайн не критичен: расшифровка (фаза 4) просто останется без имён
+  }
 }
 
 async function finalizeAudio(audioPath, writer) {
@@ -470,7 +502,8 @@ async function main() {
   });
   const mode = optional("ZOOM_BOT_MODE", "sdk-then-web");
   const shutdown = async (code) => {
-    await stopPageCapture(page).catch(() => {});
+    const timelineJson = await stopPageCaptureAndCollectTimeline(page);
+    writeSpeakerTimeline(audioPath, timelineJson);
     await finalizeAudio(audioPath, writer);
     server.close();
     await browser.close().catch(() => {});

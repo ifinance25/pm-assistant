@@ -13,6 +13,9 @@ function isPublicApi(path: string): boolean {
   if (path.startsWith("/api/public")) {
     return true;
   }
+  if (path.startsWith("/api/audio-share/")) {
+    return true;
+  }
   if (/^\/api\/integrations\/tracker\/[^/]+\/callback$/.test(path)) {
     return true;
   }

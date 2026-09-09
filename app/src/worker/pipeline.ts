@@ -22,6 +22,7 @@ import {
 import {
   createSttAdapter,
   detectSttEngine,
+  resolveSttEngineKind,
   type SttEngine,
   type Transcript,
 } from "../adapters/stt/index.ts";
@@ -297,7 +298,8 @@ async function processTranscribeJob(
   }
   const detect = deps.detectSttEngine ?? detectSttEngine;
   const engine = detect();
-  if (!engine && !deps.transcribe) {
+  const engineKind = resolveSttEngineKind();
+  if (!engine && engineKind === "whisper-cli" && !deps.transcribe) {
     throw new Error(
       "нет whisper: задайте WHISPER_BIN=/usr/local/bin/whisper и WHISPER_MODEL",
     );
@@ -308,6 +310,7 @@ async function processTranscribeJob(
     ? await deps.transcribe(preparedPath, detect)
     : await createSttAdapter({
         detectEngine: () => engine,
+        engineKind,
       }).transcribe(preparedPath, {
         languageHint: "ru",
         onPartial: (segments) => {

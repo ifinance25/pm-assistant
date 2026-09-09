@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { createSttAdapter } from "./index.ts";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createSttAdapter, resolveSttEngineKind } from "./index.ts";
 
 describe("stt", () => {
   it("transcribe на фикстуре возвращает сегменты с speaker и русским текстом", async () => {
@@ -35,5 +35,68 @@ describe("stt", () => {
       }),
     });
     expect(live.mode).toBe("live");
+  });
+});
+
+describe("resolveSttEngineKind", () => {
+  it("по умолчанию whisper-cli", () => {
+    expect(resolveSttEngineKind({})).toBe("whisper-cli");
+  });
+
+  it("supadata только по точному значению переменной", () => {
+    expect(resolveSttEngineKind({ PM_ASSISTANT_STT_ENGINE: "supadata" })).toBe(
+      "supadata",
+    );
+    expect(resolveSttEngineKind({ PM_ASSISTANT_STT_ENGINE: "Supadata" })).toBe(
+      "whisper-cli",
+    );
+  });
+});
+
+describe("createSttAdapter с engineKind: supadata", () => {
+  const prevEnv = {
+    APP_API_TOKEN: process.env.APP_API_TOKEN,
+    PM_ASSISTANT_PUBLIC_BASE_URL: process.env.PM_ASSISTANT_PUBLIC_BASE_URL,
+    SUPADATA_API_KEY: process.env.SUPADATA_API_KEY,
+  };
+
+  afterEach(() => {
+    for (const [key, value] of Object.entries(prevEnv)) {
+      if (value === undefined) {
+        delete process.env[key as keyof typeof prevEnv];
+      } else {
+        process.env[key as keyof typeof prevEnv] = value;
+      }
+    }
+    vi.unstubAllGlobals();
+  });
+
+  it("при ошибке Supadata пробует откатиться на найденный whisper", async () => {
+    delete process.env.SUPADATA_API_KEY;
+    const detectEngine = vi.fn(() => ({
+      kind: "whisper-cli" as const,
+      bin: "/bin/несуществующий-whisper",
+    }));
+    const adapter = createSttAdapter({ engineKind: "supadata", detectEngine });
+    expect(adapter.mode).toBe("live");
+    // Supadata падает без ключа сразу (до сети); откат зовёт detectEngine и пытается
+    // whisper — в тестовом окружении бинаря нет, поэтому ошибка тоже будет, но уже
+    // не "нет SUPADATA_API_KEY", а от попытки запустить whisper. Это доказывает, что
+    // откат действительно сработал, а не просто пробросил исходную ошибку.
+    await expect(adapter.transcribe("a.wav", {})).rejects.not.toThrow(
+      /SUPADATA_API_KEY/,
+    );
+    expect(detectEngine).toHaveBeenCalled();
+  });
+
+  it("без движка whisper пробрасывает исходную ошибку Supadata", async () => {
+    delete process.env.SUPADATA_API_KEY;
+    const adapter = createSttAdapter({
+      engineKind: "supadata",
+      detectEngine: () => null,
+    });
+    await expect(adapter.transcribe("a.wav", {})).rejects.toThrow(
+      /SUPADATA_API_KEY/,
+    );
   });
 });

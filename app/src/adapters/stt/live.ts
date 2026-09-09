@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, extname, join } from "node:path";
 import { SILENT_MEAN_DB, measureLoudness } from "./audio-health.ts";
+import { applySpeakerTimeline } from "./diarize.ts";
 import { dropHallucinations } from "./hallucinations.ts";
 import type { SttEngine, SttSegment, Transcript, TranscribeOptions } from "./index.ts";
 import {
@@ -48,7 +49,9 @@ export async function liveTranscribe(
       tmp,
       options.languageHint,
       (segments, percent) => {
-        const cleaned = groupedStt(dropHallucinations(segments));
+        const cleaned = groupedStt(
+          applySpeakerTimeline(dropHallucinations(segments), audioPath),
+        );
         options.onPartial?.(cleaned);
         try {
           writeProgressFile(audioPath, {
@@ -70,14 +73,17 @@ export async function liveTranscribe(
     );
     const data = JSON.parse(await readFile(jsonPath, "utf8")) as WhisperJson;
     const segments = groupedStt(
-      dropHallucinations(
-        (data.segments ?? []).map((segment) => ({
-          speaker: "Спикер 1",
-          startedAtMs: Math.round((segment.start ?? 0) * 1000),
-          endedAtMs:
-            segment.end == null ? null : Math.round(segment.end * 1000),
-          text: String(segment.text ?? "").trim(),
-        })),
+      applySpeakerTimeline(
+        dropHallucinations(
+          (data.segments ?? []).map((segment) => ({
+            speaker: "Спикер 1",
+            startedAtMs: Math.round((segment.start ?? 0) * 1000),
+            endedAtMs:
+              segment.end == null ? null : Math.round(segment.end * 1000),
+            text: String(segment.text ?? "").trim(),
+          })),
+        ),
+        audioPath,
       ),
     );
     return { mode: "live", segments };
@@ -86,13 +92,18 @@ export async function liveTranscribe(
   }
 }
 
-function runWhisper(
-  bin: string,
+/**
+ * PM_ASSISTANT_WHISPER_PROMPT — словарь терминов и жаргона для Whisper
+ * (фаза 5.2 плана качества), напр. «блокеры, спринт, релиз, Jira, Asana,
+ * ClickUp, эпик, ретро, стендап». whisper-compat.py передаёт его дальше
+ * в whisper.cpp как --prompt.
+ */
+export function buildWhisperArgs(
   audioPath: string,
   outputDir: string,
   languageHint: string | undefined,
-  onUpdate: (segments: SttSegment[], percent: number) => void,
-): Promise<void> {
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
   const args = [
     audioPath,
     "--output_format",
@@ -105,6 +116,21 @@ function runWhisper(
   if (languageHint) {
     args.push("--language", languageHint);
   }
+  const prompt = env.PM_ASSISTANT_WHISPER_PROMPT?.trim();
+  if (prompt) {
+    args.push("--initial_prompt", prompt);
+  }
+  return args;
+}
+
+function runWhisper(
+  bin: string,
+  audioPath: string,
+  outputDir: string,
+  languageHint: string | undefined,
+  onUpdate: (segments: SttSegment[], percent: number) => void,
+): Promise<void> {
+  const args = buildWhisperArgs(audioPath, outputDir, languageHint);
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, {
       stdio: ["ignore", "pipe", "pipe"],
