@@ -399,6 +399,13 @@ async function stopPageCaptureAndCollectTimeline(page) {
     .catch(() => null);
 }
 
+/**
+ * Имя файла здесь всегда `<meetingId>.webm` (см. meetingAudioFile в
+ * zoom-bot.ts) — один `.replace` достаточно. app/src/adapters/stt/audio-id.ts
+ * решает ту же задачу для уже обработанных путей (`.speech.wav` и т.п.);
+ * бот — отдельный пакет со своим node_modules и Docker-образом, общий
+ * TS-модуль сюда не тянем. При изменении схемы имён проверить оба места.
+ */
 function writeSpeakerTimeline(audioPath, timelineJson) {
   if (!audioPath || !timelineJson) {
     return;

@@ -93,9 +93,17 @@ export async function liveTranscribe(
 }
 
 /**
+ * Словарь по умолчанию (фаза 5.2c): только рабочий жаргон проекта, без
+ * имён коллег — их не подставляем от себя. PM_ASSISTANT_WHISPER_PROMPT
+ * переопределяет это значение целиком, пустая строка в переменной
+ * отключает словарь совсем.
+ */
+export const DEFAULT_WHISPER_PROMPT =
+  "блокеры, спринт, релиз, деплой, Jira, Asana, ClickUp, эпик, ретро, стендап";
+
+/**
  * PM_ASSISTANT_WHISPER_PROMPT — словарь терминов и жаргона для Whisper
- * (фаза 5.2 плана качества), напр. «блокеры, спринт, релиз, Jira, Asana,
- * ClickUp, эпик, ретро, стендап». whisper-compat.py передаёт его дальше
+ * (фаза 5.2 плана качества). whisper-compat.py передаёт его дальше
  * в whisper.cpp как --prompt.
  */
 export function buildWhisperArgs(
@@ -116,7 +124,8 @@ export function buildWhisperArgs(
   if (languageHint) {
     args.push("--language", languageHint);
   }
-  const prompt = env.PM_ASSISTANT_WHISPER_PROMPT?.trim();
+  const rawPrompt = env.PM_ASSISTANT_WHISPER_PROMPT;
+  const prompt = rawPrompt === undefined ? DEFAULT_WHISPER_PROMPT : rawPrompt.trim();
   if (prompt) {
     args.push("--initial_prompt", prompt);
   }

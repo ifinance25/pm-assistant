@@ -2,11 +2,15 @@
 // WER (доля неверно распознанных слов) через расстояние Левенштейна.
 // Спека: artifacts/2026-09-06-remaining-quality-phases.md, задача 5.1d.
 //
-// Использование: node wer.mjs [каталог]
+// Использование:
+//   node wer.mjs [каталог]                  — сравнение "до/после" (задача 5.1d)
+//   node wer.mjs [каталог] --engine=whisper — WER одного движка (задача 6.6)
+//   node wer.mjs [каталог] --engine=supadata
 // Эталоны (задача пользователя 5.1a-c): <каталог>/reference/<id>.txt
-// Гипотеза "до": <каталог>/<id>.ru.txt (уже есть в audio-regression-2026-09-04)
-// Гипотеза "после": <каталог>/<id>.after.txt (опционально, из повторного прогона
+// Гипотеза "до" / whisper: <каталог>/<id>.ru.txt (уже есть в audio-regression-2026-09-04)
+// Гипотеза "после": <каталог>/<id>.after.txt (опционально, повторный прогон
 // с фильтром выдумок / словарём терминов / другой моделью)
+// Гипотеза supadata: <каталог>/<id>.supadata.txt (прогон через фазу 6)
 
 import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
@@ -60,23 +64,68 @@ function formatPercent(value) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-async function main() {
-  const dir = process.argv[2] ?? "artifacts/audio-regression-2026-09-04";
-  const referenceDir = join(dir, "reference");
+export function parseArgs(argv) {
+  let dir = "artifacts/audio-regression-2026-09-04";
+  let engine = null;
+  for (const arg of argv) {
+    if (arg.startsWith("--engine=")) {
+      engine = arg.slice("--engine=".length).trim();
+    } else if (!arg.startsWith("--")) {
+      dir = arg;
+    }
+  }
+  return { dir, engine };
+}
+
+const ENGINE_HYPOTHESIS_FILE = {
+  whisper: (id) => `${id}.ru.txt`,
+  supadata: (id) => `${id}.supadata.txt`,
+};
+
+async function collectIds(dir) {
   const entries = await readdir(dir).catch(() => []);
-  const ids = [
+  return [
     ...new Set(
       entries
         .filter((name) => name.endsWith(".wav"))
         .map((name) => basename(name, ".wav")),
     ),
   ].sort();
+}
 
+/** Задача 6.6: WER одного движка — для ручного сравнения --engine=whisper против --engine=supadata. */
+async function runSingleEngine(dir, engine) {
+  const referenceDir = join(dir, "reference");
+  const ids = await collectIds(dir);
   if (ids.length === 0) {
     console.log(`нет .wav в ${dir}`);
     return;
   }
+  const rows = [];
+  for (const id of ids) {
+    const reference = await readIfExists(join(referenceDir, `${id}.txt`));
+    if (!reference) {
+      rows.push({ id, wer: "нет эталона (задача 5.1)" });
+      continue;
+    }
+    const hyp = await readIfExists(join(dir, ENGINE_HYPOTHESIS_FILE[engine](id)));
+    rows.push({ id, wer: hyp ? formatPercent(wordErrorRate(reference, hyp)) : "нет файла" });
+  }
+  const idWidth = Math.max(...rows.map((r) => r.id.length), "файл".length);
+  console.log(`${"файл".padEnd(idWidth)}  WER (${engine})`);
+  for (const row of rows) {
+    console.log(`${row.id.padEnd(idWidth)}  ${row.wer}`);
+  }
+}
 
+/** Задача 5.1d: сравнение "до/после" одной и той же машины (не разных движков). */
+async function runBeforeAfter(dir) {
+  const referenceDir = join(dir, "reference");
+  const ids = await collectIds(dir);
+  if (ids.length === 0) {
+    console.log(`нет .wav в ${dir}`);
+    return;
+  }
   const rows = [];
   for (const id of ids) {
     const reference = await readIfExists(join(referenceDir, `${id}.txt`));
@@ -92,7 +141,6 @@ async function main() {
       after: after ? formatPercent(wordErrorRate(reference, after)) : "—",
     });
   }
-
   const idWidth = Math.max(...rows.map((r) => r.id.length), "файл".length);
   console.log(`${"файл".padEnd(idWidth)}  WER до       WER после`);
   for (const row of rows) {
@@ -100,6 +148,20 @@ async function main() {
       `${row.id.padEnd(idWidth)}  ${row.before.padEnd(11)}  ${row.after}`,
     );
   }
+}
+
+async function main() {
+  const { dir, engine } = parseArgs(process.argv.slice(2));
+  if (engine) {
+    if (!ENGINE_HYPOTHESIS_FILE[engine]) {
+      console.error(`неизвестный движок: ${engine} (whisper | supadata)`);
+      process.exitCode = 1;
+      return;
+    }
+    await runSingleEngine(dir, engine);
+    return;
+  }
+  await runBeforeAfter(dir);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {

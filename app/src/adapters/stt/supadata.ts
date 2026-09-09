@@ -104,7 +104,7 @@ async function pollJob(
       return data;
     }
     if (data.status === "failed") {
-      throw new Error(`Supadata: задание не выполнено — ${data.error ?? "без деталей"}`);
+      throw new Error(`Supadata: задание не выполнено: ${data.error ?? "без деталей"}`);
     }
     await deps.sleep(POLL_INTERVAL_MS);
   }

@@ -68,7 +68,7 @@
     analyser: null,
     recorder: null,
     sources: [],
-    lastPush: Promise.resolve(),
+    pendingPush: Promise.resolve(),
     recordingStartedAt: null,
   };
 
@@ -131,7 +131,7 @@
       mixer.recorder = new MediaRecorder(mixer.dest.stream);
     }
     mixer.recorder.addEventListener("dataavailable", (event) => {
-      mixer.lastPush = pushBlob(event.data);
+      mixer.pendingPush = pushBlob(event.data);
     });
     mixer.recorder.start(1000);
     mixer.recordingStartedAt = Date.now();
@@ -466,7 +466,7 @@
       rec.addEventListener(
         "stop",
         () => {
-          Promise.resolve(mixer.lastPush).then(() => resolve());
+          Promise.resolve(mixer.pendingPush).then(() => resolve());
         },
         { once: true },
       );
