@@ -58,6 +58,22 @@
     console.log(line);
   }
 
+  // Все повторяющиеся таймеры под учётом: на остановке записи их надо
+  // погасить, иначе вотчдог и опрос имён спикеров крутятся до закрытия
+  // браузера и пишут в журнал уже после конца встречи.
+  const intervals = [];
+
+  function trackInterval(id) {
+    intervals.push(id);
+    return id;
+  }
+
+  function stopIntervals() {
+    while (intervals.length > 0) {
+      clearInterval(intervals.pop());
+    }
+  }
+
   const OriginalPC = window.RTCPeerConnection;
   const hooked = new WeakSet();
   const seenAudioReceivers = new WeakSet();
@@ -131,16 +147,23 @@
       mixer.recorder = new MediaRecorder(mixer.dest.stream);
     }
     mixer.recorder.addEventListener("dataavailable", (event) => {
-      mixer.pendingPush = pushBlob(event.data);
+      // Куски идут строго по очереди: dataavailable может прийти дважды
+      // подряд (requestData + stop), а blobToBase64 асинхронный. Без цепочки
+      // порядок записи в файл не гарантирован, и ожидание в __pmStopCapture
+      // дожидалось бы только последнего куска.
+      const blob = event.data;
+      mixer.pendingPush = mixer.pendingPush.then(() => pushBlob(blob));
     });
     mixer.recorder.start(1000);
     mixer.recordingStartedAt = Date.now();
     startSilenceWatchdog();
-    setInterval(() => {
-      if (mixer.ctx && mixer.ctx.state === "suspended") {
-        mixer.ctx.resume().catch(() => {});
-      }
-    }, 2000);
+    trackInterval(
+      setInterval(() => {
+        if (mixer.ctx && mixer.ctx.state === "suspended") {
+          mixer.ctx.resume().catch(() => {});
+        }
+      }, 2000),
+    );
     return mixer;
   }
 
@@ -198,40 +221,85 @@
     }
   }
 
-  // Фаза 3.2: RMS каждые 2 с по общему миксу; 20 с подряд у нуля —
-  // переключаемся с захвата вкладки на RTC-хук.
+  // Фаза 3.2: RMS по общему миксу. Вотчдог взводится не при загрузке
+  // страницы, а после входа в звонок (join.mjs вызывает __pmCaptureJoined):
+  // до входа бот честно сидит в тишине комнаты ожидания, и отсчёт 20 с
+  // отключал бы захват вкладки на ровном месте. Переключаемся только если
+  // запасной путь реально есть — живые RTC-дорожки в запасе.
   const RMS_SILENCE_THRESHOLD = 0.001;
   const RMS_SWITCH_AFTER_MS = 20000;
+  const RMS_LOG_EVERY_MS = 30000;
   let silentSinceMs = null;
+  let watchdogArmed = false;
+  let lastRmsLogAt = 0;
+  let lastRmsSilent = null;
+
+  function liveRtcBacklog() {
+    return pendingRtcTracks.filter((track) => track.readyState === "live").length;
+  }
+
+  function logRms(rms, silent) {
+    const now = Date.now();
+    // Пишем смену состояния тишина/звук сразу, иначе не чаще раза в 30 с:
+    // раньше строка уходила каждые 2 с и забивала журнал воркера.
+    if (silent !== lastRmsSilent || now - lastRmsLogAt >= RMS_LOG_EVERY_MS) {
+      lastRmsSilent = silent;
+      lastRmsLogAt = now;
+      log(`ZOOM_BOT_RMS:${rms.toFixed(5)}${silent ? " (тишина)" : ""}`);
+    }
+  }
 
   function startSilenceWatchdog() {
     if (!mixer.analyser) {
       return;
     }
     const buffer = new Uint8Array(mixer.analyser.fftSize);
-    setInterval(() => {
-      mixer.analyser.getByteTimeDomainData(buffer);
-      let sumSquares = 0;
-      for (let i = 0; i < buffer.length; i += 1) {
-        const normalized = (buffer[i] - 128) / 128;
-        sumSquares += normalized * normalized;
-      }
-      const rms = Math.sqrt(sumSquares / buffer.length);
-      log(`ZOOM_BOT_RMS:${rms.toFixed(5)}`);
-      if (rms > RMS_SILENCE_THRESHOLD) {
-        silentSinceMs = null;
-        return;
-      }
-      if (silentSinceMs == null) {
-        silentSinceMs = Date.now();
-        return;
-      }
-      if (usingTabCapture && Date.now() - silentSinceMs >= RMS_SWITCH_AFTER_MS) {
-        fallBackToRtcHook(`тишина ${RMS_SWITCH_AFTER_MS}мс на захвате вкладки`);
-        silentSinceMs = null;
-      }
-    }, 2000);
+    trackInterval(
+      setInterval(() => {
+        mixer.analyser.getByteTimeDomainData(buffer);
+        let sumSquares = 0;
+        for (let i = 0; i < buffer.length; i += 1) {
+          const normalized = (buffer[i] - 128) / 128;
+          sumSquares += normalized * normalized;
+        }
+        const rms = Math.sqrt(sumSquares / buffer.length);
+        const silent = rms <= RMS_SILENCE_THRESHOLD;
+        logRms(rms, silent);
+        if (!silent) {
+          silentSinceMs = null;
+          return;
+        }
+        if (!watchdogArmed) {
+          return;
+        }
+        if (silentSinceMs == null) {
+          silentSinceMs = Date.now();
+          return;
+        }
+        if (
+          usingTabCapture &&
+          Date.now() - silentSinceMs >= RMS_SWITCH_AFTER_MS &&
+          liveRtcBacklog() > 0
+        ) {
+          fallBackToRtcHook(
+            `тишина ${RMS_SWITCH_AFTER_MS}мс на захвате вкладки, в запасе дорожек: ${liveRtcBacklog()}`,
+          );
+          silentSinceMs = null;
+        }
+      }, 2000),
+    );
   }
+
+  // join.mjs зовёт это после успешного входа в звонок (в том числе после
+  // комнаты ожидания): только с этого момента тишина означает проблему.
+  window.__pmCaptureJoined = function pmCaptureJoined() {
+    if (watchdogArmed) {
+      return;
+    }
+    watchdogArmed = true;
+    silentSinceMs = null;
+    log("ZOOM_BOT_RMS_WATCHDOG:armed");
+  };
 
   async function startTabCapture() {
     const devices = navigator.mediaDevices;
@@ -438,7 +506,7 @@
 
   if (!tryHookVideoSdkClient()) {
     log("ZOOM_BOT_ACTIVE_SPEAKER_SOURCE:dom-poll");
-    setInterval(pollDomForActiveSpeaker, 1000);
+    trackInterval(setInterval(pollDomForActiveSpeaker, 1000));
     // SDK-объект иногда появляется позже (после входа в звонок) — пробуем ещё раз.
     setTimeout(tryHookVideoSdkClient, 5000);
   }
@@ -454,19 +522,39 @@
 
   // Фаза 3.3: requestData() принудительно сбрасывает буфер, затем stop()
   // даёт финальный dataavailable и событие stop. Ждём именно завершения
-  // pushBlob последнего куска, а не фиксированную паузу — она была лишь
-  // временной подпоркой (см. join.mjs, ранее 1200мс).
+  // заливки всех кусков, а не фиксированную паузу (в join.mjs было 1200мс).
+  // Но ждём с ограничением: если событие stop не придёт (recorder уже в
+  // сбойном состоянии), бот не должен висеть — join.mjs ждёт этот промис
+  // без своего таймаута.
+  const STOP_TIMEOUT_MS = 5000;
+
   window.__pmStopCapture = function pmStopCapture() {
     return new Promise((resolve) => {
+      stopIntervals();
       const rec = mixer.recorder;
-      if (!rec || rec.state === "inactive") {
+      let settled = false;
+      const finish = (reason) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        if (reason) {
+          log(`ZOOM_BOT_CAPTURE_STOP:${reason}`);
+        }
         resolve();
+      };
+      if (!rec || rec.state === "inactive") {
+        Promise.resolve(mixer.pendingPush).then(() => finish("recorder уже остановлен"));
         return;
       }
+      const timer = setTimeout(() => finish(`таймаут ${STOP_TIMEOUT_MS}мс`), STOP_TIMEOUT_MS);
       rec.addEventListener(
         "stop",
         () => {
-          Promise.resolve(mixer.pendingPush).then(() => resolve());
+          Promise.resolve(mixer.pendingPush).then(() => {
+            clearTimeout(timer);
+            finish(null);
+          });
         },
         { once: true },
       );
@@ -478,7 +566,8 @@
       try {
         rec.stop();
       } catch {
-        resolve();
+        clearTimeout(timer);
+        Promise.resolve(mixer.pendingPush).then(() => finish("stop() бросил исключение"));
       }
     });
   };
