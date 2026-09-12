@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { audioShareRouter } from "./routes/audio-share.ts";
 import { botRouter } from "./routes/bot.ts";
 import { healthRouter } from "./routes/health.ts";
 import { logsRouter } from "./routes/logs.ts";
@@ -32,3 +33,4 @@ app.route("/api/meetings", meetingsRouter);
 app.route("/api/meetings", meetingDetailRouter);
 app.route("/api/search", searchRouter);
 app.route("/api/public", publicApiRouter);
+app.route("/api/audio-share", audioShareRouter);

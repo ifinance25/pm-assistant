@@ -16,6 +16,10 @@ Environment=WHISPER_BIN=/usr/local/bin/whisper
 Environment=WHISPER_CLI=/usr/local/bin/whisper-cli
 Environment=WHISPER_MODEL=/var/lib/pm-assistant/models/ggml-small.bin
 Environment=PM_ASSISTANT_WHISPER_TIMEOUT_MS=82800000
+# Словарь терминов Whisper (фаза 5.2): без строки ниже используется встроенный
+# набор жаргона (DEFAULT_WHISPER_PROMPT). Раскомментировать только для своего
+# значения или чтобы явно отключить словарь (пустая строка).
+# Environment=PM_ASSISTANT_WHISPER_PROMPT=
 Environment=PM_ASSISTANT_DB_PATH=/var/lib/pm-assistant/app.sqlite
 ExecStart=/opt/node-24/bin/node src/worker/index.ts
 Restart=always
