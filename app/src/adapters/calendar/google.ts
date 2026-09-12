@@ -101,18 +101,21 @@ export async function refreshAccessToken(
 }
 
 /**
- * Возвращает события ближайших 7 дней из основного календаря пользователя,
- * отсортированные по времени начала (singleEvents=true разворачивает
- * повторяющиеся встречи в отдельные события). Бросает исключение при
- * сбое запроса — вызывающий код логирует и отдаёт пустой список.
+ * Возвращает события из основного календаря пользователя за заданный
+ * диапазон (по умолчанию — ближайшие 7 дней от сейчас), отсортированные по
+ * времени начала (singleEvents=true разворачивает повторяющиеся встречи в
+ * отдельные события). Бросает исключение при сбое запроса — вызывающий код
+ * логирует и отдаёт пустой список.
  */
 export async function listUpcomingEvents(
   accessToken: string,
-  now: Date = new Date(),
+  range: { timeMin?: Date; timeMax?: Date } = {},
 ): Promise<GoogleCalendarEvent[]> {
+  const timeMin = range.timeMin ?? new Date();
+  const timeMax = range.timeMax ?? new Date(timeMin.getTime() + WEEK_MS);
   const params = new URLSearchParams({
-    timeMin: now.toISOString(),
-    timeMax: new Date(now.getTime() + WEEK_MS).toISOString(),
+    timeMin: timeMin.toISOString(),
+    timeMax: timeMax.toISOString(),
     singleEvents: "true",
     orderBy: "startTime",
     maxResults: "250",

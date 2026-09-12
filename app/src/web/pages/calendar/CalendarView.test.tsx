@@ -44,6 +44,8 @@ function renderView(props: {
   meetings?: Meeting[];
   onSendBot?: (event: CalendarEvent) => void;
   sendingEventId?: string | null;
+  selectedDay?: Date | null;
+  selectedDayEvents?: CalendarEvent[] | null;
 }) {
   return renderToString(
     <MemoryRouter>
@@ -52,6 +54,9 @@ function renderView(props: {
         meetings={props.meetings ?? []}
         onSendBot={props.onSendBot ?? vi.fn()}
         sendingEventId={props.sendingEventId ?? null}
+        selectedDay={props.selectedDay}
+        selectedDayEvents={props.selectedDayEvents}
+        onSelectDay={vi.fn()}
       />
     </MemoryRouter>,
   );
@@ -90,6 +95,22 @@ describe("CalendarView", () => {
   it("подключён, событий нет: понятная пустая строка", () => {
     const html = renderView({ feed: connectedFeed([]) });
     expect(html).toContain("На ближайшие 7 дней звонков не найдено");
+  });
+
+  it("подключён: сетка месяца видна над списком", () => {
+    const html = renderView({ feed: connectedFeed([zoomEvent]) });
+    expect(html).toContain("month-grid");
+  });
+
+  it("выбран день: своя подпись и список только за этот день", () => {
+    const html = renderView({
+      feed: connectedFeed([zoomEvent]),
+      selectedDay: new Date(2026, 8, 8),
+      selectedDayEvents: [],
+    });
+    expect(html).toContain("Звонки за 8 сентября");
+    expect(html).toContain("На этот день звонков не найдено");
+    expect(html).not.toContain("Стендап");
   });
 
   it("подключён: событие показывает название, время, платформу, ссылку", () => {

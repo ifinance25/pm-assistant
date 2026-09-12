@@ -1,3 +1,4 @@
+import { endOfDay, startOfDay } from "date-fns";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CalendarEvent, CalendarFeed, Meeting } from "../../../shared/types.ts";
@@ -33,6 +34,8 @@ export function CalendarPage() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sendingEventId, setSendingEventId] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedDayEvents, setSelectedDayEvents] = useState<CalendarEvent[] | null>(null);
 
   useEffect(() => {
     void Promise.all([
@@ -64,6 +67,25 @@ export function CalendarPage() {
         setError("Не удалось загрузить календарь");
       });
   }, []);
+
+  async function onSelectDay(day: Date | null): Promise<void> {
+    setSelectedDay(day);
+    if (!day) {
+      setSelectedDayEvents(null);
+      return;
+    }
+    try {
+      const from = startOfDay(day).toISOString();
+      const to = endOfDay(day).toISOString();
+      const res = await fetch(
+        `/api/calendar/events?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      );
+      const body = (await res.json()) as CalendarFeed;
+      setSelectedDayEvents(body.events);
+    } catch {
+      setSelectedDayEvents([]);
+    }
+  }
 
   async function onSendBot(event: CalendarEvent): Promise<void> {
     if (!projectId) {
@@ -107,6 +129,9 @@ export function CalendarPage() {
         meetings={meetings}
         onSendBot={onSendBot}
         sendingEventId={sendingEventId}
+        selectedDay={selectedDay}
+        selectedDayEvents={selectedDayEvents}
+        onSelectDay={onSelectDay}
       />
     </>
   );

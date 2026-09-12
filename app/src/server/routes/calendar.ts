@@ -60,9 +60,18 @@ calendarRouter.get("/events", async (c) => {
     });
   }
 
+  const fromParam = c.req.query("from");
+  const toParam = c.req.query("to");
+  const timeMin = fromParam ? new Date(fromParam) : null;
+  const timeMax = toParam ? new Date(toParam) : null;
+  const range =
+    timeMin && !Number.isNaN(timeMin.getTime()) && timeMax && !Number.isNaN(timeMax.getTime())
+      ? { timeMin, timeMax }
+      : {};
+
   let rawEvents: Awaited<ReturnType<typeof listUpcomingEvents>>;
   try {
-    rawEvents = await listUpcomingEvents(accessToken);
+    rawEvents = await listUpcomingEvents(accessToken, range);
   } catch (err) {
     console.error("не удалось получить события Google Календаря:", err);
     return c.json({ connected: true, account, expired: false, events: [] } satisfies CalendarFeed);

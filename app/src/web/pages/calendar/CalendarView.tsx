@@ -6,6 +6,7 @@ import type {
   MeetingStatus,
   Platform,
 } from "../../../shared/types.ts";
+import { MonthGrid } from "./MonthGrid.tsx";
 import "./calendar.css";
 
 const PLATFORM_LABEL: Record<Platform, string> = {
@@ -22,6 +23,9 @@ export type CalendarViewProps = {
   meetings: Meeting[];
   onSendBot: (event: CalendarEvent) => void;
   sendingEventId: string | null;
+  selectedDay?: Date | null;
+  selectedDayEvents?: CalendarEvent[] | null;
+  onSelectDay?: (day: Date | null) => void;
 };
 
 function formatRowWhen(iso: string | null): string {
@@ -202,6 +206,9 @@ export function CalendarView({
   meetings,
   onSendBot,
   sendingEventId,
+  selectedDay,
+  selectedDayEvents,
+  onSelectDay,
 }: CalendarViewProps) {
   if (feed.expired) {
     return (
@@ -248,21 +255,26 @@ export function CalendarView({
     );
   }
 
+  const displayedEvents = selectedDay ? (selectedDayEvents ?? []) : feed.events;
+  const leadText = selectedDay
+    ? `Звонки за ${selectedDay.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}.`
+    : "Звонки на 7 дней вперёд из Google Календаря.";
+  const emptyText = selectedDay
+    ? "На этот день звонков не найдено."
+    : "На ближайшие 7 дней звонков не найдено.";
+
   return (
     <section className="calendar">
       <header className="calendar__header">
         <h1 className="calendar__title">Календарь</h1>
-        <p className="calendar__lead">
-          Звонки на 7 дней вперёд из Google Календаря.
-        </p>
+        <p className="calendar__lead">{leadText}</p>
       </header>
-      {feed.events.length === 0 ? (
-        <p className="calendar__empty">
-          На ближайшие 7 дней звонков не найдено.
-        </p>
+      <MonthGrid onSelectDay={onSelectDay} />
+      {displayedEvents.length === 0 ? (
+        <p className="calendar__empty">{emptyText}</p>
       ) : (
         <CalendarEventList
-          events={feed.events}
+          events={displayedEvents}
           onSendBot={onSendBot}
           sendingEventId={sendingEventId}
         />
