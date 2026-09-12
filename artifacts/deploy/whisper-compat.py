@@ -48,6 +48,7 @@ def main() -> int:
     parser.add_argument("--output_dir", required=True)
     parser.add_argument("--verbose", default="False")
     parser.add_argument("--language")
+    parser.add_argument("--initial_prompt")
     args, _unknown = parser.parse_known_args()
 
     if args.output_format != "json":
@@ -59,9 +60,14 @@ def main() -> int:
         "LD_LIBRARY_PATH", ""
     )
 
-    model = os.environ.get(
-        "WHISPER_MODEL", "/var/lib/pm-assistant/models/ggml-tiny.bin"
-    )
+    model = os.environ.get("WHISPER_MODEL", "").strip()
+    if not model:
+        print(
+            "нет WHISPER_MODEL: тихий откат на ggml-tiny.bin убран (фаза 5.4),"
+            " задайте модель явно",
+            file=sys.stderr,
+        )
+        return 1
     cli = os.environ.get("WHISPER_CLI", "/usr/local/bin/whisper-cli")
     audio = Path(args.audio)
     out_dir = Path(args.output_dir)
@@ -102,6 +108,8 @@ def main() -> int:
         cmd = [cli, "-m", model, "-f", str(wav), "-oj", "-of", str(stem), "-pp"]
         if args.language:
             cmd.extend(["-l", args.language])
+        if args.initial_prompt:
+            cmd.extend(["--prompt", args.initial_prompt])
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,

@@ -10,12 +10,13 @@
     "mcp": "node src/mcp/index.ts",
     "transcribe": "node src/worker/transcribe-cli.ts",
     "test": "tsc --noEmit && vitest run",
-    "lint": "biome check src --files-ignore-unknown=true",
+    "lint": "biome check src bot --files-ignore-unknown=true",
     "build": "vite build"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",
     "better-sqlite3": "^12.11.1",
+    "date-fns": "^4.4.0",
     "hono": "^4.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

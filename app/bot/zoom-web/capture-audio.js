@@ -53,9 +53,47 @@
 
   installSilentMic();
 
+  function log(line) {
+    // join.mjs форвардит в stdout любую строку console с префиксом ZOOM_BOT_
+    console.log(line);
+  }
+
+  // Все повторяющиеся таймеры под учётом: на остановке записи их надо
+  // погасить, иначе вотчдог и опрос имён спикеров крутятся до закрытия
+  // браузера и пишут в журнал уже после конца встречи.
+  const intervals = [];
+
+  function trackInterval(id) {
+    intervals.push(id);
+    return id;
+  }
+
+  function stopIntervals() {
+    while (intervals.length > 0) {
+      clearInterval(intervals.pop());
+    }
+  }
+
   const OriginalPC = window.RTCPeerConnection;
   const hooked = new WeakSet();
-  const mixer = { ctx: null, dest: null, recorder: null, sources: [] };
+  const seenAudioReceivers = new WeakSet();
+  let rtcTrackCount = 0;
+  const mixer = {
+    ctx: null,
+    dest: null,
+    analyser: null,
+    recorder: null,
+    sources: [],
+    pendingPush: Promise.resolve(),
+    recordingStartedAt: null,
+  };
+
+  // Фаза 3.1: захват вкладки — основной путь. RTC-хук остаётся запасным
+  // и включается автоматически, если getDisplayMedia недоступен/отклонён,
+  // либо если вкладка молчит (см. watchdog ниже, фаза 3.2).
+  let usingTabCapture = false;
+  let tabCaptureStream = null;
+  const pendingRtcTracks = [];
 
   function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
@@ -95,6 +133,11 @@
     }
     mixer.ctx = new Ctx();
     mixer.dest = mixer.ctx.createMediaStreamDestination();
+    // Аналайзер — проходной узел между источниками и dest: пишущемуся
+    // MediaRecorder ничего не мешает, а сюда цепляется RMS-вотчдог (3.2).
+    mixer.analyser = mixer.ctx.createAnalyser();
+    mixer.analyser.fftSize = 2048;
+    mixer.analyser.connect(mixer.dest);
     const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
       ? "audio/webm;codecs=opus"
       : "audio/webm";
@@ -104,15 +147,39 @@
       mixer.recorder = new MediaRecorder(mixer.dest.stream);
     }
     mixer.recorder.addEventListener("dataavailable", (event) => {
-      void pushBlob(event.data);
+      // Куски идут строго по очереди: dataavailable может прийти дважды
+      // подряд (requestData + stop), а blobToBase64 асинхронный. Без цепочки
+      // порядок записи в файл не гарантирован, и ожидание в __pmStopCapture
+      // дожидалось бы только последнего куска.
+      const blob = event.data;
+      mixer.pendingPush = mixer.pendingPush.then(() => pushBlob(blob));
     });
     mixer.recorder.start(1000);
-    setInterval(() => {
-      if (mixer.ctx && mixer.ctx.state === "suspended") {
-        mixer.ctx.resume().catch(() => {});
-      }
-    }, 2000);
+    mixer.recordingStartedAt = Date.now();
+    startSilenceWatchdog();
+    trackInterval(
+      setInterval(() => {
+        if (mixer.ctx && mixer.ctx.state === "suspended") {
+          mixer.ctx.resume().catch(() => {});
+        }
+      }, 2000),
+    );
     return mixer;
+  }
+
+  function connectSource(track) {
+    const mix = ensureMixer();
+    if (!mix.ctx || !mix.analyser) {
+      return;
+    }
+    try {
+      const stream = new MediaStream([track]);
+      const src = mix.ctx.createMediaStreamSource(stream);
+      src.connect(mix.analyser);
+      mixer.sources.push(src);
+    } catch {
+      // дорожка уже занята другим графом
+    }
   }
 
   function addTrack(track) {
@@ -120,17 +187,147 @@
       return;
     }
     track.__pmHooked = true;
-    const mix = ensureMixer();
-    if (!mix.ctx || !mix.dest) {
+    if (usingTabCapture) {
+      // Захват вкладки уже несёт весь звук страницы, включая этот трек
+      // (он декодируется в тот же <audio>/<video> внутри вкладки). Не
+      // подмешиваем повторно — держим про запас на случай отката (3.2).
+      pendingRtcTracks.push(track);
+      return;
+    }
+    connectSource(track);
+  }
+
+  function fallBackToRtcHook(reason) {
+    if (!usingTabCapture) {
+      return;
+    }
+    usingTabCapture = false;
+    log(`ZOOM_BOT_CAPTURE_SWITCH:${reason}`);
+    if (tabCaptureStream) {
+      for (const track of tabCaptureStream.getTracks()) {
+        try {
+          track.stop();
+        } catch {
+          // трек уже мог быть остановлен вкладкой
+        }
+      }
+      tabCaptureStream = null;
+    }
+    const backlog = pendingRtcTracks.splice(0, pendingRtcTracks.length);
+    for (const track of backlog) {
+      if (track.readyState === "live") {
+        connectSource(track);
+      }
+    }
+  }
+
+  // Фаза 3.2: RMS по общему миксу. Вотчдог взводится не при загрузке
+  // страницы, а после входа в звонок (join.mjs вызывает __pmCaptureJoined):
+  // до входа бот честно сидит в тишине комнаты ожидания, и отсчёт 20 с
+  // отключал бы захват вкладки на ровном месте. Переключаемся только если
+  // запасной путь реально есть — живые RTC-дорожки в запасе.
+  const RMS_SILENCE_THRESHOLD = 0.001;
+  const RMS_SWITCH_AFTER_MS = 20000;
+  const RMS_LOG_EVERY_MS = 30000;
+  let silentSinceMs = null;
+  let watchdogArmed = false;
+  let lastRmsLogAt = 0;
+  let lastRmsSilent = null;
+
+  function liveRtcBacklog() {
+    return pendingRtcTracks.filter((track) => track.readyState === "live").length;
+  }
+
+  function logRms(rms, silent) {
+    const now = Date.now();
+    // Пишем смену состояния тишина/звук сразу, иначе не чаще раза в 30 с:
+    // раньше строка уходила каждые 2 с и забивала журнал воркера.
+    if (silent !== lastRmsSilent || now - lastRmsLogAt >= RMS_LOG_EVERY_MS) {
+      lastRmsSilent = silent;
+      lastRmsLogAt = now;
+      log(`ZOOM_BOT_RMS:${rms.toFixed(5)}${silent ? " (тишина)" : ""}`);
+    }
+  }
+
+  function startSilenceWatchdog() {
+    if (!mixer.analyser) {
+      return;
+    }
+    const buffer = new Uint8Array(mixer.analyser.fftSize);
+    trackInterval(
+      setInterval(() => {
+        mixer.analyser.getByteTimeDomainData(buffer);
+        let sumSquares = 0;
+        for (let i = 0; i < buffer.length; i += 1) {
+          const normalized = (buffer[i] - 128) / 128;
+          sumSquares += normalized * normalized;
+        }
+        const rms = Math.sqrt(sumSquares / buffer.length);
+        const silent = rms <= RMS_SILENCE_THRESHOLD;
+        logRms(rms, silent);
+        if (!silent) {
+          silentSinceMs = null;
+          return;
+        }
+        if (!watchdogArmed) {
+          return;
+        }
+        if (silentSinceMs == null) {
+          silentSinceMs = Date.now();
+          return;
+        }
+        if (
+          usingTabCapture &&
+          Date.now() - silentSinceMs >= RMS_SWITCH_AFTER_MS &&
+          liveRtcBacklog() > 0
+        ) {
+          fallBackToRtcHook(
+            `тишина ${RMS_SWITCH_AFTER_MS}мс на захвате вкладки, в запасе дорожек: ${liveRtcBacklog()}`,
+          );
+          silentSinceMs = null;
+        }
+      }, 2000),
+    );
+  }
+
+  // join.mjs зовёт это после успешного входа в звонок (в том числе после
+  // комнаты ожидания): только с этого момента тишина означает проблему.
+  window.__pmCaptureJoined = function pmCaptureJoined() {
+    if (watchdogArmed) {
+      return;
+    }
+    watchdogArmed = true;
+    silentSinceMs = null;
+    log("ZOOM_BOT_RMS_WATCHDOG:armed");
+  };
+
+  async function startTabCapture() {
+    const devices = navigator.mediaDevices;
+    if (!devices || typeof devices.getDisplayMedia !== "function") {
+      log("ZOOM_BOT_CAPTURE_PATH:rtc-hook (getDisplayMedia недоступен)");
       return;
     }
     try {
-      const stream = new MediaStream([track]);
-      const src = mix.ctx.createMediaStreamSource(stream);
-      src.connect(mix.dest);
-      mixer.sources.push(src);
-    } catch {
-      // дорожка уже занята другим графом
+      const stream = await devices.getDisplayMedia({
+        video: true,
+        audio: true,
+        preferCurrentTab: true,
+      });
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        for (const track of stream.getTracks()) track.stop();
+        log("ZOOM_BOT_CAPTURE_PATH:rtc-hook (у вкладки нет звуковой дорожки)");
+        return;
+      }
+      tabCaptureStream = stream;
+      usingTabCapture = true;
+      for (const track of audioTracks) {
+        track.__pmHooked = true;
+        connectSource(track);
+      }
+      log("ZOOM_BOT_CAPTURE_PATH:tab");
+    } catch (err) {
+      log(`ZOOM_BOT_CAPTURE_PATH:rtc-hook (${err && err.message ? err.message : err})`);
     }
   }
 
@@ -153,7 +350,14 @@
     pc.setRemoteDescription = function setRemoteDescription(desc) {
       return Promise.resolve(origSetRemote(desc)).then((result) => {
         try {
+          // Фаза 4.0: сколько отдельных аудиодорожек шлёт Zoom Web SDK —
+          // от этого зависит, будет ли бонус "дорожка на человека" (фаза 4, бонус).
           for (const receiver of pc.getReceivers()) {
+            if (receiver.track && receiver.track.kind === "audio" && !seenAudioReceivers.has(receiver)) {
+              seenAudioReceivers.add(receiver);
+              rtcTrackCount += 1;
+              log(`ZOOM_BOT_RTC_TRACKS:${rtcTrackCount}`);
+            }
             if (receiver.track) {
               addTrack(receiver.track);
             }
@@ -228,18 +432,142 @@
     hookMediaElement(el);
   }
 
-  window.__pmStopCapture = function pmStopCapture() {
-    return new Promise((resolve) => {
-      const rec = mixer.recorder;
-      if (!rec || rec.state === "inactive") {
-        resolve();
+  // Фаза 4.1/4.2: таймлайн активного спикера. `client.on("active-speaker")`
+  // (Zoom Video SDK) — если объект есть на странице; иначе опрос DOM за
+  // подсвеченной плиткой говорящего. Селекторы DOM не проверены на живом
+  // звонке (Zoom меняет разметку между версиями) — при расхождении смотреть
+  // фактический DOM и поправить CANDIDATE_SELECTORS ниже.
+  const speakerTimeline = [];
+  let lastSpeakerName = null;
+
+  function recordSpeaker(name) {
+    const clean = String(name || "").trim();
+    if (!clean || clean === lastSpeakerName || !mixer.recordingStartedAt) {
+      return;
+    }
+    lastSpeakerName = clean;
+    speakerTimeline.push({ atMs: Date.now() - mixer.recordingStartedAt, name: clean });
+  }
+
+  function tryHookVideoSdkClient() {
+    const candidates = [window.client, window.zmClient, window.ZoomVideoSDKClient];
+    for (const client of candidates) {
+      if (client && typeof client.on === "function") {
+        try {
+          client.on("active-speaker", (payload) => {
+            const list = Array.isArray(payload) ? payload : [payload];
+            const first = list[0] || {};
+            recordSpeaker(first.displayName || first.userName || first.name);
+          });
+          log("ZOOM_BOT_ACTIVE_SPEAKER_SOURCE:sdk");
+          return true;
+        } catch {
+          // объект похож на клиент, но API отличается — не критично
+        }
+      }
+    }
+    return false;
+  }
+
+  const ACTIVE_SPEAKER_SELECTORS = [
+    '[class*="active-speaker" i]',
+    '[class*="speaker-active" i]',
+    '[class*="talking" i]',
+    '[aria-label*="is talking" i]',
+  ];
+
+  function guessSpeakerNameFromElement(el) {
+    const aria = el.getAttribute && el.getAttribute("aria-label");
+    if (aria && /[a-zа-яё]/i.test(aria)) {
+      return aria.replace(/is talking|говорит/gi, "").trim();
+    }
+    const nameEl =
+      el.querySelector && el.querySelector('[class*="name" i]');
+    if (nameEl && nameEl.textContent) {
+      return nameEl.textContent.trim();
+    }
+    return el.textContent ? el.textContent.trim().slice(0, 60) : null;
+  }
+
+  function pollDomForActiveSpeaker() {
+    for (const selector of ACTIVE_SPEAKER_SELECTORS) {
+      let found;
+      try {
+        found = document.querySelector(selector);
+      } catch {
+        continue;
+      }
+      if (found) {
+        recordSpeaker(guessSpeakerNameFromElement(found));
         return;
       }
-      rec.addEventListener("stop", () => resolve(), { once: true });
+    }
+  }
+
+  if (!tryHookVideoSdkClient()) {
+    log("ZOOM_BOT_ACTIVE_SPEAKER_SOURCE:dom-poll");
+    trackInterval(setInterval(pollDomForActiveSpeaker, 1000));
+    // SDK-объект иногда появляется позже (после входа в звонок) — пробуем ещё раз.
+    setTimeout(tryHookVideoSdkClient, 5000);
+  }
+
+  window.__pmGetSpeakerTimeline = function pmGetSpeakerTimeline() {
+    return JSON.stringify(speakerTimeline);
+  };
+
+  // Фаза 3.1: пробуем захват вкладки сразу при установке скрипта — на
+  // join.html заголовок совпадает с --auto-select-tab-capture-source-by-title,
+  // поэтому headless Chromium выбирает вкладку без диалога.
+  void startTabCapture();
+
+  // Фаза 3.3: requestData() принудительно сбрасывает буфер, затем stop()
+  // даёт финальный dataavailable и событие stop. Ждём именно завершения
+  // заливки всех кусков, а не фиксированную паузу (в join.mjs было 1200мс).
+  // Но ждём с ограничением: если событие stop не придёт (recorder уже в
+  // сбойном состоянии), бот не должен висеть — join.mjs ждёт этот промис
+  // без своего таймаута.
+  const STOP_TIMEOUT_MS = 5000;
+
+  window.__pmStopCapture = function pmStopCapture() {
+    return new Promise((resolve) => {
+      stopIntervals();
+      const rec = mixer.recorder;
+      let settled = false;
+      const finish = (reason) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        if (reason) {
+          log(`ZOOM_BOT_CAPTURE_STOP:${reason}`);
+        }
+        resolve();
+      };
+      if (!rec || rec.state === "inactive") {
+        Promise.resolve(mixer.pendingPush).then(() => finish("recorder уже остановлен"));
+        return;
+      }
+      const timer = setTimeout(() => finish(`таймаут ${STOP_TIMEOUT_MS}мс`), STOP_TIMEOUT_MS);
+      rec.addEventListener(
+        "stop",
+        () => {
+          Promise.resolve(mixer.pendingPush).then(() => {
+            clearTimeout(timer);
+            finish(null);
+          });
+        },
+        { once: true },
+      );
+      try {
+        rec.requestData();
+      } catch {
+        // не все реализации поддерживают requestData в любой момент — не критично
+      }
       try {
         rec.stop();
       } catch {
-        resolve();
+        clearTimeout(timer);
+        Promise.resolve(mixer.pendingPush).then(() => finish("stop() бросил исключение"));
       }
     });
   };

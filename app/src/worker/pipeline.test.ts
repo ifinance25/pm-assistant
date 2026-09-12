@@ -463,6 +463,48 @@ describe("воркер конвейера", () => {
     expect(db.getMeeting(meeting.id)?.status).toBe("error");
   });
 
+  it("с PM_ASSISTANT_STT_ENGINE=supadata не требует локальный whisper (фаза 6)", async () => {
+    db = createDb(":memory:");
+    const meeting = db.createMeeting({
+      url: "https://zoom.us/j/99988877766",
+      platform: "zoom",
+    });
+    db.updateMeetingStatus(meeting.id, "joining");
+    db.updateMeetingStatus(meeting.id, "recording", {
+      audioPath: "/tmp/pm-live.wav",
+      source: "live",
+    });
+    db.updateMeetingStatus(meeting.id, "transcribing");
+    db.updateMeetingStatus(meeting.id, "summarizing");
+    db.updateMeetingStatus(meeting.id, "ready");
+    db.enqueueJob({ meetingId: meeting.id, type: "transcribe" });
+    const prevEngine = process.env.PM_ASSISTANT_STT_ENGINE;
+    const prevKey = process.env.SUPADATA_API_KEY;
+    process.env.PM_ASSISTANT_STT_ENGINE = "supadata";
+    delete process.env.SUPADATA_API_KEY;
+    try {
+      // Без локального whisper (detectSttEngine -> null) задание не должно
+      // падать на "нет whisper" — движок supadata его не требует. Падает
+      // дальше, на отсутствии SUPADATA_API_KEY, что доказывает: до вызова
+      // supadataTranscribe дошли, гейт whisper-cli не сработал.
+      await expect(
+        runOnce(db, { detectSttEngine: () => null }),
+      ).rejects.toThrow(/SUPADATA_API_KEY/);
+    } finally {
+      if (prevEngine === undefined) {
+        delete process.env.PM_ASSISTANT_STT_ENGINE;
+      } else {
+        process.env.PM_ASSISTANT_STT_ENGINE = prevEngine;
+      }
+      if (prevKey === undefined) {
+        delete process.env.SUPADATA_API_KEY;
+      } else {
+        process.env.SUPADATA_API_KEY = prevKey;
+      }
+    }
+    expect(db.getMeeting(meeting.id)?.status).toBe("error");
+  });
+
   it("join при audio_path не входит в звонок, а ставит расшифровку", async () => {
     db = createDb(":memory:");
     const meeting = db.createMeeting({

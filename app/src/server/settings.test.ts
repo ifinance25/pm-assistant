@@ -37,6 +37,37 @@ describe("GET/PUT /api/settings", () => {
     expect(db.getSettings().recordingModeDefault).toBe("full");
   });
 
+  it("принимает обратно свой же ответ GET (круговой запрос)", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const before = await app.request("/api/settings", {
+      headers: authHeaders(auth),
+    });
+    const body = (await before.json()) as Record<string, unknown>;
+    expect(body.googleClientId).toBe("");
+
+    const back = await app.request("/api/settings", {
+      method: "PUT",
+      headers: authHeaders(auth, { "content-type": "application/json" }),
+      body: JSON.stringify(body),
+    });
+    expect(back.status).toBe(200);
+    expect(await back.json()).toMatchObject({
+      recordingModeDefault: body.recordingModeDefault,
+      trackerType: body.trackerType,
+      llmProvider: body.llmProvider,
+    });
+  });
+
+  it("пустой Google Client ID при пустом текущем не считается ошибкой", async () => {
+    ({ db, auth } = setupAuthedDb());
+    const res = await app.request("/api/settings", {
+      method: "PUT",
+      headers: authHeaders(auth, { "content-type": "application/json" }),
+      body: JSON.stringify({ googleClientId: "", googleClientSecret: "" }),
+    });
+    expect(res.status).toBe(200);
+  });
+
   it("сохраняет Google Client ID/Secret в .env и возвращает статус", async () => {
     ({ db, auth } = setupAuthedDb());
     const dir = mkdtempSync(join(tmpdir(), "pm-assistant-env-"));

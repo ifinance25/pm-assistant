@@ -20,6 +20,49 @@ function withGoogleConfig(settings: Settings): SettingsResponse {
   };
 }
 
+/**
+ * Google Client ID/Secret живут в .env, не в базе. Правила одни для обоих:
+ * непустое новое значение пишем, совпадающее с текущим не трогаем, пустое при
+ * пустом текущем считаем «не менять» (иначе ответ GET /api/settings нельзя
+ * отправить обратно в PUT: там googleClientId пустой, пока ключ не задан),
+ * а пустым значением стирать уже заданный ключ нельзя.
+ */
+function applyGoogleCredentials(body: Record<string, unknown>): string | null {
+  const fields: Array<{ key: string; env: string; error: string }> = [
+    {
+      key: "googleClientId",
+      env: "GOOGLE_CLIENT_ID",
+      error: "нужен Google Client ID",
+    },
+    {
+      key: "googleClientSecret",
+      env: "GOOGLE_CLIENT_SECRET",
+      error: "нужен Google Client Secret",
+    },
+  ];
+  for (const field of fields) {
+    if (!(field.key in body)) {
+      continue;
+    }
+    const raw = body[field.key];
+    if (typeof raw !== "string") {
+      return field.error;
+    }
+    const next = raw.trim();
+    const current = process.env[field.env]?.trim() ?? "";
+    if (!next) {
+      if (current) {
+        return field.error;
+      }
+      continue;
+    }
+    if (next !== current) {
+      upsertEnvVariable(field.env, next);
+    }
+  }
+  return null;
+}
+
 export const settingsRouter = new Hono<AppEnv>();
 
 settingsRouter.get("/settings", (c) => {
@@ -82,17 +125,9 @@ settingsRouter.put("/settings", async (c) => {
       return c.json({ error: message }, 400);
     }
   }
-  if ("googleClientId" in body) {
-    if (typeof body.googleClientId !== "string" || !body.googleClientId.trim()) {
-      return c.json({ error: "нужен Google Client ID" }, 400);
-    }
-    upsertEnvVariable("GOOGLE_CLIENT_ID", body.googleClientId.trim());
-  }
-  if ("googleClientSecret" in body) {
-    if (typeof body.googleClientSecret !== "string" || !body.googleClientSecret.trim()) {
-      return c.json({ error: "нужен Google Client Secret" }, 400);
-    }
-    upsertEnvVariable("GOOGLE_CLIENT_SECRET", body.googleClientSecret.trim());
+  const googleCredentialError = applyGoogleCredentials(body);
+  if (googleCredentialError) {
+    return c.json({ error: googleCredentialError }, 400);
   }
   return c.json(withGoogleConfig(getDb().putSettings(patch)));
 });

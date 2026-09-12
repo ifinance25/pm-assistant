@@ -160,6 +160,56 @@ describe("GET /api/calendar/events", () => {
     expect(db.isIntegrationConnected("google_calendar")).toBe(false);
   });
 
+  it("с параметрами from/to запрашивает у Google только указанный диапазон", async () => {
+    ({ db, auth } = setupAuthedDb());
+    db.upsertIntegrationToken("google_calendar", {
+      accessToken: "access-1",
+      refreshToken: "refresh-1",
+      expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+      meta: { email: "user@example.com" },
+    });
+    const fetchMock = vi.fn(
+      async (_url: string, _init?: RequestInit) =>
+        new Response(JSON.stringify({ items: [] }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const from = "2026-10-01T00:00:00.000Z";
+    const to = "2026-10-01T23:59:59.999Z";
+    const res = await app.request(
+      `/api/calendar/events?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      { headers: authHeaders(auth) },
+    );
+    expect(res.status).toBe(200);
+    const calledUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
+    expect(calledUrl.searchParams.get("timeMin")).toBe(from);
+    expect(calledUrl.searchParams.get("timeMax")).toBe(to);
+  });
+
+  it("некорректные from/to игнорируются, окно остаётся 7 дней по умолчанию", async () => {
+    ({ db, auth } = setupAuthedDb());
+    db.upsertIntegrationToken("google_calendar", {
+      accessToken: "access-1",
+      refreshToken: "refresh-1",
+      expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+      meta: { email: "user@example.com" },
+    });
+    const fetchMock = vi.fn(
+      async (_url: string, _init?: RequestInit) =>
+        new Response(JSON.stringify({ items: [] }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const res = await app.request("/api/calendar/events?from=не-дата&to=тоже-не-дата", {
+      headers: authHeaders(auth),
+    });
+    expect(res.status).toBe(200);
+    const calledUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
+    const timeMin = new Date(calledUrl.searchParams.get("timeMin") ?? "");
+    const timeMax = new Date(calledUrl.searchParams.get("timeMax") ?? "");
+    expect(timeMax.getTime() - timeMin.getTime()).toBe(7 * 24 * 60 * 60 * 1000);
+  });
+
   it("при сбое запроса к Google логирует и отдаёт пустой список без 500", async () => {
     ({ db, auth } = setupAuthedDb());
     db.upsertIntegrationToken("google_calendar", {

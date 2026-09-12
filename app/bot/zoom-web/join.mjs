@@ -1,7 +1,14 @@
 import { createServer } from "node:http";
-import { createWriteStream, existsSync, mkdirSync, statSync, unlinkSync } from "node:fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawn } from "node:child_process";
 import { chromium } from "playwright";
@@ -313,27 +320,49 @@ async function maybeToWav(webmPath) {
   return webmPath;
 }
 
+/**
+ * Пишет куски звука в файл встречи. Два правила, оба про сохранность записи:
+ * после close() опоздавший кусок молча отбрасывается (раньше он создавал
+ * файл заново через createWriteStream и стирал всю запись), а ошибка потока
+ * не роняет процесс бота на выходе из звонка.
+ */
 function createAudioWriter(audioPath) {
   let stream = null;
+  let closed = false;
+  let dropped = 0;
   return {
     append(b64) {
       if (!audioPath || !b64) {
         return;
       }
+      if (closed) {
+        dropped += 1;
+        return;
+      }
       if (!stream) {
         mkdirSync(dirname(audioPath), { recursive: true });
         stream = createWriteStream(audioPath);
+        stream.on("error", (err) => {
+          emit(`ZOOM_BOT_AUDIO_WRITE_ERROR:${err.message}`);
+        });
       }
       stream.write(Buffer.from(b64, "base64"));
     },
     close() {
+      closed = true;
       return new Promise((resolve) => {
         if (!stream) {
           resolve();
           return;
         }
-        stream.end(() => resolve());
+        const current = stream;
         stream = null;
+        current.end(() => {
+          if (dropped > 0) {
+            emit(`ZOOM_BOT_AUDIO_LATE_CHUNKS:${dropped}`);
+          }
+          resolve();
+        });
       });
     },
   };
@@ -370,18 +399,79 @@ async function waitUntilMeetingEnds(page, isEnded) {
   emit("ZOOM_BOT_ENDED:timeout");
 }
 
-async function stopPageCapture(page) {
+/**
+ * Вотчдог тишины (фаза 3.2) взводится только здесь, после входа в звонок.
+ * До входа бот легитимно сидит в тишине (комната ожидания), и отсчёт
+ * 20 секунд отключал бы захват вкладки на ровном месте.
+ */
+async function armCaptureWatchdog(page) {
   if (page.isClosed()) {
     return;
   }
   await page
+    .evaluate(() => {
+      if (typeof window.__pmCaptureJoined === "function") {
+        window.__pmCaptureJoined();
+      }
+    })
+    .catch(() => {});
+}
+
+/**
+ * __pmStopCapture (фаза 3.3) сам дожидается requestData()+stop() и заливки
+ * последнего куска звука — здесь больше не нужна фиксированная пауза
+ * (была временной подпоркой на 1200мс). Заодно забираем таймлайн
+ * активного спикера (фаза 4.2), пока страница ещё жива.
+ */
+const STOP_CAPTURE_WAIT_MS = 10_000;
+
+async function stopPageCaptureAndCollectTimeline(page) {
+  if (page.isClosed()) {
+    return null;
+  }
+  const stopped = page
     .evaluate(async () => {
       if (typeof window.__pmStopCapture === "function") {
         await window.__pmStopCapture();
       }
+      return typeof window.__pmGetSpeakerTimeline === "function"
+        ? window.__pmGetSpeakerTimeline()
+        : null;
     })
-    .catch(() => {});
-  await page.waitForTimeout(1200);
+    .catch(() => null);
+  // Страница может умереть посреди evaluate: у page.evaluate своего таймаута
+  // нет, а shutdown() ждёт этот промис перед закрытием файла записи.
+  const guard = new Promise((resolve) => {
+    setTimeout(() => {
+      emit(`ZOOM_BOT_CAPTURE_STOP:таймаут страницы ${STOP_CAPTURE_WAIT_MS}мс`);
+      resolve(null);
+    }, STOP_CAPTURE_WAIT_MS).unref?.();
+  });
+  return Promise.race([stopped, guard]);
+}
+
+/**
+ * Имя файла здесь всегда `<meetingId>.webm` (см. meetingAudioFile в
+ * zoom-bot.ts) — один `.replace` достаточно. app/src/adapters/stt/audio-id.ts
+ * решает ту же задачу для уже обработанных путей (`.speech.wav` и т.п.);
+ * бот — отдельный пакет со своим node_modules и Docker-образом, общий
+ * TS-модуль сюда не тянем. При изменении схемы имён проверить оба места.
+ */
+function writeSpeakerTimeline(audioPath, timelineJson) {
+  if (!audioPath || !timelineJson) {
+    return;
+  }
+  try {
+    const parsed = JSON.parse(timelineJson);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return;
+    }
+    const meetingId = basename(audioPath).replace(/\.[^.]+$/, "");
+    const dest = join(dirname(audioPath), `${meetingId}.speakers.json`);
+    writeFileSync(dest, JSON.stringify(parsed));
+  } catch {
+    // таймлайн не критичен: расшифровка (фаза 4) просто останется без имён
+  }
 }
 
 async function finalizeAudio(audioPath, writer) {
@@ -470,7 +560,8 @@ async function main() {
   });
   const mode = optional("ZOOM_BOT_MODE", "sdk-then-web");
   const shutdown = async (code) => {
-    await stopPageCapture(page).catch(() => {});
+    const timelineJson = await stopPageCaptureAndCollectTimeline(page);
+    writeSpeakerTimeline(audioPath, timelineJson);
     await finalizeAudio(audioPath, writer);
     server.close();
     await browser.close().catch(() => {});
@@ -506,6 +597,7 @@ async function main() {
     await muteBotMicrophone(page);
     await page.waitForTimeout(800);
     await muteBotMicrophone(page);
+    await armCaptureWatchdog(page);
     await waitUntilMeetingEnds(page, () => ended);
     await shutdown(0);
   } catch (err) {

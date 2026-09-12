@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, rmSync, statSync } from "node:fs";
+import { existsSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import { trimOffsetPath } from "./audio-id.ts";
 
 export type SpeechWindow = {
   startMs: number;
@@ -203,6 +204,14 @@ export async function normalizeMeetingAudio(
   if (statSync(outputPath).size < MIN_OUTPUT_BYTES) {
     rmSync(outputPath, { force: true });
     return audioPath;
+  }
+  try {
+    writeFileSync(
+      trimOffsetPath(audioPath),
+      JSON.stringify({ startMs: prepared.startMs }),
+    );
+  } catch {
+    // смещение не критично: таймлайн спикеров (фаза 4) просто не подстроится
   }
   rmSync(audioPath, { force: true });
   return outputPath;
