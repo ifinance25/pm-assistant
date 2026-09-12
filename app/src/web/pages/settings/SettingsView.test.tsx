@@ -1,6 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Settings } from "../../../shared/types.ts";
+import { APP_VERSION } from "../../../shared/version.ts";
 import { SettingsView, type ProjectRow } from "./SettingsView.tsx";
 
 const settings: Settings = {
@@ -202,10 +203,13 @@ describe("SettingsView", () => {
     expect(html).not.toContain("\u2014");
   });
 
+  // Версию берём из того же источника, что и экран (package.json через
+  // shared/version.ts): прибитая строка ломала прогон на каждом релизе.
   it("показывает версию приложения внизу экрана", () => {
     const html = render();
     expect(html).toContain("settings__version");
-    expect(html).toContain("PM Assistant · v0.2.8");
+    expect(html).toContain(`PM Assistant · v${APP_VERSION}`);
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
   it("показывает кнопку очереди транскрибации и модалку с таблицей", () => {
