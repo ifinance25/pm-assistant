@@ -1,11 +1,36 @@
+/**
+ * Zoom-бот: только то, что про Zoom. Разбор ссылки, подпись SDK, окружение
+ * контейнера и локальный запуск через Playwright. Поиск docker, аргументы и сам
+ * запуск `docker run`, разбор stdout и путь к файлу звука живут в `bot-runtime.ts`;
+ * имя образа и переменная `ZOOM_BOT_IMAGE` в `bot-images.ts`.
+ */
 import { spawn, type ChildProcess } from "node:child_process"
-import { existsSync, mkdirSync, statSync } from "node:fs"
-import { dirname, join } from "node:path"
-import { fileURLToPath } from "node:url"
+import { existsSync } from "node:fs"
+import { join } from "node:path"
 import { randomUUID } from "node:crypto"
 import type { Meeting } from "../../shared/types.ts"
+import { BOT_IMAGES, botImageName } from "./bot-images.ts"
+import {
+  botAppRoot,
+  botDockerRunArgs,
+  botRoleLabel,
+  isDockerReady,
+  meetingAudioFile,
+  parseBotAudioLine,
+  runBrowserBot,
+  type BotSpawnContext,
+} from "./bot-runtime.ts"
 import { createMeetingSdkJwt } from "./zoom-jwt.ts"
 import { parseZoomMeetingUrl } from "./zoom-url.ts"
+
+export {
+  audioFileIfPresent,
+  dockerBin,
+  isDockerReady,
+  meetingAudioFile,
+  runCommand,
+  whichDocker,
+} from "./bot-runtime.ts"
 
 export type ZoomBotStatus = "joined" | "waiting_room"
 
@@ -15,44 +40,38 @@ export type ZoomBotResult = {
   botName: string
 }
 
-const JOIN_TIMEOUT_MS = 150_000
-const WAITING_ROOM_TIMEOUT_MS = 600_000
-const MEETING_MAX_MS = 4 * 60 * 60 * 1000
-export const ZOOM_BOT_IMAGE_DEFAULT = "pm-assistant-zoom-bot"
-export const ZOOM_BOT_ROLE_LABEL = "pm-assistant.role=zoom-bot"
-const appRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..")
-const botDir = join(appRoot, "bot/zoom-web")
+export const ZOOM_BOT_IMAGE_DEFAULT = BOT_IMAGES.zoom.image
+export const ZOOM_BOT_ROLE_LABEL = botRoleLabel("zoom")
+const botDir = join(botAppRoot(), "bot/zoom-web")
+
+/** Имена переменных Zoom, проброшенных в контейнер из окружения процесса. */
+const ZOOM_CONTAINER_ENV_NAMES = [
+  "ZOOM_MEETING_NUMBER",
+  "ZOOM_MEETING_PWD",
+  "ZOOM_MEETING_HOST",
+  "ZOOM_SDK_JWT",
+  "ZOOM_CLIENT_ID",
+  "ZOOM_BOT_NAME",
+]
+
+/**
+ * Всё, что Zoom добавляет к `docker run`. Одни и те же значения идут и в
+ * `runBrowserBot`, и в `zoomBotDockerRunArgs`: аргументы собирает только рантайм.
+ */
+const ZOOM_DOCKER = {
+  label: ZOOM_BOT_ROLE_LABEL,
+  envNames: ZOOM_CONTAINER_ENV_NAMES,
+  containerEnv: { ZOOM_BOT_HEADLESS: "1" },
+  // Образ Zoom читает путь звука из ZOOM_AUDIO_PATH: собранный раньше образ работает без пересборки.
+  audioPathEnv: "ZOOM_AUDIO_PATH",
+}
 
 export function zoomBotDockerRunArgs(
   image: string,
   hostAudioDir: string,
   containerAudio: string,
 ): string[] {
-  return [
-    "run",
-    "--rm",
-    "--label",
-    ZOOM_BOT_ROLE_LABEL,
-    "-v",
-    `${hostAudioDir}:/audio`,
-    "-e",
-    "ZOOM_MEETING_NUMBER",
-    "-e",
-    "ZOOM_MEETING_PWD",
-    "-e",
-    "ZOOM_MEETING_HOST",
-    "-e",
-    "ZOOM_SDK_JWT",
-    "-e",
-    "ZOOM_CLIENT_ID",
-    "-e",
-    "ZOOM_BOT_NAME",
-    "-e",
-    "ZOOM_BOT_HEADLESS=1",
-    "-e",
-    `ZOOM_AUDIO_PATH=${containerAudio}`,
-    image,
-  ]
+  return botDockerRunArgs({ image, hostAudioDir, containerAudio, ...ZOOM_DOCKER })
 }
 
 export function hasZoomSdkCredentials(
@@ -66,109 +85,14 @@ export function zoomBotName(env: NodeJS.ProcessEnv = process.env): string {
   return name || "PM Assistant"
 }
 
-export function meetingAudioFile(
-  meetingId: string,
-  ext = "webm",
-  root = appRoot,
-): string {
-  return join(root, "data/audio", `${meetingId}.${ext}`)
+export function zoomBotImage(env: NodeJS.ProcessEnv = process.env): string {
+  return botImageName("zoom", env) ?? ZOOM_BOT_IMAGE_DEFAULT
 }
 
-export function parseAudioSavedLine(text: string): string | null {
-  const match = text.match(/ZOOM_BOT_AUDIO_SAVED:(.+)/)
-  const saved = match?.[1]?.trim() ?? ""
-  return saved.length > 0 ? saved : null
-}
+/** Старое имя разбора строки звука: контейнер Zoom печатает `ZOOM_BOT_AUDIO_SAVED:`. */
+export const parseAudioSavedLine = parseBotAudioLine
 
-export function audioFileIfPresent(path: string | null): string | null {
-  if (!path || !existsSync(path)) {
-    return null
-  }
-  try {
-    return statSync(path).size > 64 ? path : null
-  } catch {
-    return null
-  }
-}
-
-export function dockerBin(): string | null {
-  const candidates = [
-    "docker",
-    "/usr/local/bin/docker",
-    "/opt/homebrew/bin/docker",
-    "/Applications/Docker.app/Contents/Resources/bin/docker",
-  ]
-  for (const bin of candidates) {
-    if (bin === "docker") {
-      continue
-    }
-    if (existsSync(bin)) {
-      return bin
-    }
-  }
-  return existsSync("/usr/local/bin/docker") ? "/usr/local/bin/docker" : "docker"
-}
-
-export function whichDocker(): string | null {
-  const explicit = [
-    "/usr/local/bin/docker",
-    "/usr/bin/docker",
-    "/opt/homebrew/bin/docker",
-    "/Applications/Docker.app/Contents/Resources/bin/docker",
-  ]
-  for (const bin of explicit) {
-    if (existsSync(bin)) {
-      return bin
-    }
-  }
-  return null
-}
-
-export function runCommand(
-  command: string,
-  args: string[],
-  opts: { timeoutMs?: number } = {},
-): Promise<{ ok: boolean; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] })
-    let stdout = ""
-    let stderr = ""
-    const timer =
-      opts.timeoutMs == null
-        ? null
-        : setTimeout(() => {
-            child.kill("SIGKILL")
-          }, opts.timeoutMs)
-    child.stdout?.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString("utf8")
-    })
-    child.stderr?.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString("utf8")
-    })
-    child.on("error", (err) => {
-      if (timer) clearTimeout(timer)
-      resolve({ ok: false, stdout, stderr: `${stderr}${err.message}` })
-    })
-    child.on("close", (code) => {
-      if (timer) clearTimeout(timer)
-      resolve({ ok: code === 0, stdout, stderr })
-    })
-  })
-}
-
-export async function isDockerReady(): Promise<boolean> {
-  const bin = whichDocker()
-  if (!bin) {
-    return false
-  }
-  const result = await runCommand(bin, ["info"], { timeoutMs: 8_000 })
-  return result.ok
-}
-
-function botChildEnv(
-  meetingUrl: string,
-  extra: Record<string, string>,
-): NodeJS.ProcessEnv {
+function botChildEnv(meetingUrl: string): NodeJS.ProcessEnv {
   const parsed = parseZoomMeetingUrl(meetingUrl)
   const clientId = process.env.ZOOM_CLIENT_ID?.trim() ?? ""
   const clientSecret = process.env.ZOOM_CLIENT_SECRET?.trim() ?? ""
@@ -185,120 +109,11 @@ function botChildEnv(
     ZOOM_MEETING_HOST: parsed.host,
     ZOOM_SDK_JWT: signature,
     ZOOM_BOT_NAME: zoomBotName(),
-    ...extra,
   }
 }
 
-function sanitizeBotLog(text: string): string {
-  return text.replace(/pwd=[^&\s]+/gi, "pwd=***")
-}
-
-function attachBotLog(child: ChildProcess) {
-  let combined = ""
-  const chunkListeners: Array<(combined: string) => void> = []
-  let fatal: Error | null = null
-
-  const onData = (chunk: Buffer) => {
-    const text = chunk.toString("utf8")
-    combined += text
-    process.stderr.write(sanitizeBotLog(text))
-    const errMatch = text.match(/ZOOM_BOT_ERROR:(.+)/)
-    if (errMatch) {
-      fatal = new Error(errMatch[1].trim())
-    }
-    for (const listener of [...chunkListeners]) {
-      listener(combined)
-    }
-  }
-  child.stdout?.on("data", onData)
-  child.stderr?.on("data", onData)
-
-  function waitFor(
-    pattern: RegExp,
-    timeoutMs: number,
-    opts: { resolveOnClose?: boolean; killOnTimeout?: boolean } = {},
-  ): Promise<string> {
-    const killOnTimeout = opts.killOnTimeout !== false
-    return new Promise((resolve, reject) => {
-      let settled = false
-      let timer: ReturnType<typeof setTimeout> | null = null
-      const onChunk = (full: string) => {
-        if (fatal) {
-          finish(() => reject(fatal as Error))
-          return
-        }
-        if (pattern.test(full)) {
-          finish(() => resolve(full))
-        }
-      }
-      const onClose = (code: number | null) => {
-        if (pattern.test(combined) || (opts.resolveOnClose && code === 0)) {
-          finish(() => resolve(combined))
-          return
-        }
-        finish(() =>
-          reject(
-            new Error(
-              `процесс Zoom-бота завершился с кодом ${code}. Вывод: ${sanitizeBotLog(combined).slice(-1500)}`,
-            ),
-          ),
-        )
-      }
-      const onError = (err: Error) => {
-        finish(() => reject(err))
-      }
-      function finish(fn: () => void) {
-        if (settled) {
-          return
-        }
-        settled = true
-        if (timer) {
-          clearTimeout(timer)
-        }
-        const idx = chunkListeners.indexOf(onChunk)
-        if (idx >= 0) {
-          chunkListeners.splice(idx, 1)
-        }
-        child.off("close", onClose)
-        child.off("error", onError)
-        fn()
-      }
-      if (fatal) {
-        finish(() => reject(fatal as Error))
-        return
-      }
-      if (pattern.test(combined)) {
-        finish(() => resolve(combined))
-        return
-      }
-      timer = setTimeout(() => {
-        if (killOnTimeout) {
-          child.kill("SIGTERM")
-        }
-        finish(() =>
-          reject(
-            new Error(
-              `таймаут ожидания Zoom-бота (${Math.round(timeoutMs / 1000)} с). Последний вывод: ${sanitizeBotLog(combined).slice(-1500)}`,
-            ),
-          ),
-        )
-      }, timeoutMs)
-      chunkListeners.push(onChunk)
-      child.on("close", onClose)
-      child.on("error", onError)
-    })
-  }
-
-  return {
-    waitFor,
-    combined: () => combined,
-  }
-}
-
-async function spawnLocalBot(
-  meetingUrl: string,
-  audioPath: string,
-): Promise<ChildProcess> {
+/** Локальный запуск без Docker: тот же join.mjs процессом Node с Playwright. */
+async function spawnLocalBot(ctx: BotSpawnContext): Promise<ChildProcess> {
   const joinJs = join(botDir, "join.mjs")
   if (!existsSync(joinJs)) {
     throw new Error(`нет файла бота: ${joinJs}`)
@@ -309,42 +124,21 @@ async function spawnLocalBot(
       "Playwright для Zoom-бота не установлен. В app/bot/zoom-web выполните npm install",
     )
   }
-  mkdirSync(dirname(audioPath), { recursive: true })
   return spawn(process.execPath, [joinJs], {
     cwd: botDir,
-    env: botChildEnv(meetingUrl, {
+    env: {
+      ...ctx.env,
       ZOOM_BOT_HEADLESS: process.env.ZOOM_BOT_HEADLESS ?? "0",
-      ZOOM_AUDIO_PATH: audioPath,
-    }),
+      ZOOM_AUDIO_PATH: ctx.audioPath,
+    },
     stdio: ["ignore", "pipe", "pipe"],
   })
 }
 
-async function spawnDockerBot(
-  meetingUrl: string,
-  audioPath: string,
-): Promise<ChildProcess> {
-  const bin = whichDocker()
-  if (!bin) {
-    throw new Error("бинарник docker не найден")
-  }
-  const image = process.env.ZOOM_BOT_IMAGE?.trim() || ZOOM_BOT_IMAGE_DEFAULT
-  mkdirSync(dirname(audioPath), { recursive: true })
-  const containerAudio = `/audio/${audioPath.split("/").pop() ?? "meeting.webm"}`
-  return spawn(
-    bin,
-    zoomBotDockerRunArgs(image, dirname(audioPath), containerAudio),
-    {
-      env: botChildEnv(meetingUrl, {}),
-      stdio: ["ignore", "pipe", "pipe"],
-    },
-  )
-}
-
 export type RunZoomBotDeps = {
   dockerReady?: () => Promise<boolean>
-  spawnLocal?: (meetingUrl: string, audioPath: string) => Promise<ChildProcess>
-  spawnDocker?: (meetingUrl: string, audioPath: string) => Promise<ChildProcess>
+  /** Локальный запуск без Docker. Запуск в Docker не подменяется: он весь в `bot-runtime.ts`. */
+  spawnLocal?: (ctx: BotSpawnContext) => Promise<ChildProcess>
   onJoined?: (info: { mode: "live" }) => void | Promise<void>
   onWaitingRoom?: () => void | Promise<void>
 }
@@ -359,56 +153,26 @@ export async function runZoomBot(
   parseZoomMeetingUrl(meeting.url)
   const meetingId = meeting.id?.trim() || randomUUID()
   const expectedAudio = meetingAudioFile(meetingId)
-  mkdirSync(dirname(expectedAudio), { recursive: true })
-  const runtime = process.env.ZOOM_BOT_RUNTIME?.trim() || "auto"
+  // Docker берётся только по явной просьбе: ZOOM_BOT_RUNTIME=docker.
+  const preferDocker = (process.env.ZOOM_BOT_RUNTIME?.trim() || "auto") === "docker"
   const dockerOk = await (deps.dockerReady ?? isDockerReady)()
-  const preferDocker = runtime === "docker"
   const useDocker = preferDocker && dockerOk
-  let child: ChildProcess
-  if (useDocker) {
-    try {
-      child = await (deps.spawnDocker ?? spawnDockerBot)(meeting.url, expectedAudio)
-    } catch (err) {
-      if (preferDocker) {
-        throw err
-      }
-      child = await (deps.spawnLocal ?? spawnLocalBot)(meeting.url, expectedAudio)
-    }
-  } else {
-    child = await (deps.spawnLocal ?? spawnLocalBot)(meeting.url, expectedAudio)
-  }
-  const log = attachBotLog(child)
-  try {
-    const first = await log.waitFor(
-      /ZOOM_BOT_JOINED|ZOOM_BOT_WAITING_ROOM/,
-      JOIN_TIMEOUT_MS,
-    )
-    let status: ZoomBotStatus = /ZOOM_BOT_JOINED/.test(first)
-      ? "joined"
-      : "waiting_room"
-    if (status === "waiting_room" && !/ZOOM_BOT_JOINED/.test(first)) {
-      await deps.onWaitingRoom?.()
-      await log.waitFor(/ZOOM_BOT_JOINED/, WAITING_ROOM_TIMEOUT_MS)
-      status = "joined"
-    }
-    await deps.onJoined?.({ mode: "live" })
-    await log.waitFor(/ZOOM_BOT_AUDIO_SAVED:/, MEETING_MAX_MS, {
-      resolveOnClose: true,
-      killOnTimeout: true,
-    })
-    const saved = parseAudioSavedLine(log.combined())
-    const hostSaved =
-      saved && saved.startsWith("/audio/")
-        ? join(dirname(expectedAudio), saved.split("/").pop() ?? "")
-        : saved
-    const audioPath =
-      audioFileIfPresent(hostSaved) ??
-      audioFileIfPresent(expectedAudio) ??
-      audioFileIfPresent(meetingAudioFile(meetingId, "wav"))
-    return { audioPath, status, botName: zoomBotName() }
-  } catch (err) {
-    child.kill("SIGTERM")
-    throw err
+  const result = await runBrowserBot({
+    image: zoomBotImage(),
+    audioPath: expectedAudio,
+    env: botChildEnv(meeting.url),
+    name: "Zoom-бота",
+    extraAudioPaths: [meetingAudioFile(meetingId, "wav")],
+    hooks: { onJoined: deps.onJoined, onWaitingRoom: deps.onWaitingRoom },
+    ...ZOOM_DOCKER,
+    // С Docker процесс поднимает рантайм (`docker run` по умолчанию); без него
+    // локальный Playwright.
+    ...(useDocker ? {} : { spawnBot: deps.spawnLocal ?? spawnLocalBot }),
+  })
+  return {
+    audioPath: result.audioPath,
+    status: result.status,
+    botName: zoomBotName(),
   }
 }
 

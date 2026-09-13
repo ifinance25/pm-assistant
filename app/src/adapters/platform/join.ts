@@ -1,4 +1,4 @@
-import type { Meeting } from "../../shared/types.ts";
+import type { Meeting, Platform } from "../../shared/types.ts";
 import { joinZoomMeeting, hasZoomSdkCredentials } from "./zoom-bot.ts";
 
 export type JoinResult = {
@@ -21,6 +21,7 @@ export const TELEMOST_NOT_IMPLEMENTED =
   "Яндекс.Телемост пока не реализован";
 export const ZOOM_NOT_CONFIGURED =
   "Zoom-бот не настроен: нет ZOOM_CLIENT_ID";
+export const PLATFORM_UNKNOWN = "Платформа ссылки не распознана";
 
 export const ZoomAdapter: JoinAdapter = {
   async join(meeting, hooks) {
@@ -46,16 +47,28 @@ export const TelemostAdapter: JoinAdapter = {
   },
 };
 
+export const UnknownAdapter: JoinAdapter = {
+  async join() {
+    throw new Error(PLATFORM_UNKNOWN);
+  },
+};
+
+/**
+ * Какой бот за какой платформой. Таблица, а не цепочка `if`: новая платформа
+ * меняет одну строку, поэтому ветки платформ сливаются без конфликта.
+ */
+export const JOIN_ADAPTERS: Record<Platform, JoinAdapter> = {
+  zoom: ZoomAdapter,
+  meet: MeetAdapter,
+  telemost: TelemostAdapter,
+  unknown: UnknownAdapter,
+};
+
 export function createJoinAdapter(): JoinAdapter {
   return {
     async join(meeting: Meeting, hooks?: JoinHooks): Promise<JoinResult> {
-      if (meeting.platform === "zoom") {
-        return ZoomAdapter.join(meeting, hooks);
-      }
-      if (meeting.platform === "meet") {
-        return MeetAdapter.join(meeting, hooks);
-      }
-      return TelemostAdapter.join(meeting, hooks);
+      const adapter = JOIN_ADAPTERS[meeting.platform] ?? UnknownAdapter;
+      return adapter.join(meeting, hooks);
     },
   };
 }

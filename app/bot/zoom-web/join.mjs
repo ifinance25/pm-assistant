@@ -16,6 +16,7 @@ import { chromium } from "playwright";
 const root = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(root, "public");
 const captureScript = join(root, "capture-audio.js");
+const speakerScript = join(root, "speaker-sdk.js");
 const MEETING_MAX_MS = 4 * 60 * 60 * 1000;
 
 function required(name) {
@@ -545,8 +546,14 @@ async function main() {
       ended = true;
     }
   });
+  // Общий перехват пишет журнал с префиксом ZOOM_BOT_, как раньше: строки
+  // ниже пересылаются в stdout только с этим префиксом.
+  await context.addInitScript({ content: 'window.__pmBotLogPrefix = "ZOOM_BOT_";' });
   if (existsSync(captureScript)) {
     await context.addInitScript({ path: captureScript });
+  }
+  if (existsSync(speakerScript)) {
+    await context.addInitScript({ path: speakerScript });
   }
   const page = await context.newPage();
   page.on("console", (msg) => {
