@@ -70,6 +70,7 @@ describe("bot:probe", () => {
     const gate = { release: () => {} }
     const outcome = await probe("https://meet.google.com/abc-defg-hij", {
       dockerReady: async () => true,
+      imageExists: async () => true,
       join: async (_meeting, hooks) => {
         await hooks?.onWaitingRoom?.()
         // Встреча продолжается: проба обязана ответить, не дожидаясь её конца.
