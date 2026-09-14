@@ -1,4 +1,5 @@
 import type { Meeting, Platform } from "../../shared/types.ts";
+import { hasMeetBotRuntime, joinMeetMeeting } from "./meet-bot.ts";
 import { joinZoomMeeting, hasZoomSdkCredentials } from "./zoom-bot.ts";
 
 export type JoinResult = {
@@ -36,8 +37,14 @@ export const ZoomAdapter: JoinAdapter = {
 };
 
 export const MeetAdapter: JoinAdapter = {
-  async join() {
-    throw new Error(MEET_NOT_IMPLEMENTED);
+  async join(meeting, hooks) {
+    if (!hasMeetBotRuntime()) {
+      throw new Error(MEET_NOT_IMPLEMENTED);
+    }
+    return joinMeetMeeting(meeting, {
+      onJoined: hooks?.onJoined,
+      onWaitingRoom: hooks?.onWaitingRoom,
+    });
   },
 };
 
