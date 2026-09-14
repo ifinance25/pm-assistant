@@ -86,6 +86,7 @@ describe("bot:probe", () => {
   it("ошибку бота печатает причиной отказа", async () => {
     const outcome = await probe("https://telemost.yandex.ru/j/12345678901234", {
       dockerReady: async () => true,
+      imageExists: async () => true,
       join: async () => {
         throw new Error("Телемост требует вход в аккаунт Яндекса")
       },
