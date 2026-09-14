@@ -35,11 +35,14 @@ describe("воркер конвейера", () => {
     expect(db.getMeeting(meeting.id)?.status).toBe("queued");
   });
 
-  it("прогоняет queued до ready по фикстуре и пишет объявление", async () => {
+  it("неготовая платформа: join падает и встреча уходит в error", async () => {
     db = createDb(":memory:");
+    // Телемост с таска 05 реально идёт в join (см. telemost-bot.test.ts);
+    // здесь нужна платформа, у которой join ещё бросает "не реализован" —
+    // в этой ветке это Meet (таск 03 не смёржен).
     const meeting = db.createMeeting({
-      url: "https://telemost.yandex.ru/j/12345678901234",
-      platform: "telemost",
+      url: "https://meet.google.com/abc-defg-hij",
+      platform: "meet",
     });
     db.enqueueJob({ meetingId: meeting.id, type: "join" });
     await expect(runOnce(db)).rejects.toThrow(/не реализован/);

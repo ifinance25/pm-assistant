@@ -53,9 +53,6 @@ describe("detectPlatform", () => {
       await expect(createJoinAdapter().join(meeting("meet"))).rejects.toThrow(
         /Google Meet пока не реализован/,
       );
-      await expect(createJoinAdapter().join(meeting("telemost"))).rejects.toThrow(
-        /Яндекс.Телемост пока не реализован/,
-      );
     } finally {
       globalThis.fetch = previousFetch;
       if (prevZoomId === undefined) delete process.env.ZOOM_CLIENT_ID;
