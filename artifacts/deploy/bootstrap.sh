@@ -67,8 +67,8 @@ fi
 # prune пропускаем: на 2 ГБ RAM npm prune зависает
 
 log "Docker-образ Zoom-бота"
-cd "$APP_ROOT/bot/zoom-web"
-sudo docker build -t pm-assistant-zoom-bot .
+cd "$APP_ROOT"
+sudo docker build -f bot/zoom-web/Dockerfile -t pm-assistant-zoom-bot bot
 
 log "whisper.cpp + библиотеки + обёртка"
 sudo bash /opt/pm-assistant/deploy/install-whisper.sh
