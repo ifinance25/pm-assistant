@@ -35,14 +35,17 @@ describe("воркер конвейера", () => {
     expect(db.getMeeting(meeting.id)?.status).toBe("queued");
   });
 
-  it("прогоняет queued до ready по фикстуре и пишет объявление", async () => {
+  it("платформа не распознана: join отказывает и встреча уходит в error", async () => {
     db = createDb(":memory:");
+    // Zoom, Meet и Телемост все реально идут в join (см. zoom-bot.test.ts,
+    // meet-bot.test.ts, telemost-bot.test.ts); здесь нужна платформа, у
+    // которой join отказывает всегда — это только "unknown".
     const meeting = db.createMeeting({
-      url: "https://telemost.yandex.ru/j/12345678901234",
-      platform: "telemost",
+      url: "https://example.com/meeting",
+      platform: "unknown",
     });
     db.enqueueJob({ meetingId: meeting.id, type: "join" });
-    await expect(runOnce(db)).rejects.toThrow(/не реализован/);
+    await expect(runOnce(db)).rejects.toThrow(/не распознана/);
     const done = db.getMeeting(meeting.id);
     expect(done?.status).toBe("error");
     expect(db.listTranscript(meeting.id)).toEqual([]);

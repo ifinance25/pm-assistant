@@ -32,6 +32,12 @@ export const BOT_IMAGES = {
     imageEnvName: "ZOOM_BOT_IMAGE",
   },
   meet: { platform: "meet", dockerfile: "bot/meet-web/Dockerfile", image: "pm-assistant-meet-bot", imageEnvName: "MEET_BOT_IMAGE" },
+  telemost: {
+    platform: "telemost",
+    dockerfile: "bot/telemost-web/Dockerfile",
+    image: "pm-assistant-telemost-bot",
+    imageEnvName: "TELEMOST_BOT_IMAGE",
+  },
 } satisfies Partial<Record<BotPlatform, BotImageSpec>>
 
 /** Образы одной платформы или все известные, если платформа не названа. */
