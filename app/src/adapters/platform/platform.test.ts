@@ -34,6 +34,10 @@ describe("detectPlatform", () => {
   });
 
   it("join без ключей не ходит в сеть и явно отказывает", async () => {
+    // Meet и Телемост теперь реализованы: их join трогает Docker, поэтому
+    // здесь, где ничего не подменяется, проверяется только Zoom.
+    // Поведение Meet и Телемоста без Docker/образа покрыто их собственными
+    // meet-bot.test.ts / telemost-bot.test.ts с подменённым runBrowserBot.
     const previousFetch = globalThis.fetch;
     globalThis.fetch = () => {
       throw new Error("сеть недоступна в тесте join");
@@ -49,9 +53,6 @@ describe("detectPlatform", () => {
     try {
       await expect(createJoinAdapter().join(meeting("zoom"))).rejects.toThrow(
         /Zoom-бот не настроен/,
-      );
-      await expect(createJoinAdapter().join(meeting("meet"))).rejects.toThrow(
-        /Google Meet пока не реализован/,
       );
     } finally {
       globalThis.fetch = previousFetch;

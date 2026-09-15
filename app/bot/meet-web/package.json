@@ -1,0 +1,8 @@
+{
+  "name": "pm-assistant-meet-bot",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "playwright": "1.55.0"
+  }
+}
